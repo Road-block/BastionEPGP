@@ -1094,7 +1094,6 @@ function bepgp:OnCommReceived(prefix, msg, distro, sender)
     who = name
     what = epgp
     amount = tonumber(change)
-    self:debugPrint("who: "..who..", what: "..what..", amount: "..amount)
   end
   if (who) and (what) and (amount) then
     local out
