@@ -45,7 +45,6 @@ local partyUnit,raidUnit = {},{}
 local hexClassColor, classToEnClass = {}, {}
 local hexColorQuality = {}
 local standby_blacklist = {}
-local special_frames = {}
 local price_systems = {}
 local label = string.format("|cff33ff99%s|r",addonName)
 local out_chat = string.format("%s: %%s",addonName)
@@ -1483,7 +1482,6 @@ function bepgp:suggestEPAward()
   end
   if currentTier then
     multiplier = tier_multipliers[self.db.profile.progress][currentTier]
-    self:Print(multiplier)
     return tostring(multiplier*self.VARS.baseaward_ep)
   end
   return tostring(self.VARS.baseaward_ep)
