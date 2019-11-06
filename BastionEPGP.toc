@@ -1,0 +1,22 @@
+## Interface: 11302
+## Author: Roadblock
+## Title: BastionEPGP
+## Notes: In-game EPGP guild helper, supports standby, main/alt shared pools, minEP, offpecGP. Fixed price list with progress multiplier.
+## Version: 0.6.1
+## X-Website: 
+## OptionalDeps: Ace3, BastionEPGP_Prices
+## SavedVariables: BastionEPGPDB
+
+Libs\libs.xml
+Locales\locales.xml
+
+core.lua
+
+Modules\alts.lua
+Modules\bids.lua
+Modules\io.lua
+Modules\logs.lua
+Modules\loot.lua
+Modules\prices.lua
+Modules\standby.lua
+Modules\standings.lua
