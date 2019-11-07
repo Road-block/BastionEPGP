@@ -1334,11 +1334,11 @@ function bepgp:widestAudience(msg)
 end
 
 function bepgp:CloseSpecialWindows()
-  local original = self.hooks["CloseSpecialWindows"]
+  local found = securecall(self.hooks["CloseSpecialWindows"])
   for key,object in pairs(special_frames) do
     object:Hide()
   end
-  return original
+  return found
 end
 
 function bepgp:make_escable(object,operation)
