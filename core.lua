@@ -39,13 +39,13 @@ bepgp._playerName = GetUnitName("player")
 
 local raidStatus,lastRaidStatus
 local lastUpdate = 0
-local needInit,needRefresh = true
 local running_check
 local partyUnit,raidUnit = {},{}
 local hexClassColor, classToEnClass = {}, {}
 local hexColorQuality = {}
 local standby_blacklist = {}
 local price_systems = {}
+local special_frames = {}
 local label = string.format("|cff33ff99%s|r",addonName)
 local out_chat = string.format("%s: %%s",addonName)
 
@@ -976,6 +976,8 @@ function bepgp:deferredInit(guildname)
     LD:Register(addonName.."DialogGroupPoints", self:templateCache("DialogGroupPoints"))
     LD:Register(addonName.."DialogSetMain", self:templateCache("DialogSetMain"))
     self:tooltipHook(bepgp.db.char.tooltip)
+    -- handle unnamed frames Esc
+    self:RawHook("CloseSpecialWindows",true)
     -- comms
     self:RegisterComm(bepgp.VARS.prefix)
     -- monitor officernote changes
@@ -1331,17 +1333,36 @@ function bepgp:widestAudience(msg)
   end
 end
 
-function bepgp:make_escable(framename,operation)
-  local found
-  for i,f in ipairs(UISpecialFrames) do
-    if f==framename then
-      found = i
-    end
+function bepgp:CloseSpecialWindows()
+  local original = self.hooks["CloseSpecialWindows"]
+  for key,object in pairs(special_frames) do
+    object:Hide()
   end
-  if not found and operation=="add" then
-    table.insert(UISpecialFrames,framename)
-  elseif found and operation=="remove" then
-    table.remove(UISpecialFrames,found)
+  return original
+end
+
+function bepgp:make_escable(object,operation)
+  if type(object) == "string" then
+    local found
+    for i,f in ipairs(UISpecialFrames) do
+      if f==object then
+        found = i
+      end
+    end
+    if not found and operation=="add" then
+      table.insert(UISpecialFrames,object)
+    elseif found and operation=="remove" then
+      table.remove(UISpecialFrames,found)
+    end    
+  elseif type(object) == "table" then
+    if object.Hide then
+      local key = tostring(object):gsub("table: ","")
+      if operation == "add" then
+        special_frames[key] = object
+      else
+        special_frames[key] = nil
+      end
+    end
   end
 end
 

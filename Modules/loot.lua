@@ -80,7 +80,8 @@ function bepgp_loot:OnEnable()
       iof:Loot(loot_indices)
     end
   end)
-  container:AddChild(export)  
+  container:AddChild(export)
+  bepgp:make_escable(container,"add")
 
   self:RegisterEvent("CHAT_MSG_LOOT","captureLoot")
   self:RegisterEvent("TRADE_PLAYER_ITEM_CHANGED","tradeLoot")

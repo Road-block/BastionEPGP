@@ -56,6 +56,7 @@ function bepgp_logs:OnEnable()
     end
   end)
   container:AddChild(export)
+  bepgp:make_escable(container,"add")
 end
 
 function bepgp_logs:addToLog(line,skipTime)

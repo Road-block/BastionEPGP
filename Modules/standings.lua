@@ -135,6 +135,7 @@ function bepgp_standings:OnEnable()
   end)
   container:AddChild(class_grouping)
   self._widgetclass_grouping = class_grouping
+  bepgp:make_escable(container,"add")
 
 end
 
