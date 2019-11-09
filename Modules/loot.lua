@@ -87,6 +87,7 @@ function bepgp_loot:OnEnable()
   self:RegisterEvent("TRADE_PLAYER_ITEM_CHANGED","tradeLoot")
   self:RegisterEvent("TRADE_ACCEPT_UPDATE","tradeLoot")
   self:RegisterEvent("LOOT_OPENED","clickHandlerLoot")
+  self:clickHandlerMasterLoot()
   self:SecureHook("ToggleBag","clickHandlerBags") -- default bags
   self:SecureHook("GiveMasterLoot")
   LD:Register(addonName.."DialogItemPoints", bepgp:templateCache("DialogItemPoints"))
@@ -192,8 +193,6 @@ function bepgp_loot:processLootCallback(player,itemLink,source,itemColor,itemStr
   end
   local bind = self:itemBinding(itemString)
   if not (bind) then return end
-  --local prices = bepgp:GetModule(addonName.."_prices")
-  --local price = prices and prices:GetPrice(itemString, bepgp.db.profile.progress)
   local price = bepgp:GetPrice(itemString, bepgp.db.profile.progress)
   if (not (price)) or (price == 0) then
     return
@@ -245,7 +244,6 @@ end
 
 function bepgp_loot:tradeLootCallback(playerState,targetState,itemColor,itemString,itemName,itemID,itemLink)
   itemCache[itemID] = true
-  --local price = sepgp_prices:GetPrice(itemString,bepgp.db.profile.progress)
   local price = bepgp:GetPrice(itemString, bepgp.db.profile.progress)
   if not (price) or price == 0 then
     return
@@ -299,7 +297,7 @@ end
 
 function bepgp_loot:bidCall(frame, button)
   if not IsAltKeyDown() then return end
-  local slot = frame.slot -- lootframe
+  local slot = frame.slot -- lootframe/MasterLooterFrame
   local hasItem = frame.hasItem -- default bags & Bagnon
   local bagID, slotID = frame.bagID, frame.slotID -- cargBags_Nivaya
   if not (slot or hasItem or (bagID and slotID)) then return end
@@ -326,8 +324,6 @@ function bepgp_loot:bidCall(frame, button)
   end
   if not itemLink then return end
   local itemColor, itemString, itemName, itemID = bepgp:getItemData(itemLink)
-  --local prices = bepgp:GetModule(addonName.."_prices")
-  --local price = prices and prices:GetPrice(itemString)
   local price = bepgp:GetPrice(itemString)
   if (not (price)) or (price == 0) then
     return
@@ -436,11 +432,36 @@ function bepgp_loot:clickHandlerBags(id)
   end
 end
 
+function bepgp_loot:clickHandlerMasterLoot()
+  MasterLooterFrame.Item:EnableMouse(true)
+  MasterLooterFrame.Item:SetScript("OnMouseUp", function(self,button)
+    local frame = self
+    frame.slot = LootFrame.selectedSlot
+    if frame.slot then
+      bepgp_loot:bidCall(frame, button)
+    end
+  end)
+  MasterLooterFrame.Item:SetScript("OnEnter", function(self)
+    local slot = LootFrame.selectedSlot
+    if slot then
+      GameTooltip:SetOwner(self,"ANCHOR_TOP")
+      GameTooltip:SetLootItem(slot)
+      GameTooltip:Show()
+    end
+  end)
+  MasterLooterFrame.Item:SetScript("OnLeave", function(self)
+    if GameTooltip:IsOwned(self) then
+      GameTooltip_Hide()
+    end
+  end)
+end
+
 function bepgp_loot:clickHandlerLoot()
   for i=1,GetNumLootItems() do
     local button = _G["LootButton"..i]
     if button and not button._bepgpclicks then
       button:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
+      button.RegisterForClicks = nop
       if not self:IsHooked(button,"OnClick") then
         self:HookScript(button,"OnClick", "bidCall")
       end

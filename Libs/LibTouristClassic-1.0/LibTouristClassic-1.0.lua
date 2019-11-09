@@ -421,7 +421,7 @@ end
 ]]--
 
 local function GatherFlightnodeData()
-	local zMapID, zName, nodes
+	local zMapID, zName, nodes, numNodes
 	local count = 0
 	local errCount = 0
 	if gatheringFlightnodes == true then return end
@@ -438,7 +438,7 @@ local function GatherFlightnodeData()
 		nodes = C_TaxiMap.GetTaxiNodesForMap(zMapID)
 
 		if nodes ~= nil then
-			local numNodes = tablelength(nodes)
+			numNodes = tablelength(nodes)
 			if numNodes > 0 then
 				for i, node in ipairs(nodes) do
 					if not FlightnodeLookupTable[node.nodeID] then

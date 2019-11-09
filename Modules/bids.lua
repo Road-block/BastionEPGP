@@ -272,8 +272,6 @@ function bepgp_bids:captureLootCall(event, text, sender)
       itemColor, itemString, itemName, itemID = bepgp:getItemData(itemLink)
     end
     if (itemName) then
-      --local prices = bepgp:GetModule(addonName.."_prices")
-      --local price = prices and prices:GetPrice(itemString, bepgp.db.profile.progress)
       local price = bepgp:GetPrice(itemString, bepgp.db.profile.progress)
       if (price and price > 0) then
         if (bepgp:raidLeader() or bepgp:lootMaster()) and (sender == bepgp._playerName) then

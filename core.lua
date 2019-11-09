@@ -24,6 +24,7 @@ bepgp.VARS = {
   minlevel = 55,
   maxloglines = 500,
   prefix = "BEPGP_PREFIX",
+  pricesystem = "BastionEPGPFixed-1.0",
   standbychan = L["Standby"],
   standbyanswer = "^(%+)(%a*)$",
   bop = C:Red(L["BoP"]),
@@ -77,6 +78,7 @@ local defaults = {
     announce = "GUILD",
     decay = bepgp.VARS.decay,
     minep = bepgp.VARS.minep,
+    system = bepgp.VARS.pricesystem,    
     progress = "T1",
     discount = 0.25,
     altspool = false,
@@ -85,7 +87,6 @@ local defaults = {
     minimap = {
       hide = false,
     },
-    system = "BastionEPGPFixed-1.0",
   },
   char = {
     raidonly = false,
@@ -1025,8 +1026,7 @@ end
 function bepgp:AddTipInfo(tooltip,...)
   local name, link = tooltip:GetItem()
   if name and link then
-    local prices = self:GetModule(addonName.."_prices")
-    local price = prices and prices:GetPrice(link, self.db.profile.progress)
+    local price = self:GetPrice(link, self.db.profile.progress)
     if not price then return end
     local off_price = math.floor(price*self.db.profile.discount)
     local ep,gp = (self:get_ep(self._playerName) or 0), (self:get_gp(self._playerName) or bepgp.VARS.basegp)
@@ -1509,7 +1509,12 @@ end
 
 function bepgp:SetPriceSystem()
   local system = self.db.profile.system
-  self.GetPrice = price_systems[system]
+  if not price_systems[system] then
+    self.GetPrice = price_systems[self.VARS.pricesystem]
+    self.db.profile.system = self.VARS.pricesystem
+  else
+    self.GetPrice = price_systems[system]
+  end
 end
 
 function bepgp:RegisterPriceSystem(name, priceFunc)

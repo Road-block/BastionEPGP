@@ -1,44 +1,12 @@
-tag 8e41b57e937c9dd6a772aeefee6eae6c5c088f1b WoW-1.13-alpha3
+tag f4ba2e56690e02c47234b5e5a19c10c350ad62b2 Wow-1.13-beta5
 Author:	Odica <odica.jaedenar@gmail.com>
-Date:	Wed Oct 30 18:28:07 2019 +0100
+Date:	Fri Nov 8 08:35:48 2019 +0100
 
-Tagged as alpha3
+Tagged as beta5
 
-commit 10b81005b80de8d5899b8eaafcd0d5a7cb5f1963
+commit 5fbbf00439881c9cf6e70f499cc6b2a8c54df97a
 Author: Odica <odica.jaedenar@gmail.com>
-Date:   Wed Oct 30 00:28:31 2019 +0100
+Date:   Sat Nov 2 23:56:02 2019 +0100
 
-    Revision 234:
-    
-    - Added mining nodes data file
-    
-    - API change: added Tourist:GetMiningNode(nodeObjectID)
-    Returns mining node data containing mining node name, node object ID, ore name, ore item ID, minimum skill level and a collection of zone mapIDs with the number of nodes, for each zone in which the node can be found.
-    
-    - API change: added Tourist:GetMiningSkillColor(nodeObjectID, currentSkill)
-    Returns an r, g and b value representing the gathering difficulty of a specific mining node, given the current player skill
-    
-    - API change: added Tourist:IterateMiningNodes()
-    Returns mining node data as described above for GetMiningNode, for each known standard mining node
-    
-    - API change: added Tourist:IterateMiningNodesByZone(mapID)
-    Returns mining node data containing mining node name, node object ID, ore name, ore item ID, minimum skill level and the number of nodes in the zone, for each standard mining node that can be found in the zone specified by mapID
-    
-    - API change: added Tourist:IterateZonesByMiningNode(miningNodeObjectID)
-    Returns the mapIDs of the zones in which the specified mining node can be found
-
-commit 9b960932007cb7f4493477fa712db53f121fd96c
-Author: Odica <odica.jaedenar@gmail.com>
-Date:   Sat Oct 26 22:45:22 2019 +0200
-
-    Revision 233:
-    - Herbs are now organized by itemID to avoid localization issues
-    - API change: Tourist:GetHerb no longer accepts a herb name, requires herb item ID instead
-    - API change: Tourist:GetHerbSkillColor no longer accepts a herb name, requires herb item ID instead
-    - API change: Tourist:IterateZonesByHerb no longer accepts a herb name, requires herb item ID instead
-    - API change: return values of functions that return herb data now also contain the herb item ID:
-        Tourist:IterateHerbs()
-        Tourist:IterateHerbsByZone(mapID)
-        Tourist:GetHerb(herbItemID)
-    - API change: Added Tourist:GetGatheringSkillColor(minLevel, currentSkill) to replace the GetHerbSkillColor with the same parameters (duplicate function name). GetGatheringSkillColor can also be used for other gathering objects like mining nodes.
+    Completed translations in the mining data file
 
