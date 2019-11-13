@@ -1,123 +1,64 @@
 local addonName, bepgp = ...
 local moduleName = addonName.."_alts"
---[[
-local T = LibStub("LibQTip-1.0")
---local D = AceLibrary("Dewdrop-2.0")
+local bepgp_alts = bepgp:NewModule(moduleName)
+local ST = LibStub("ScrollingTable")
 local C = LibStub("LibCrayon-3.0")
-
---local BC = AceLibrary("Babble-Class-2.2")
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
+local GUI = LibStub("AceGUI-3.0")
 
-_G[moduleName] = _G[addonName]:NewModule(moduleName)
-local sepgp_alts = _G[moduleName]
+local data = { }
+local colorHighlight = {r=0, g=0, b=0, a=.9}
 
-function sepgp_alts:OnEnable()
-  if not T:IsRegistered("sepgp_alts") then
-    T:Register("sepgp_alts",
-      "children", function()
-        T:SetTitle(L["BastionEPGP alts"])
-        self:OnTooltipUpdate()
-      end,
-      "showTitleWhenDetached", true,
-      "showHintWhenDetached", true,
-      "cantAttach", true,
-      "menu", function()
-        D:AddLine(
-          "text", L["Refresh"],
-          "tooltipText", L["Refresh window"],
-          "func", function() sepgp_alts:Refresh() end
-        )
-      end      
-    )
-  end
-  if not T:IsAttached("sepgp_alts") then
-    T:Open("sepgp_alts")
-  end
+function bepgp_alts:OnEnable()
+  local container = GUI:Create("Window")
+  container:SetTitle(L["BastionEPGP alts"])
+  container:SetWidth(455)
+  container:SetHeight(290)
+  container:EnableResize(false)
+  container:SetLayout("Flow")
+  container:Hide()
+  self._container = container
+  local headers = {
+    {["name"]=C:Orange(L["Main"]),["width"]=100}, --name
+    {["name"]=C:Orange(L["Alts"]),["width"]=300}, --alts
+  }
+  self._alts_table = ST:CreateST(headers,15,nil,colorHighlight,container.frame) -- cols, numRows, rowHeight, highlight, parent
+  self._alts_table.frame:SetPoint("BOTTOMRIGHT",self._container.frame,"BOTTOMRIGHT", -10, 10)
+  container:SetCallback("OnShow", function() bepgp_alts._alts_table:Show() end)
+  container:SetCallback("OnClose", function() bepgp_alts._alts_table:Hide() end)
+  bepgp:make_escable(container,"add")
 end
 
-function sepgp_alts:OnDisable()
-  T:Close("sepgp_alts")
-end
-
-function sepgp_alts:Refresh()
-  T:Refresh("sepgp_alts")
-end
-
-function sepgp_alts:setHideScript()
-  local i = 1
-  local tablet = getglobal(string.format("Tablet20DetachedFrame%d",i))
-  while (tablet) and i<100 do
-    if tablet.owner ~= nil and tablet.owner == "sepgp_alts" then
-      sepgp:make_escable(string.format("Tablet20DetachedFrame%d",i),"add")
-      tablet:SetScript("OnHide",nil)
-      tablet:SetScript("OnHide",function()
-          if not T:IsAttached("sepgp_alts") then
-            T:Attach("sepgp_alts")
-            this:SetScript("OnHide",nil)
-          end
-        end)
-      break
-    end    
-    i = i+1
-    tablet = getglobal(string.format("Tablet20DetachedFrame%d",i))
-  end
-end
-
-function sepgp_alts:Top()
-  if T:IsRegistered("sepgp_alts") and (T.registry.sepgp_alts.tooltip) then
-    T.registry.sepgp_alts.tooltip.scroll=0
-  end  
-end
-
-function sepgp_alts:Toggle(forceShow)
-  self:Top()
-  if T:IsAttached("sepgp_alts") then
-    T:Detach("sepgp_alts") -- show
-    if (T:IsLocked("sepgp_alts")) then
-      T:ToggleLocked("sepgp_alts")
-    end
-    self:setHideScript()
+function bepgp_alts:Toggle()
+  if self._container.frame:IsShown() then
+    self._container:Hide()
   else
-    if (forceShow) then
-      sepgp_alts:Refresh()
-    else
-      T:Attach("sepgp_alts") -- hide
-    end
+    self._container:Show()
   end
+  self:Refresh()
 end
 
-function sepgp_alts:OnClickItem(name)
-  --ChatFrame_SendTell(name)
-end
-
-function sepgp_alts:BuildAltsTable()
-  return sepgp.alts
-end
-
-function sepgp_alts:OnTooltipUpdate()
-  local cat = T:AddCategory(
-      "columns", 2,
-      "text",  C:Orange(L["Main"]),   "child_textR",    1, "child_textG",    1, "child_textB",    1, "child_justify",  "LEFT",
-      "text2", C:Orange(L["Alts"]),  "child_text2R",   0, "child_text2G",   1, "child_text2B",   0, "child_justify2", "RIGHT"
-    )
-  local t = self:BuildAltsTable()
-  for main, alts in pairs(t) do
+function bepgp_alts:Refresh()
+  local alts = bepgp.db.profile.alts
+  table.wipe(data)
+  for c_main,t_alts in pairs(alts) do
     local altstring = ""
-    for alt,class in pairs(alts) do
-      local coloredalt = C:Colorize(BC:GetHexColor(class), alt)
+    for alt,class in pairs(t_alts) do
+      local _,_,hexclass = bepgp:getClassData(class)
+      local coloredalt = C:Colorize(hexclass, alt)
       if altstring == "" then
         altstring = coloredalt
       else
         altstring = string.format("%s, %s",altstring,coloredalt)
       end
-    end
-    cat:AddLine(
-      "text", main,
-      "text2", altstring--,
-      --"func", "OnClickItem", "arg1", self, "arg2", main
-    )
+    end    
+    table.insert(data,{["cols"]={
+      {["value"]=c_main},
+      {["value"]=altstring},
+    }})
+  end
+  self._alts_table:SetData(data)  
+  if self._alts_table and self._alts_table.showing then
+    self._alts_table:SortData()
   end
 end
-]]
--- GLOBALS: sepgp_saychannel,sepgp_groupbyclass,sepgp_groupbyarmor,sepgp_groupbyrole,sepgp_raidonly,sepgp_decay,sepgp_minep,sepgp_reservechannel,sepgp_main,sepgp_progress,sepgp_discount,sepgp_log,sepgp_dbver,sepgp_looted
--- GLOBALS: sepgp,sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot,sepgp_reserves,sepgp_alts,sepgp_logs

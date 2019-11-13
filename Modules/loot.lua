@@ -28,16 +28,17 @@ local loot_indices = {
   player=2,
   player_c=3,
   item=4,
-  bind=5,
-  price=6,
-  off_price=7,
-  action=8,
-  update=9
+  item_id=5,
+  bind=6,
+  price=7,
+  off_price=8,
+  action=9,
+  update=10
 }
 local itemCache = {}
 local function st_sorter_numeric(st,rowa,rowb,col)
-  local cella = st.data[rowa].cols[6].value
-  local cellb = st.data[rowb].cols[6].value
+  local cella = st.data[rowa].cols[7].value
+  local cellb = st.data[rowb].cols[7].value
   return tonumber(cella) > tonumber(cellb)
 end
 
@@ -51,12 +52,12 @@ function bepgp_loot:OnEnable()
   container:Hide()
   self._container = container  
   local headers = {
-    {["name"]=C:Orange(L["Time"]),["width"]=100,["comparesort"]=st_sorter_numeric}, -- server time
+    {["name"]=C:Orange(L["Time"]),["width"]=100,["comparesort"]=st_sorter_numeric,["sort"]=ST.SORT_DSC}, -- server time
     {["name"]=C:Orange(L["Item"]),["width"]=150,["comparesort"]=st_sorter_numeric}, -- item name
     {["name"]=C:Orange(L["Looter"]),["width"]=100,["comparesort"]=st_sorter_numeric}, -- looter
     {["name"]=C:Orange(L["Binds"]),["width"]=50,["comparesort"]=st_sorter_numeric}, -- binds
     {["name"]=C:Orange(L["GP Action"]),["width"]=100,["comparesort"]=st_sorter_numeric}, -- action
-    {["name"]="",["width"]=1,["comparesort"]=st_sorter_numeric,["sort"]=ST.SORT_DSC} -- order
+    --{["name"]="",["width"]=1,["comparesort"]=st_sorter_numeric,["sort"]=ST.SORT_DSC} -- order
   }
   self._loot_table = ST:CreateST(headers,15,nil,colorHighlight,container.frame) -- cols, numRows, rowHeight, highlight, parent
   self._loot_table.frame:SetPoint("BOTTOMRIGHT",self._container.frame,"BOTTOMRIGHT", -10, 10)
@@ -82,15 +83,19 @@ function bepgp_loot:OnEnable()
   end)
   container:AddChild(export)
   bepgp:make_escable(container,"add")
+  LD:Register(addonName.."DialogItemPoints", bepgp:templateCache("DialogItemPoints"))
 
+  -- loot awarded
   self:RegisterEvent("CHAT_MSG_LOOT","captureLoot")
-  self:RegisterEvent("TRADE_PLAYER_ITEM_CHANGED","tradeLoot")
-  self:RegisterEvent("TRADE_ACCEPT_UPDATE","tradeLoot")
+  self:SecureHook("GiveMasterLoot")
+  -- trade
+  self:SecureHook("InitiateTrade","tradeUnit") -- we are trading
+  self:RegisterEvent("TRADE_REQUEST","tradeName") -- another is trading
+  self:SecureHookScript(TradeFrameTradeButton, "OnClick", "tradeItemAccept")
+  -- bid call handlers
   self:RegisterEvent("LOOT_OPENED","clickHandlerLoot")
   self:clickHandlerMasterLoot()
   self:SecureHook("ToggleBag","clickHandlerBags") -- default bags
-  self:SecureHook("GiveMasterLoot")
-  LD:Register(addonName.."DialogItemPoints", bepgp:templateCache("DialogItemPoints"))
   self._bagsTimer = self:ScheduleTimer("hookBagAddons",30)
 end
 
@@ -106,7 +111,15 @@ end
 function bepgp_loot:Refresh()
   table.wipe(data)
   for i,v in ipairs(bepgp.db.char.loot) do
-    table.insert(data,{["cols"]={{["value"]=v[loot_indices.time],["color"]=colorSilver},{["value"]=v[loot_indices.item]},{["value"]=v[loot_indices.player_c]},{["value"]=v[loot_indices.bind]},{["value"]=v[loot_indices.action]},{["value"]=i,["color"]=colorHidden}}})
+    table.insert(data,{["cols"]={
+      {["value"]=v[loot_indices.time],["color"]=colorSilver},
+      {["value"]=v[loot_indices.item]},
+      {["value"]=v[loot_indices.player_c]},
+      {["value"]=v[loot_indices.bind]},
+      {["value"]=v[loot_indices.action]},
+      {["value"]=v[loot_indices.item_id]}, -- 6
+      {["value"]=i,} -- 7
+    }})
   end
   self._loot_table:SetData(data)  
   if self._loot_table and self._loot_table.showing then
@@ -152,11 +165,11 @@ function bepgp_loot:GiveMasterLoot(slot, index)
 end
 
 -- /run BastionEPGP:GetModule("BastionEPGP_loot"):captureLoot("You receive loot: \124cffa335ee\124Hitem:16864:0:0:0:0:0:0:0:0\124h[Belt of Might]\124h\124r.")
--- /run BastionEPGP:GetModule("BastionEPGP_loot"):captureLoot("You receive loot: \124cffa335ee\124Hitem:16846::::::::60:::::\124h[Giantstalker's Helmet]\124h\124r.")
 -- /run BastionEPGP:GetModule("BastionEPGP_loot"):captureLoot("Jerv receives loot: \124cffa335ee\124Hitem:16846::::::::60:::::\124h[Giantstalker's Helmet]\124h\124r.")
 -- /run BastionEPGP:GetModule("BastionEPGP_loot"):captureLoot("You receive loot: \124cffa335ee\124Hitem:16960::::::::60:::::\124h[Waistband of Wrath]\124h\124r.")
+-- /run BastionEPGP:GetModule("BastionEPGP_loot"):captureLoot("You receive loot: \124cffa335ee\124Hitem:16857::::::::60:::::\124h[Lawbringer Bracers]\124h\124r.")
 function bepgp_loot:captureLoot(message)
-  if not (bepgp:GroupStatus()=="RAID" and bepgp:lootMaster() and bepgp:admin()) then return end
+  if not self:raidLootAdmin() then return end
   local who,what,amount,player,itemLink
   who,what,amount = DF.Deformat(message,LOOT_ITEM_MULTIPLE)
   if (amount) then -- skip multiples / stacks
@@ -198,7 +211,7 @@ function bepgp_loot:processLootCallback(player,itemLink,source,itemColor,itemStr
     return
   end
   local class,_
-  if player == self._playerName then 
+  if player == bepgp._playerName then 
     class = UnitClass("player") -- localized
   else
     _, class = bepgp:verifyGuildMember(player,true) -- localized
@@ -209,7 +222,7 @@ function bepgp_loot:processLootCallback(player,itemLink,source,itemColor,itemStr
   local player_color = C:Colorize(hexclass,player)
   local off_price = math.floor(price*bepgp.db.profile.discount)
   local epoch, timestamp = bepgp:getServerTime()
-  local data = {[loot_indices.time]=timestamp,[loot_indices.player]=player,[loot_indices.player_c]=player_color,[loot_indices.item]=itemLink,[loot_indices.bind]=bind,[loot_indices.price]=price,[loot_indices.off_price]=off_price,loot_indices=loot_indices}
+  local data = {[loot_indices.time]=timestamp,[loot_indices.player]=player,[loot_indices.player_c]=player_color,[loot_indices.item]=itemLink,[loot_indices.item_id]=itemID,[loot_indices.bind]=bind,[loot_indices.price]=price,[loot_indices.off_price]=off_price,loot_indices=loot_indices}
   LD:Spawn(addonName.."DialogItemPoints", data)
 end
 
@@ -227,9 +240,10 @@ function bepgp_loot:processLoot(player,itemLink,source)
   end
 end
 
-function bepgp_loot:findLootUnassigned(itemLink)
+-- /run local _,link = GetItemInfo(16857)local data=BastionEPGP:GetModule("BastionEPGP_loot"):findLootUnassigned(link)print(data[8] or "nodata")
+function bepgp_loot:findLootUnassigned(itemID)
   for i,data in ipairs(bepgp.db.char.loot) do
-    if data[loot_indices.item] == itemLink and data[loot_indices.action] == self.VARS.unassigned then
+    if data[loot_indices.item_id] == itemID and data[loot_indices.action] == bepgp.VARS.unassigned then
       return data
     end
   end
@@ -242,7 +256,7 @@ function bepgp_loot:addOrUpdateLoot(data,update)
   self:Refresh()
 end
 
-function bepgp_loot:tradeLootCallback(playerState,targetState,itemColor,itemString,itemName,itemID,itemLink)
+function bepgp_loot:tradeLootCallback(tradeTarget,itemColor,itemString,itemName,itemID,itemLink)
   itemCache[itemID] = true
   local price = bepgp:GetPrice(itemString, bepgp.db.profile.progress)
   if not (price) or price == 0 then
@@ -250,53 +264,88 @@ function bepgp_loot:tradeLootCallback(playerState,targetState,itemColor,itemStri
   end
   local bind = self:itemBinding(itemString)
   if (not bind) or (bind ~= bepgp.VARS.boe) then return end
-  if UnitExists("target") and UnitIsPlayer("target") and UnitCanCooperate("player","target") and (not UnitIsUnit("player","target")) then
-    local tradeTarget = GetUnitName("target")
-    local _, class = self:verifyGuildMember(tradeTarget,true)
-    if not (class) then return end
-    local _,_,hexclass = bepgp:getClassData(class)
-    local target_color = C:Colorize(hexclass,tradeTarget)
-    local epoch, timestamp = bepgp:getServerTime()
-    local data = self:findLootUnassigned(itemLink)
-    if (data) then
-      data[loot_indices.time] = timestamp
-      data[loot_indices.player] = tradeTarget
-      data[loot_indices.player_c] = target_color
-      data["loot_indices"] = loot_indices
-      data[loot_indices.update] = 1
-      LD:Spawn(addonName.."DialogItemPoints", data)
-    end
-  end  
+  local _, class = bepgp:verifyGuildMember(tradeTarget,true)
+  if not class then return end
+  local _,_,hexclass = bepgp:getClassData(class)
+  local target_color = C:Colorize(hexclass,tradeTarget)
+  local epoch, timestamp = bepgp:getServerTime()
+  local data = self:findLootUnassigned(itemLink)
+  if (data) then
+    data[loot_indices.time] = timestamp
+    data[loot_indices.player] = tradeTarget
+    data[loot_indices.player_c] = target_color
+    data["loot_indices"] = loot_indices
+    data[loot_indices.update] = 1
+    LD:Spawn(addonName.."DialogItemPoints", data)
+  end
 end
 
-function bepgp_loot:tradeLoot(playerState,targetState)
-  if not (bepgp:GroupStatus()=="RAID" and bepgp:lootMaster() and bepgp:admin()) then return end
-  if (playerState ~= nil and targetState ~= nil) and playerState == 1 and targetState == 1 then
-    local itemLink
-    for id=1,MAX_TRADABLE_ITEMS do
-      itemLink = GetTradePlayerItemLink(id)
-      if (itemLink) then
-        break  
-      end
-    end
-    if (itemLink) then
-      local itemColor, itemString, itemName, itemID = bepgp:getItemData(itemLink)
-      if (itemName) then
-        if itemCache[itemID] then
-          self:tradeLootCallback(playerState,targetState,itemColor,itemString,itemName,itemID,itemLink)
-        else
-          local item = Item:CreateFromItemID(itemID)
-          item:ContinueOnItemLoad(function()
-            bepgp_loot:tradeLootCallback(playerState,targetState,itemColor,itemString,itemName,itemID,itemLink)
-          end)
-        end       
-      end
+function bepgp_loot:raidLootAdmin()
+  return (bepgp:GroupStatus()=="RAID" and bepgp:lootMaster() and bepgp:admin())
+end
+
+function bepgp_loot:tradeLoot()
+  if self._tradeTarget and self._itemLink then
+    local tradeTarget, itemLink = self._tradeTarget, self._itemLink
+    local itemColor, itemString, itemName, itemID = bepgp:getItemData(itemLink)
+    if (itemName) then
+      if itemCache[itemID] then
+        self:tradeLootCallback(tradeTarget,itemColor,itemString,itemName,itemID,itemLink)
+      else
+        local item = Item:CreateFromItemID(itemID)
+        item:ContinueOnItemLoad(function()
+          bepgp_loot:tradeLootCallback(tradeTarget,itemColor,itemString,itemName,itemID,itemLink)
+        end)
+      end       
     end
   end
+  self:tradeReset()
+end
+function bepgp_loot:tradeUnit(unit)
+  if self:raidLootAdmin() then
+    self._tradeTarget = GetUnitName(unit)
+  end
+end
+function bepgp_loot:tradeName(event, name)
+  if self:raidLootAdmin() then
+    local name = Ambiguate(name,"short")
+    self._tradeTarget = name
+  end
+end
+function bepgp_loot:tradeItemAccept()
+  if self:raidLootAdmin() then
+    if self._tradeTarget then
+      local itemLink
+      for id=1,MAX_TRADABLE_ITEMS do
+        itemLink = GetTradePlayerItemLink(id)
+        if (itemLink) then
+          self._itemLink = itemLink
+          self:RegisterEvent("TRADE_REQUEST_CANCEL","tradeReset")
+          self:RegisterEvent("TRADE_CLOSED","awaitTradeLoot")        
+          return  
+        end
+      end
+      self._itemLink = nil
+    end    
+  end
+end
+function bepgp_loot:awaitTradeLoot() -- TRADE_CLOSED
+  self._awaitTradeTimer = self:ScheduleTimer("tradeLoot",2)
+end
+function bepgp_loot:tradeReset() -- TRADE_REQUEST_CANCEL
+  self._tradeTarget = nil
+  self._itemLink = nil  
+  if self._awaitTradeTimer then
+    self:CancelTimer(self._awaitTradeTimer)
+    self._awaitTradeTimer = nil
+  end
+  self:UnregisterEvent("TRADE_REQUEST_CANCEL")
+  self:UnregisterEvent("TRADE_CLOSED")
 end
 
 function bepgp_loot:bidCall(frame, button)
   if not IsAltKeyDown() then return end
+  if not self:raidLootAdmin() then return end
   local slot = frame.slot -- lootframe/MasterLooterFrame
   local hasItem = frame.hasItem -- default bags & Bagnon
   local bagID, slotID = frame.bagID, frame.slotID -- cargBags_Nivaya
@@ -328,7 +377,6 @@ function bepgp_loot:bidCall(frame, button)
   if (not (price)) or (price == 0) then
     return
   end
-  if not (bepgp:GroupStatus()=="RAID" and bepgp:lootMaster() and bepgp:admin()) then return end
   if button == "LeftButton" then
     bepgp:widestAudience(string.format(L["Whisper %s a + for %s (mainspec)"],bepgp._playerName,itemLink))
   elseif button == "RightButton" then

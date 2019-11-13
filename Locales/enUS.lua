@@ -239,6 +239,7 @@ Results will print here when done.]]
   L["Add EPGP Information to Item Tooltips"] = true
   L["Select Price Scheme"] = true
   L["Select From Registered Price Systems"] = true
+  L["%s is offline. Getting info from guild cache."] = true
   
 
 bepgp.L = L

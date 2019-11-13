@@ -35,8 +35,8 @@ function bepgp_io:Loot(loot_indices)
     local itemColor, itemString, itemName, itemID = bepgp:getItemData(item)
     local looter = data[loot_indices.player]
     local action = data[loot_indices.action]
-    if action == bepgp.VARS.msgp or action == bepgp.VARS.osgp then
-      self._ioloot:AddLine("%s;%s;%s;%s;%s",time,itemName,looter,action)
+    if action == bepgp.VARS.msgp or action == bepgp.VARS.osgp or action == bepgp.VARS.bankde then
+      self._ioloot:AddLine(string.format("%s;%s;%s;%s;%s",time,itemName,looter,action))
     end
   end
   self._ioloot:Display()

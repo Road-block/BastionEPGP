@@ -238,8 +238,9 @@ if not L then return end
   L["Add EPGP Information to Item Tooltips"] = "Add EPGP Information to Item Tooltips" -- needs translation
   L["Export Loot"] = "Export Loot" -- needs translation
   L["Export Logs"] = "Export Logs" -- needs translation
-  L["Export Standings"] = "Export Standings" -- need translation
-  L["Select Price Scheme"] = "Select Price Scheme" -- need translation
-  L["Select From Registered Price Systems"] = "Select From Registered Price Systems" -- need translation
+  L["Export Standings"] = "Export Standings" -- needs translation
+  L["Select Price Scheme"] = "Select Price Scheme" -- needs translation
+  L["Select From Registered Price Systems"] = "Select From Registered Price Systems" -- needs translation
+  L["%s is offline. Getting info from guild cache."] = "%s is offline. Getting info from guild cache." -- needs translation
 
   bepgp.L = L

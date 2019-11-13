@@ -14,6 +14,7 @@ local G = LibStub("LibGratuity-3.0")
 local T = LibStub("LibQTip-1.0")
 local LT = LibStub("LibTouristClassic-1.0")
 
+bepgp._DEBUG = false
 bepgp.VARS = {
   basegp = 100,
   minep = 0,
@@ -87,6 +88,8 @@ local defaults = {
     minimap = {
       hide = false,
     },
+    guildcache = {},
+    alts = {},
   },
   char = {
     raidonly = false,
@@ -554,6 +557,10 @@ function bepgp.OnLDBClick(obj,button)
       end
     elseif IsControlKeyDown() and IsAltKeyDown() and is_admin then
       -- alts
+      local alts = bepgp:GetModule(addonName.."_alts")
+      if alts then
+        alts:Toggle()
+      end
     elseif IsControlKeyDown() and is_admin then
       -- standby
     elseif IsShiftKeyDown() and is_admin then
@@ -594,8 +601,9 @@ function bepgp.OnLDBTooltipShow(tooltip)
   tooltip:AddLine(hint)
 end
 --[[
-GetGuildLogoInfo
-GetGuildTabardFileNames
+ local tabardBackgroundUpper, tabardBackgroundLower, tabardEmblemUpper, tabardEmblemLower, tabardBorderUpper, tabardBorderLower = GetGuildTabardFileNames()-- returns paths >> GetGuildTabardFiles() -- returns ids;
+ -- fileID = GetFileIDFromPath(filePath)
+local bkgR, bkgG, bkgB, borderR, borderG, borderB, emblemR, emblemG, emblemB, emblemFilename = GetGuildLogoInfo()
 ]]
 function bepgp:templateCache(id)
   local key = addonName..id
@@ -996,6 +1004,8 @@ function bepgp:deferredInit(guildname)
     self:testMain()
     -- group status change
     self:RegisterEvent("GROUP_ROSTER_UPDATE","testLootPrompt")
+    self:RegisterEvent("GROUP_JOINED","testLootPrompt")
+    self:RegisterEvent("GROUP_LEFT","testLootPrompt")
     self:RegisterEvent("PLAYER_ENTERING_WORLD","testLootPrompt")
     -- set price system
     bepgp:SetPriceSystem()
@@ -1199,7 +1209,8 @@ function bepgp:OnCommReceived(prefix, msg, distro, sender)
   end
 end
 
-function bepgp:debugPrint(msg)
+function bepgp:debugPrint(msg,onlyWhenDebug)
+  if onlyWhenDebug and not self._DEBUG then return end
   if not self._debugchat then
     for i=1,NUM_CHAT_WINDOWS do
       local tab = _G["ChatFrame"..i.."Tab"]
@@ -1584,7 +1595,7 @@ function bepgp:getItemQualityData(quality) -- id, name, qualityColor
   end
 end
 
--- local fullName, rank, rankIndex, level, class, zone, note, officernote, online, isAway, classFileName, achievementPoints, achievementRank, isMobile, canSoR = GetGuildRosterInfo(index)
+-- local fullName, rank, rankIndex, level, class, zone, note, officernote, online, isAway, classFileName, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(index)
 function bepgp:verifyGuildMember(name,silent)
   for i=1,GetNumGuildMembers(true) do
     local g_name, g_rank, g_rankIndex, g_level, g_class, g_zone, g_note, g_officernote, g_online, g_status, g_eclass, _, _, g_mobile, g_sor, _, g_GUID = GetGuildRosterInfo(i)
@@ -1675,12 +1686,17 @@ function bepgp:buildRosterTable()
       end
     end
   end
-  bepgp.alts = {}
+  table.wipe(self.db.profile.alts)
+  table.wipe(self.db.profile.guildcache)
   for i = 1, numGuildMembers do
     local member_name,_,_,level,class,_,note,officernote,_,_ = GetGuildRosterInfo(i)
     member_name = Ambiguate(member_name,"short") --:gsub("(\-.+)","")
+    if member_name and level and (member_name ~= UNKNOWNOBJECT) and (level > 0) then
+      self.db.profile.guildcache[member_name] = level
+    end
     local main, main_class, main_rank = self:parseAlt(member_name,officernote)
-    local is_raid_level = tonumber(level) and level >= bepgp.VARS.minlevel
+    local level = tonumber(level)
+    local is_raid_level = level and level >= bepgp.VARS.minlevel
     if (main) then
       if ((self._playerName) and (member_name == self._playerName)) then
         if (not self.db.profile.main) or (self.db.profile.main and self.db.profile.main ~= main) then
@@ -1689,8 +1705,8 @@ function bepgp:buildRosterTable()
         end
       end
       main = C:Colorize(hexClassColor[main_class], main)
-      bepgp.alts[main] = bepgp.alts[main] or {}
-      bepgp.alts[main][member_name] = class
+      self.db.profile.alts[main] = self.db.profile.alts[main] or {}
+      self.db.profile.alts[main][member_name] = class
     end
     if (self.db.char.raidonly) and next(r) then
       if r[member_name] and is_raid_level then
@@ -1743,6 +1759,10 @@ function bepgp:award_raid_ep(ep) -- awards ep to raid members in zone
   if IsInRaid() and GetNumGroupMembers()>0 then
     for i = 1, GetNumGroupMembers() do
       local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(i)
+      if level == 0 or (not online) then
+        level = self.db.profile.guildcache[name] or 0
+        self:debugPrint(string.format(L["%s is offline. Getting info from guild cache."],name))
+      end
       if level >= bepgp.VARS.minlevel then
         self:givename_ep(name,ep)
       end
@@ -1883,15 +1903,15 @@ end
 function bepgp:givename_ep(getname,ep) -- awards ep to a single character
   if not (self:admin()) then return end
   local postfix, alt = ""
-  --[[if (sepgp_altspool) then
+  if self.db.profile.altspool then
     local main = self:parseAlt(getname)
     if (main) then
       alt = getname
       getname = main
-      ep = self:num_round(sepgp_altpercent*ep)
+      ep = self:num_round(ep * self.db.profile.altpercent)
       postfix = string.format(L[", %s\'s Main."],alt)
     end
-  end]]
+  end
   local newep = ep + (self:get_ep(getname) or 0) 
   self:update_ep(getname,newep) 
   self:debugPrint(string.format(L["Giving %d ep to %s%s."],ep,getname,postfix))
@@ -1910,14 +1930,14 @@ end
 function bepgp:givename_gp(getname,gp) -- assigns gp to a single character
   if not (self:admin()) then return end
   local postfix, alt = ""
-  --[[if (sepgp_altspool) then
+  if self.db.profile.altspool then
     local main = self:parseAlt(getname)
     if (main) then
       alt = getname
       getname = main
       postfix = string.format(L[", %s\'s Main."],alt)
     end
-  end]]
+  end  
   local oldgp = (self:get_gp(getname) or bepgp.VARS.basegp) 
   local newgp = gp + oldgp
   self:update_gp(getname,newgp) 
