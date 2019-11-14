@@ -269,7 +269,7 @@ function bepgp_loot:tradeLootCallback(tradeTarget,itemColor,itemString,itemName,
   local _,_,hexclass = bepgp:getClassData(class)
   local target_color = C:Colorize(hexclass,tradeTarget)
   local epoch, timestamp = bepgp:getServerTime()
-  local data = self:findLootUnassigned(itemLink)
+  local data = self:findLootUnassigned(itemID)
   if (data) then
     data[loot_indices.time] = timestamp
     data[loot_indices.player] = tradeTarget

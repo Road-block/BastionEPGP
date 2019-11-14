@@ -28,7 +28,7 @@ end
 
 function bepgp_io:Loot(loot_indices)
   self._ioloot:Clear()
-  self._ioloot:AddLine(string.format("%s;%s;%s;%s;%s",L["Time"],L["Item"],L["Looter"],L["Binds"],L["GP Action"]))
+  self._ioloot:AddLine(string.format("%s;%s;%s;%s",L["Time"],L["Item"],L["Looter"],L["GP Action"]))
   for i,data in ipairs(bepgp.db.char.loot) do
     local time = data[loot_indices.time]
     local item = data[loot_indices.item]
@@ -36,7 +36,7 @@ function bepgp_io:Loot(loot_indices)
     local looter = data[loot_indices.player]
     local action = data[loot_indices.action]
     if action == bepgp.VARS.msgp or action == bepgp.VARS.osgp or action == bepgp.VARS.bankde then
-      self._ioloot:AddLine(string.format("%s;%s;%s;%s;%s",time,itemName,looter,action))
+      self._ioloot:AddLine(string.format("%s;%s;%s;%s",time,itemName,looter,action))
     end
   end
   self._ioloot:Display()

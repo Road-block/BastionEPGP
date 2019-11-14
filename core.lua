@@ -984,6 +984,7 @@ function bepgp:deferredInit(guildname)
     LD:Register(addonName.."DialogMemberPoints", self:templateCache("DialogMemberPoints"))
     LD:Register(addonName.."DialogGroupPoints", self:templateCache("DialogGroupPoints"))
     LD:Register(addonName.."DialogSetMain", self:templateCache("DialogSetMain"))
+    LD:Register(addonName.."DialogClearLoot", self:templateCache("DialogClearLoot"))
     self:tooltipHook(bepgp.db.char.tooltip)
     -- handle unnamed frames Esc
     self:RawHook("CloseSpecialWindows",true)
@@ -1634,12 +1635,9 @@ function bepgp:testMain()
   end
 end
 
-function bepgp:testLootPrompt()
-  raidStatus = self:GroupStatus() == "RAID" and true or false
-  if lastRaidStatus == nil then
-    lastRaidStatus = raidStatus
-  end
-  if (raidStatus == false) and (lastRaidStatus == true) then
+function bepgp:testLootPrompt(event)
+  raidStatus = (self:GroupStatus() == "RAID") and true or false
+  if (raidStatus == false) and (lastRaidStatus == nil or lastRaidStatus == true) then
     local hasLoothistory = #(self.db.char.loot)
     if hasLoothistory > 0 then
       LD:Spawn(addonName.."DialogClearLoot",hasLoothistory)
