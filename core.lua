@@ -1417,7 +1417,7 @@ function bepgp:PLAYER_GUILD_UPDATE(...)
   end
 end
 
-function bepgp:PLAYER_LEVEL_UP(...)
+function bepgp:PLAYER_LEVEL_UP(event,...)
   local level = ...
   self._playerLevel = level
   if self._playerLevel == MAX_PLAYER_LEVEL then

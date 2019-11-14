@@ -2,7 +2,7 @@
 ## Author: Roadblock
 ## Title: BastionEPGP
 ## Notes: In-game EPGP guild helper, supports standby, main/alt shared pools, minEP, offpecGP. Fixed price list with progress multiplier.
-## Version: 0.6.7
+## Version: 0.6.8
 ## X-Alpha: 
 ## X-Website: https://github.com/Road-block/BastionEPGP
 ## OptionalDeps: Ace3, BastionEPGP_Prices
