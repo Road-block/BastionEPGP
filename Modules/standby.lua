@@ -1,5 +1,61 @@
 local addonName, bepgp = ...
-local moduleName = addonName.."_reserves"
+local moduleName = addonName.."_standby"
+local bepgp_standby = bepgp:NewModule(moduleName, "AceEvent-3.0", "AceTimer-3.0", "AceHook-3.0")
+local C = LibStub("LibCrayon-3.0")
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
+local DF = LibStub("LibDeformat-3.0")
+local T = LibStub("LibQTip-1.0")
+
+bepgp_standby.roster = {}
+local standby_blacklist = {}
+local standbycall = string.format(L["{BEPGP}Type \"+\" if on main, or \"+<YourMainName>\" (without quotes) if on alt within %dsec."],bepgp.VARS.timeout)
+
+function bepgp_standby:OnEnable()
+  self.qtip = T:Acquire(addonName.."standbyTablet") -- name, class, rank, alt
+  self.qtip:SetColumnLayout(3, "LEFT", "RIGHT", "RIGHT")
+  self.qtip:ClearAllPoints()
+  self.qtip:SetClampedToScreen(true)
+  self.qtip:SetClampRectInsets(-100,100,50,-50)
+  self.qtip:SetPoint("TOP",UIParent,"TOP",0,-50)  
+end
+
+function bepgp_standby:Refresh()
+  local frame = self.qtip
+  if not frame then return end
+  frame:Clear()
+  local line
+  line = frame:AddHeader()
+  frame:SetCell(line,1,L["BastionEPGP standby"],nil,"CENTER",2)
+  frame:SetCell(line,3,C:Red("[x]"),nil,"RIGHT")
+  frame:SetCellScript(line,3,"OnMouseUp", function() bepgp_standby.qtip:Hide() end)
+  
+  frame:UpdateScrolling()
+end
+
+function bepgp_standby:Toggle(anchor)
+  if not T:IsAcquired(addonName.."standbyTablet") then
+    self.qtip = T:Acquire(addonName.."standbyTablet") -- Name, ep, gp, pr, Main
+    self.qtip:SetColumnLayout(3, "LEFT", "RIGHT", "RIGHT")
+    return
+  end
+  if self.qtip:IsShown() then
+    self.qtip:Hide()
+  else
+    if anchor then
+      self.qtip:SmartAnchorTo(anchor)
+    else
+      self.qtip:ClearAllPoints()
+      self.qtip:SetClampedToScreen(true)
+      self.qtip:SetClampRectInsets(-100,100,50,-50)
+      self.qtip:SetPoint("TOP",UIParent,"TOP",0,-50)      
+    end
+    self:Refresh()
+    self.qtip:Show()
+  end
+end
+
+
+
 --[[
 local T = LibStub("LibQTip-1.0")
 --local D = AceLibrary("Dewdrop-2.0")

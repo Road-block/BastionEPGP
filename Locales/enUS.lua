@@ -38,8 +38,8 @@ if not L then return end
   L["GP Action"] = true
   -- migrations
   L["Updated %d members to v3 storage."] = true
-  -- reserves
-  L["BastionEPGP reserves"] = true
+  -- standby
+  L["BastionEPGP standby"] = true
   L["Countdown"] = true
   L["Rank"] = true
   L["OnAlt"] = true
@@ -124,7 +124,7 @@ Results will print here when done.]]
   L[" settings accepted from %s"] = true
   L["Giving %d ep to all raidmembers"] = true
   L["You aren't in a raid dummy"] = true
-  L["Giving %d ep to active reserves"] = true
+  L["Giving %d ep to active standby"] = true
   L["Giving %d ep to %s%s."] = true
   L["%s EP Penalty to %s%s."] = true
   L["Giving %d gp to %s%s."] = true

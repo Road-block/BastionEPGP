@@ -815,6 +815,37 @@ end
 
 function bepgp_prices:OnEnable()
   bepgp:RegisterPriceSystem(name_version,bepgp_prices.GetPrice)
+  local mzt,_,_,_,reason = GetAddOnInfo("MizusRaidTracker")
+  if not (reason == "ADDON_MISSING" or reason == "ADDON_DISABLED") then
+    local loaded, finished = IsAddOnLoaded("MizusRaidTracker")
+    if loaded then
+      self:ADDON_LOADED("ADDON_LOADED","MizusRaidTracker")
+    else
+      self:RegisterEvent("ADDON_LOADED")
+    end
+  end
+end
+
+function bepgp_prices:ADDON_LOADED(event,...)
+  if ... == "MizusRaidTracker" then
+    self:UnregisterEvent("ADDON_LOADED")
+    local MRT_ItemCost = function(mrt_data)
+      local itemstring = mrt_data.ItemString
+      local dkpValue = self:GetPrice(itemstring)
+      local itemNote
+      if not dkpValue then
+        dkpValue = 0
+        itemNote = ""
+      else
+        local dkpValue2 = math.floor(dkpValue*bepgp.db.profile.discount)
+        itemNote = string.format("%d or %d", dkpValue, dkpValue2)
+      end
+      return dkpValue, mrt_data.Looter, itemNote, "", true
+    end
+    if MRT_RegisterItemCostHandlerCore then
+      MRT_RegisterItemCostHandlerCore(MRT_ItemCost, addonName)
+    end
+  end
 end
 
 bepgp_prices._prices = prices

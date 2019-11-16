@@ -36,7 +36,6 @@ bepgp.VARS = {
   bankde = L["Bank-D/E"],
   unassigned = C:Red(L["Unassigned"]),
 }
-bepgp.VARS.standbycall = string.format(L["{BEPGP}Type \"+\" if on main, or \"+<YourMainName>\" (without quotes) if on alt within %dsec."],bepgp.VARS.timeout)
 bepgp._playerName = GetUnitName("player")
 
 local raidStatus,lastRaidStatus
@@ -45,7 +44,6 @@ local running_check
 local partyUnit,raidUnit = {},{}
 local hexClassColor, classToEnClass = {}, {}
 local hexColorQuality = {}
-local standby_blacklist = {}
 local price_systems = {}
 local special_frames = {}
 local label = string.format("|cff33ff99%s|r",addonName)
@@ -563,6 +561,10 @@ function bepgp.OnLDBClick(obj,button)
       end
     elseif IsControlKeyDown() and is_admin then
       -- standby
+      local standby = bepgp:GetModule(addonName.."_standby")
+      if standby then
+        standby:Toggle()
+      end
     elseif IsShiftKeyDown() and is_admin then
       local loot = bepgp:GetModule(addonName.."_loot")
       if loot then

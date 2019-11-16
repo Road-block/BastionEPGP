@@ -1,6 +1,6 @@
 --[[
 Name: LibTouristClassic-1.0
-Revision: $Rev: 234 $
+Revision: $Rev: 235 $
 Author(s): Mishikal1 (Classic), Odica (maintainer), based on LibTourist-3.0, originally created by ckknight and Arrowmaster
 Documentation: https://www.wowace.com/projects/libtourist-1-0/pages/api-reference
 Git: https://repos.wowace.com/wow/libtourist-classic libtourist-classic
@@ -9,7 +9,7 @@ License: MIT
 ]]
 
 local MAJOR_VERSION = "LibTouristClassic-1.0"
-local MINOR_VERSION = 90000 + tonumber(("$Revision: 229 $"):match("(%d+)"))
+local MINOR_VERSION = 90000 + tonumber(("$Revision: 235 $"):match("(%d+)"))
 
 if not LibStub then error(MAJOR_VERSION .. " requires LibStub") end
 local C_Map = C_Map
@@ -989,7 +989,7 @@ end
 
 -- Returns an r, g and b value indicating the mining difficulty of the specified mining node
 function Tourist:GetMiningSkillColor(nodeObjectID, currentSkill)
-	local mode = Tourist:GetMiningNode(nodeObjectID)
+	local node = Tourist:GetMiningNode(nodeObjectID)
 	if node then
 		return Tourist:GetGatheringSkillColor(node.minLevel, currentSkill)
 	else
@@ -1789,7 +1789,7 @@ setmetatable(cost, {
 			end
 		end
 
-		if types[x] == "Transport" then
+		if types[vertex] == "Transport" then
 			price = price * 2
 		end
 
@@ -3327,7 +3327,7 @@ do
 					zones[zoneName].texture = C_Map.GetMapArtID(continentMapID)
 					-- Get zone player levels
 					minLvl, maxLvl = C_Map.GetMapLevels(zoneMapID)
-					if minLvL and minLvL > 0 then zones[zoneName].low = minLvl end
+					if minLvl and minLvl > 0 then zones[zoneName].low = minLvl end
 					if maxLvl and maxLvl > 0 then zones[zoneName].high = maxLvl end
 					-- Get map size
 					local zWidth = HBD:GetZoneSize(zoneMapID)

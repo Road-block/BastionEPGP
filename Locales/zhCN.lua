@@ -27,8 +27,8 @@ if not L then return end
   L["GP Action"] = "GP 行为"
   -- migrations
   L["Updated %d members to v3 storage."] = "更新 %d 成员到v3存储区."
-  -- reserves
-  L["BastionEPGP reserves"] = "BastionEPGP 替补成员"
+  -- standby
+  L["BastionEPGP standby"] = "BastionEPGP 替补成员" -- needs update
   L["Countdown"] = "倒计时"
   L["Rank"] = "Rank"
   L["OnAlt"] = "OnAlt"
@@ -102,7 +102,7 @@ if not L then return end
   L["You have gained %d GP."] = "你得到了 %d GP."
   L["%s%% decay to EP and GP."] = "%s%% 递减EP和GP."
   L["%d EP awarded to Raid."] = "%d EP 授予团队."
-  L["%d EP awarded to Standby."] = "%d EP 授予替补队员."
+  L["%d EP awarded to Standby."] = "%d EP 授予替补队员." -- needs update
   L["New %s version available: |cff00ff00%s|r"] = "新的 %s 版本可用: |cff00ff00%s|r"
   L["Visit %s to update."] = "访问 %s 升级."
   L["New raid progress"] = "新的RAID进度"
@@ -113,7 +113,7 @@ if not L then return end
   L[" settings accepted from %s"] = " 设置接受从 %s"
   L["Giving %d ep to all raidmembers"] = "给予 %d ep 到所有团员"
   L["You aren't in a raid dummy"] = "你不在一个团队"
-  L["Giving %d ep to active reserves"] = "给予 %d ep 在线的替补队员"
+  L["Giving %d ep to active standby"] = "给予 %d ep 在线的替补队员" -- needs update
   L["Giving %d ep to %s%s."] = "给予 %d ep 给 %s"
   L["%s EP Penalty to %s%s."] = "%s EP 惩罚 %s."
   L["Giving %d gp to %s%s."] = "给予 %d gp 给 %s"
@@ -136,14 +136,14 @@ if not L then return end
   L["Award EPs to all raid members."] = "奖励 EP 给所有团队成员."
   L["+GPs to Member"] = "+GP给成员"
   L["Account GPs for member."] = "记账 GP给成员."
-  L["+EPs to Standby"] = "+EP给替补队员"
-  L["Award EPs to all active Standby."] = "奖励EP给所有在线的替补队员."
-  L["Enable Standby"] = "激活替补成员"
-  L["Participate in Standby Raiders List.\n|cffff0000Requires Main Character Name.|r"] = "参与在备用团队列表.\n|cffff0000要求大号名字.|r"
-  L["AFK Check Standby"] = "替补队员AFK检查"
-  L["AFK Check Standby List"] = "检查AFK的替补成员"
+  L["+EPs to Standby"] = "+EP给替补队员" -- needs update
+  L["Award EPs to all active Standby."] = "奖励EP给所有在线的替补队员." -- needs update
+  L["Enable Standby"] = "激活替补成员" -- needs update
+  L["Participate in Standby Raiders List.\n|cffff0000Requires Main Character Name.|r"] = "参与在备用团队列表.\n|cffff0000要求大号名字.|r" -- needs update
+  L["AFK Check Standby"] = "替补队员AFK检查" -- needs update
+  L["AFK Check Standby List"] = "检查AFK的替补成员" -- needs update
   L["Set Main"] = "设置大号"
-  L["Set your Main Character for Standby List."] = "设置你的大号人物为替补成员列表."
+  L["Set your Main Character for Standby List."] = "设置你的大号人物为替补成员列表." -- needs update
   L["Raid Progress"] = "公会raid进度"
   L["Highest Tier the Guild is raiding.\nUsed to adjust GP Prices.\nUsed for suggested EP awards."] = "设置公会的最高raid进度.\n用于调整GP价格.\n用于自动调整推荐EP奖励值."
   L["4.Naxxramas"] = "4.纳克萨玛斯"
@@ -161,8 +161,8 @@ if not L then return end
   L["Reset EPGP"] = "重置 EPGP"
   L["Resets everyone\'s EPGP to 0/%d (Guild Leader only)."] = "重置所有人的 EPGP 到 0/%d (只能管理员)."
   L["Scanning %d members for EP/GP data. (%s)"] = "扫描 %d 成员 EP/GP 数据. (%s)"
-  L["|cffff0000%s|r trying to add %s to Standby, but has already added a member. Discarding!"] = "|cffff0000%s|r 试图添加 %s 给替补成员, 但已经增加了一个成员。"
-  L["|cffff0000%s|r has already been added to Standby. Discarding!"] = "|cffff0000%s|r 已经添加到替补成员."
+  L["|cffff0000%s|r trying to add %s to Standby, but has already added a member. Discarding!"] = "|cffff0000%s|r 试图添加 %s 给替补成员, 但已经增加了一个成员。" -- needs update
+  L["|cffff0000%s|r has already been added to Standby. Discarding!"] = "|cffff0000%s|r 已经添加到替补成员." -- needs update
   L["^{BEPGP}Type"] = "^{BEPGP}使用"
   L["Clearing old Bids"] = "结算之前的竞拍"
   L["%s not found in the guild or not raid level!"] = "%s 没有在公会中找到或不是最高级别！"
@@ -175,8 +175,8 @@ if not L then return end
   L["Show me"] = "秀出來"
   L["Loot info cleared"] = "战利品信息清除"
   L["Loot info can be cleared at any time from the loot window or '/bepgp clearloot' command"] = "拾取信息可以随时从小地图上下文菜单中清除，或者用 '/shooty clearloot' 命令" -- needs update
-  L["Set your main to be able to participate in Standby List EPGP Checks."] = "设定你的主要人物到参与替补成员EPGP检查清单."
-  L["Standby AFKCheck. Are you available? |cff00ff00%0d|rsec."] = "替补成员AFK检查. 你在吗? |cff00ff00%0d|r秒."
+  L["Set your main to be able to participate in Standby List EPGP Checks."] = "设定你的主要人物到参与替补成员EPGP检查清单." -- needs update
+  L["Standby AFKCheck. Are you available? |cff00ff00%0d|rsec."] = "替补成员AFK检查. 你在吗? |cff00ff00%0d|r秒." -- needs update
   L["|cffff0000Are you sure you want to Reset ALL EPGP?|r"] = "|cffff0000您确定要重置全部 EPGP?|r"
   L["Add MainSpec GP"] = "添加主天赋 GP"
   L["Add OffSpec GP"] = "添加副天赋 GP"
