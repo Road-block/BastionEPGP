@@ -1,6 +1,0 @@
-Cameron Knight:
-	bugfix with 3-byte UTF-8 sequences, thanks to alkis
-	Fix .docmeta
-	Fake commit
-	Add .docmeta
-	Check the param type in Deserialize

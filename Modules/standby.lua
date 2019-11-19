@@ -3,20 +3,206 @@ local moduleName = addonName.."_standby"
 local bepgp_standby = bepgp:NewModule(moduleName, "AceEvent-3.0", "AceTimer-3.0", "AceHook-3.0")
 local C = LibStub("LibCrayon-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
+local LD = LibStub("LibDialog-1.0")
 local DF = LibStub("LibDeformat-3.0")
 local T = LibStub("LibQTip-1.0")
 
 bepgp_standby.roster = {}
-local standby_blacklist = {}
+bepgp_standby.blacklist = {}
 local standbycall = string.format(L["{BEPGP}Type \"+\" if on main, or \"+<YourMainName>\" (without quotes) if on alt within %dsec."],bepgp.VARS.timeout)
+local standbyanswer = "^(%+)(%a*)$"
+
+local pr_sorter_standby = function(a,b)
+  if (a[2] ~= b[2]) then 
+    return a[2] > b[2]
+  else 
+    return a[1] > b[1] 
+  end
+end
 
 function bepgp_standby:OnEnable()
   self.qtip = T:Acquire(addonName.."standbyTablet") -- name, class, rank, alt
-  self.qtip:SetColumnLayout(3, "LEFT", "RIGHT", "RIGHT")
+  self.qtip:SetColumnLayout(3, "LEFT", "CENTER", "RIGHT")
   self.qtip:ClearAllPoints()
   self.qtip:SetClampedToScreen(true)
   self.qtip:SetClampRectInsets(-100,100,50,-50)
-  self.qtip:SetPoint("TOP",UIParent,"TOP",0,-50)  
+  self.qtip:SetPoint("TOP",UIParent,"TOP",0,-50)
+  if IsInGuild() then
+    LD:Register(addonName.."DialogStandbyCheck", bepgp:templateCache("DialogStandbyCheck"))
+    self._channelTimer = self:ScheduleTimer("injectOptions",10)
+  end
+end
+
+function bepgp_standby:injectOptions()
+  if bepgp._guildName then
+    local sanitized_guild = bepgp._guildName:gsub("[%A]+","")
+    self._standbyChannel = string.format("%s%s",sanitized_guild,L["Standby"])
+    bepgp._options.args["standby"] = {
+      type = "toggle",
+      name = L["Enable Standby"],
+      desc = L["Participate in Standby Raiders List.\n|cffff0000Requires Main Character Name.|r"],
+      order = 50,
+      get = function() 
+        return not not bepgp.db.char.standby
+      end,
+      set = function(info, val) 
+        bepgp.db.char.standby = not bepgp.db.char.standby
+        bepgp_standby:standbyToggle(bepgp.db.char.standby) 
+      end,
+      disabled = function() return not bepgp.db.profile.main end
+    }
+    if not bepgp._ddoptions then bepgp._ddoptions = bepgp:ddoptions() end
+    bepgp._ddoptions.args["ep_standby"] = {
+      type = "execute",
+      name = L["+EPs to Standby"],
+      desc = L["Award EPs to all active Standby."],
+      order = 20,
+      func = function(info)
+        LD:Spawn(addonName.."DialogGroupPoints", {"ep", C:Green(L["Effort Points"]), L["Standby"]})
+      end,
+    }
+    bepgp._ddoptions.args["afkcheck_standby"] = {
+      type = "execute",
+      name = L["AFK Check Standby"],
+      desc = L["AFK Check Standby List"],
+      order = 30,
+      func = function(info) bepgp_standby:sendStandbyCheck() end
+    }    
+    self:standbyToggle(not not bepgp.db.char.standby)
+  else
+    self._channelTimer = self:ScheduleTimer("injectOptions",10)
+  end
+end
+
+function bepgp_standby:standbyToggle(flag)
+  local id = GetChannelName(GetChannelName(self._standbyChannel))
+  local joined = id > 0 and true or false
+  if flag then -- join
+    if not joined then -- join
+      self:RegisterEvent("CHAT_MSG_CHANNEL_NOTICE", "channelChange")
+      JoinTemporaryChannel(self._standbyChannel,nil,DEFAULT_CHAT_FRAME:GetID())
+    else
+      self._standbyID = id
+      self:RegisterEvent("CHAT_MSG_CHANNEL","captureStandbyChat")
+      bepgp.db.char.standby = flag
+    end
+  else -- leave
+    if joined then -- leave
+      local id = ChatFrame_RemoveChannel(DEFAULT_CHAT_FRAME,self._standbyChannel)
+      LeaveChannelByName(self._standbyChannel)
+    end
+    self:UnregisterEvent("CHAT_MSG_CHANNEL")
+    bepgp.db.char.standby = flag
+    self._standbyID = nil
+  end
+  return flag
+end
+
+function bepgp_standby:channelChange(event, text, playerName, _, _, _, _, _, channelIndex, channelBaseName)
+  if channelIndex > 0 then
+    if (text == "YOU_JOINED" or text == "YOU_CHANGED") and channelBaseName == self._standbyChannel then
+      self._standbyID = channelIndex
+      --ChatFrame_AddChannel(DEFAULT_CHAT_FRAME,self._standbyChannel)
+      ChatFrame_RemoveChannel(DEFAULT_CHAT_FRAME,self._standbyChannel)
+      if self._standbyID and self._standbyID > 0 then
+        self:RegisterEvent("CHAT_MSG_CHANNEL","captureStandbyChat")
+        bepgp.db.char.standby = true
+      end
+    end
+  end
+end
+-- /run BastionEPGP:GetModule("BastionEPGP_standby"):sendStandbyCheck()
+function bepgp_standby:sendStandbyCheck()
+  if not (self._standbyID and self._standbyID > 0) then return end
+  if bepgp:GroupStatus() == "RAID" and bepgp:admin() then
+    SendChatMessage(standbycall, "CHANNEL", nil, self._standbyID)
+    table.wipe(self.roster)
+    table.wipe(self.blacklist)
+    self._runningcheck = true
+    self.qtip:Show()
+    self._checkTimer = self:ScheduleTimer("stopStandbyCheck", bepgp.VARS.timeout)
+    bepgp:Print(L["Started Standby AFKCheck for 1min."])    
+  end
+end
+
+function bepgp_standby:captureStandbyChat(event, text, sender, _, _, _, _, _, channelIndex)
+  if channelIndex ~= self._standbyID then return end
+  local sender = Ambiguate(sender,"short")
+  -- call incoming, should we respond?
+  local query = string.find(text,L["^{BEPGP}Type"])
+  if query and not self._runningcheck then
+    local name = bepgp:verifyGuildMember(sender)
+    if name and not bepgp:inRaid(name) then
+      LD:Spawn(addonName.."DialogStandbyCheck", bepgp.VARS.timeout)
+    end
+    return
+  end
+  -- response incoming
+  local standby, standby_class, standby_rank, standby_alt = nil,nil,nil,nil
+  local r,_,rdy,name = string.find(text,standbyanswer)
+  if (r) and (self._runningcheck) then
+    if (rdy) then
+      if (name) and (name ~= "") then
+        if (not bepgp:inRaid(name)) then
+          standby, standby_class, standby_rank = bepgp:verifyGuildMember(name)
+          if standby ~= sender then
+            standby_alt = sender
+          end
+        end
+      else
+        if (not bepgp:inRaid(sender)) then
+          standby, standby_class, standby_rank = bepgp:verifyGuildMember(sender)    
+        end
+      end
+      if standby and standby_class and standby_rank then
+        if standby_alt then
+          if not bepgp_standby.blacklist[standby_alt] then
+            bepgp_standby.blacklist[standby_alt] = true
+            table.insert(bepgp_standby.roster,{standby,standby_class,standby_rank,standby_alt})
+          else
+            bepgp:Print(string.format(L["|cffff0000%s|r trying to add %s to Standby, but has already added a member. Discarding!"],standby_alt,standby))
+          end
+        else
+          if not bepgp_standby.blacklist[standby] then
+            bepgp_standby.blacklist[standby] = true
+            table.insert(bepgp_standby.roster,{standby,standby_class,standby_rank})
+          else
+            bepgp:Print(string.format(L["|cffff0000%s|r has already been added to Standby. Discarding!"],standby))
+          end
+        end
+      end
+    end
+    self:updateStandby()
+    self:Refresh()
+    return
+  end  
+end
+
+function bepgp_standby:sendCheckResponse()
+  if self._standbyID and self._standbyID > 0 then
+    if bepgp.db.profile.main then
+      SendChatMessage("+", "CHANNEL", nil, self._standbyID)
+    else
+      SendChatMessage(string.format("+%s",bepgp.db.profile.main),"CHANNEL", nil, self._standbyID)
+    end
+  end
+end
+
+function bepgp_standby:stopStandbyCheck()
+  self._runningcheck = false
+  if self._checkTimer then
+    self:CancelTimer(self._checkTimer)
+  end
+  bepgp:Print(L["Standby AFKCheck finished."])
+end
+
+function bepgp_standby:updateStandby()
+  --{name,class,rank,alt}
+  table.sort(self.roster, pr_sorter_standby)
+end
+
+function bepgp_standby:sendTell(name)
+  ChatFrame_SendTell(name, DEFAULT_CHAT_FRAME)
 end
 
 function bepgp_standby:Refresh()
@@ -28,14 +214,33 @@ function bepgp_standby:Refresh()
   frame:SetCell(line,1,L["BastionEPGP standby"],nil,"CENTER",2)
   frame:SetCell(line,3,C:Red("[x]"),nil,"RIGHT")
   frame:SetCellScript(line,3,"OnMouseUp", function() bepgp_standby.qtip:Hide() end)
-  
+
+  if #(self.roster) > 0 then
+    line = frame:AddLine(" ")
+    line = frame:AddHeader()
+    frame:SetCell(line,1,C:Orange(L["Name"]),nil,"LEFT")
+    frame:SetCell(line,2,C:Orange(L["Rank"]),nil,"CENTER")
+    frame:SetCell(line,3,C:Orange(L["OnAlt"]),nil,"RIGHT")
+    line = frame:AddSeparator(1)
+    for i,data in ipairs(self.roster) do
+      local name, class, rank, alt = unpack(data)
+      local eclass,_,hexclass = bepgp:getClassData(class)
+      local r,g,b = RAID_CLASS_COLORS[eclass].r, RAID_CLASS_COLORS[eclass].g, RAID_CLASS_COLORS[eclass].b
+      line = frame:AddLine()
+      frame:SetCell(line,1,name,nil,"LEFT")
+      frame:SetCellTextColor(line,1,r,g,b)
+      frame:SetCell(line,2,rank,nil,"CENTER")
+      frame:SetCell(line,3,(alt or ""),nil,"RIGHT")
+      frame:SetLineScript(line, "OnMouseUp", bepgp_standby.sendTell, (alt or name))
+    end
+  end
   frame:UpdateScrolling()
 end
 
 function bepgp_standby:Toggle(anchor)
   if not T:IsAcquired(addonName.."standbyTablet") then
-    self.qtip = T:Acquire(addonName.."standbyTablet") -- Name, ep, gp, pr, Main
-    self.qtip:SetColumnLayout(3, "LEFT", "RIGHT", "RIGHT")
+    self.qtip = T:Acquire(addonName.."standbyTablet") -- Name, Rank, OnAlt
+    self.qtip:SetColumnLayout(3, "LEFT", "CENTER", "RIGHT")
     return
   end
   if self.qtip:IsShown() then
@@ -53,133 +258,3 @@ function bepgp_standby:Toggle(anchor)
     self.qtip:Show()
   end
 end
-
-
-
---[[
-local T = LibStub("LibQTip-1.0")
---local D = AceLibrary("Dewdrop-2.0")
-local C = LibStub("LibCrayon-3.0")
-
---local BC = AceLibrary("Babble-Class-2.2")
-local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
-_G[moduleName] = _G[addonName]:NewModule(moduleName)
-local sepgp_reserves = _G[moduleName]
---sepgp_reserves = sepgp:NewModule("sepgp_reserves", "AceDB-2.0")
-
-function sepgp_reserves:OnEnable()
-  if not T:IsRegistered("sepgp_reserves") then
-    T:Register("sepgp_reserves",
-      "children", function()
-        T:SetTitle(L["BastionEPGP reserves"])
-        self:OnTooltipUpdate()
-      end,
-      "showTitleWhenDetached", true,
-      "showHintWhenDetached", true,
-      "cantAttach", true,
-      "menu", function()
-        D:AddLine(
-          "text", L["Refresh"],
-          "tooltipText", L["Refresh window"],
-          "func", function() sepgp_reserves:Refresh() end
-        )
-      end      
-    )
-  end
-  if not T:IsAttached("sepgp_reserves") then
-    T:Open("sepgp_reserves")
-  end
-end
-
-function sepgp_reserves:OnDisable()
-  T:Close("sepgp_reserves")
-end
-
-function sepgp_reserves:Refresh()
-  T:Refresh("sepgp_reserves")
-end
-
-function sepgp_reserves:setHideScript()
-  local i = 1
-  local tablet = getglobal(string.format("Tablet20DetachedFrame%d",i))
-  while (tablet) and i<100 do
-    if tablet.owner ~= nil and tablet.owner == "sepgp_reserves" then
-      sepgp:make_escable(string.format("Tablet20DetachedFrame%d",i),"add")
-      tablet:SetScript("OnHide",nil)
-      tablet:SetScript("OnHide",function()
-          if not T:IsAttached("sepgp_reserves") then
-            T:Attach("sepgp_reserves")
-            this:SetScript("OnHide",nil)
-          end
-        end)
-      break
-    end    
-    i = i+1
-    tablet = getglobal(string.format("Tablet20DetachedFrame%d",i))
-  end  
-end
-
-function sepgp_reserves:Top()
-  if T:IsRegistered("sepgp_reserves") and (T.registry.sepgp_reserves.tooltip) then
-    T.registry.sepgp_reserves.tooltip.scroll=0
-  end  
-end
-
-function sepgp_reserves:Toggle(forceShow)
-  self:Top()
-  if T:IsAttached("sepgp_reserves") then
-    T:Detach("sepgp_reserves") -- show
-    if (T:IsLocked("sepgp_reserves")) then
-      T:ToggleLocked("sepgp_reserves")
-    end
-    self:setHideScript()
-  else
-    if (forceShow) then
-      sepgp_reserves:Refresh()
-    else
-      T:Attach("sepgp_reserves") -- hide
-    end
-  end  
-end
-
-function sepgp_reserves:OnClickItem(name)
-  ChatFrame_SendTell(name)
-end
-
-function sepgp_reserves:BuildReservesTable()
-  --{name,class,rank,alt}
-  table.sort(sepgp.reserves, function(a,b)
-    if (a[2] ~= b[2]) then return a[2] > b[2]
-    else return a[1] > b[1] end
-  end)
-  return sepgp.reserves
-end
-
-function sepgp_reserves:OnTooltipUpdate()
-  local cdcat = T:AddCategory(
-      "columns", 2
-    )
-  cdcat:AddLine(
-      "text", C:Orange(L["Countdown"]),
-      "text2", sepgp.timer.cd_text
-    )
-  local cat = T:AddCategory(
-      "columns", 3,
-      "text",  C:Orange(L["Name"]),   "child_textR",    1, "child_textG",    1, "child_textB",    1, "child_justify",  "LEFT",
-      "text2", C:Orange(L["Rank"]),     "child_text2R",   1, "child_text2G",   1, "child_text2B",   0, "child_justify2", "RIGHT",
-      "text3", C:Orange(L["OnAlt"]),  "child_text3R",   0, "child_text3G",   1, "child_text3B",   0, "child_justify3", "RIGHT"
-    )
-  local t = self:BuildReservesTable()
-  for i = 1, table.getn(t) do
-    local name, class, rank, alt = unpack(t[i])
-    cat:AddLine(
-      "text", C:Colorize(BC:GetHexColor(class), name),
-      "text2", rank,
-      "text3", alt or "",
-      "func", "OnClickItem", "arg1", self, "arg2", alt or name
-    )
-  end
-end
-]]
--- GLOBALS: sepgp_saychannel,sepgp_groupbyclass,sepgp_groupbyarmor,sepgp_groupbyrole,sepgp_raidonly,sepgp_decay,sepgp_minep,sepgp_reservechannel,sepgp_main,sepgp_progress,sepgp_discount,sepgp_log,sepgp_dbver,sepgp_looted
--- GLOBALS: sepgp,sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot,sepgp_reserves,sepgp_alts,sepgp_logs

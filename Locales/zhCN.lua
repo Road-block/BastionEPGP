@@ -242,5 +242,8 @@ if not L then return end
   L["Select Price Scheme"] = "Select Price Scheme" -- needs translation
   L["Select From Registered Price Systems"] = "Select From Registered Price Systems" -- needs translation
   L["%s is offline. Getting info from guild cache."] = "%s is offline. Getting info from guild cache." -- needs translation
+  L["BastionEPGP will be saving to file in `\\WTF\\Account\\<ACCOUNT>\\SavedVariables\\BastionEPGP_Export.lua`"] = "BastionEPGP will be saving to file in `\\WTF\\Account\\<ACCOUNT>\\SavedVariables\\BastionEPGP_Export.lua`" -- needs translation
+  L["Started Standby AFKCheck for 1min."] = "Started Standby AFKCheck for 1min." -- needs translation
+  L["Standby AFKCheck finished."] = "Standby AFKCheck finished." -- needs translation
 
   bepgp.L = L

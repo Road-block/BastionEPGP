@@ -26,8 +26,6 @@ bepgp.VARS = {
   maxloglines = 500,
   prefix = "BEPGP_PREFIX",
   pricesystem = "BastionEPGPFixed-1.0",
-  standbychan = L["Standby"],
-  standbyanswer = "^(%+)(%a*)$",
   bop = C:Red(L["BoP"]),
   boe = C:Yellow(L["BoE"]),
   nobind = C:White(L["NoBind"]),
@@ -93,6 +91,7 @@ local defaults = {
     raidonly = false,
     tooltip = true,
     classgroup = false,
+    standby = false,
     logs = {},
     loot = {},
   },
@@ -234,48 +233,6 @@ function bepgp:options()
       desc = L["BastionEPGP options"],
       handler = bepgp,
       args = { }
-    }
-    self._options.args["standby"] = {
-      type = "toggle",
-      name = L["Enable Standby"],
-      desc = L["Participate in Standby Raiders List.\n|cffff0000Requires Main Character Name.|r"],
-      order = 50,
-      get = function() return (bepgp.standbyChannelID ~= nil) and (bepgp.standbyChannelID ~= 0) end,
-      set = function(info, val) bepgp:standbyToggle(val) end,
-      disabled = function() return not bepgp.db.profile.main end
-    }
-    self._options.args["alts"] = {
-      type = "toggle",
-      name = L["Enable Alts"],
-      desc = L["Allow Alts to use Main\'s EPGP."],
-      order = 63,
-      hidden = function() return not (bepgp:admin()) end,
-      disabled = function() return not (IsGuildLeader()) end,
-      get = function() return not not bepgp.db.profile.altspool end,
-      set = function(info, val) 
-        bepgp.db.profile.altspool = not bepgp.db.profile.altspool
-        if (IsGuildLeader()) then
-          bepgp:shareSettings(true)
-        end
-      end,
-    }
-    self._options.args["alts_percent"] = {
-      type = "range",
-      name = L["Alts EP %"],
-      desc = L["Set the % EP Alts can earn."],
-      order = 66,
-      hidden = function() return (not bepgp.db.profile.altspool) or (not IsGuildLeader()) end,
-      get = function() return bepgp.db.profile.altpercent end,
-      set = function(info, val) 
-        bepgp.db.profile.altpercent = val
-        if (IsGuildLeader()) then
-          bepgp:shareSettings(true)
-        end
-      end,
-      min = 0.5,
-      max = 1,
-      step = 0.05,
-      isPercent = true
     }
     self._options.args["set_main"] = {
       type = "input",
@@ -505,22 +462,6 @@ function bepgp:ddoptions()
       func = function(info)
         LD:Spawn(addonName.."DialogGroupPoints", {"ep", C:Green(L["Effort Points"]), _G.RAID}) 
       end,
-    }
-    self._ddoptions.args["ep_standby"] = {
-      type = "execute",
-      name = L["+EPs to Standby"],
-      desc = L["Award EPs to all active Standby."],
-      order = 20,
-      func = function(info)
-        LD:Spawn(addonName.."DialogGroupPoints", {"ep", C:Green(L["Effort Points"]), L["Standby"]})
-      end,
-    }
-    self._ddoptions.args["afkcheck_standby"] = {
-      type = "execute",
-      name = L["AFK Check Standby"],
-      desc = L["AFK Check Standby List"],
-      order = 30,
-      func = function(info) bepgp:afkcheck_standby() end
     }
     self._ddoptions.args["ep"] = {
       type = "group",
@@ -916,6 +857,42 @@ function bepgp:templateCache(id)
           },          
         },
       }
+    elseif id == "DialogStandbyCheck" then
+      self._dialogTemplates[key] = {
+        hide_on_escape = true,
+        show_whlle_dead = true,
+        text = L["Standby AFKCheck. Are you available? |cff00ff00%0d|rsec."],
+        on_show = function(self)
+          self.text:SetText(L["Standby AFKCheck. Are you available? |cff00ff00%0d|rsec."]:format(self.data))
+        end,
+        on_cancel = function(self)
+          local data = self.data
+          bepgp:Print(L["AFK Check Standby"])
+        end,        
+        on_update = function(self, elapsed)
+          self.data = self.data - elapsed
+          self.text:SetText(L["Standby AFKCheck. Are you available? |cff00ff00%0d|rsec."]:format(self.data))
+        end,
+        duration = bepgp.VARS.timeout,
+        buttons = {
+          {
+            text = _G.YES,
+            on_click = function(self, button, down)
+              local standby = bepgp:GetModule(addonName.."_standby")
+              if standby then
+                standby:sendCheckResponse()
+              end
+              LD:Dismiss(addonName.."DialogStandbyCheck")
+            end,
+          },
+          {
+            text = _G.NO,
+            on_click = function(self, button, down)
+              LD:Dismiss(addonName.."DialogStandbyCheck")
+            end,
+          },          
+        },
+      }      
     end
   end
   return self._dialogTemplates[key]
@@ -975,6 +952,7 @@ function bepgp:RefreshConfig()
 end
 
 function bepgp:deferredInit(guildname)
+  self._guildName = guildname
   if self._initdone then return end
   local realmname = GetRealmName()
   if realmname then
@@ -1780,19 +1758,29 @@ function bepgp:award_raid_ep(ep) -- awards ep to raid members in zone
 end
 
 function bepgp:award_standby_ep(ep) -- awards ep to reserve list
-  --[[if table.getn(bepgp.reserves) > 0 then
-    for i, reserve in ipairs(bepgp.reserves) do
-      local name, class, rank, alt = unpack(reserve)
-      self:givename_ep(name,ep)
+  local standby = self:GetModule(addonName.."_standby")
+  if standby then
+    if #(standby.roster) > 0 then
+      for i, standby in ipairs(standby.roster) do
+        local name, class, rank, alt = unpack(standby)
+        self:givename_ep(name, ep)
+      end
+      self:simpleSay(string.format(L["Giving %d ep to active standby"],ep))
+      local logs = self:GetModule(addonName.."_logs")
+      if logs then
+        logs:addToLog(string.format(L["Giving %d ep to active standby"],ep))
+      end
+      local addonMsg = string.format("STANDBY;AWARD;%s",ep)
+      self:addonMessage(addonMsg,"GUILD")
+      table.wipe(standby.roster)
+      table.wipe(standby.blacklist)
+      self:refreshPRTablets()
+      local standby = self:GetModule(addonName.."_standby")
+      if standby then
+        standby:Refresh()
+      end      
     end
-    self:simpleSay(string.format(L["Giving %d ep to active reserves"],ep))
-    self:addToLog(string.format(L["Giving %d ep to active reserves"],ep))
-    local addonMsg = string.format("STANDBY;AWARD;%s",ep)
-    self:addonMessage(addonMsg,"GUILD")
-    bepgp.reserves = {}
-    reserves_blacklist = {}
-    self:refreshPRTablets()
-  end]]
+  end
 end
 
 function bepgp:decay_epgp()
@@ -1818,19 +1806,6 @@ function bepgp:decay_epgp()
   self:refreshPRTablets()  
   local addonMsg = string.format("ALL;DECAY;%s",(1-(decay or bepgp.VARS.decay))*100)
   self:addonMessage(addonMsg,"GUILD")
-end
-
-function bepgp:afkcheck_standby()
-  --[[if (running_check) then return end
-  if bepgp.reservesChannelID ~= nil and ((GetChannelName(bepgp.reservesChannelID)) == bepgp.reservesChannelID) then
-    reserves_blacklist = {}
-    bepgp.reserves = {}
-    running_check = true
-    bepgp.timer.count_down = bepgp.VARS.timeout
-    bepgp.timer:Show()
-    SendChatMessage(bepgp.VARS.reservecall,"CHANNEL",nil,bepgp.reservesChannelID)
-    sepgp_reserves:Toggle(true)
-  end]]
 end
 
 function bepgp:get_ep(getname,officernote) -- gets ep by name or note

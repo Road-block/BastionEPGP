@@ -27,6 +27,43 @@ function bepgp_alts:OnEnable()
   container:SetCallback("OnShow", function() bepgp_alts._alts_table:Show() end)
   container:SetCallback("OnClose", function() bepgp_alts._alts_table:Hide() end)
   bepgp:make_escable(container,"add")
+  self:injectOptions()  
+end
+
+function bepgp_alts:injectOptions()
+  bepgp._options.args["alts"] = {
+    type = "toggle",
+    name = L["Enable Alts"],
+    desc = L["Allow Alts to use Main\'s EPGP."],
+    order = 63,
+    hidden = function() return not (bepgp:admin()) end,
+    disabled = function() return not (IsGuildLeader()) end,
+    get = function() return not not bepgp.db.profile.altspool end,
+    set = function(info, val) 
+      bepgp.db.profile.altspool = not bepgp.db.profile.altspool
+      if (IsGuildLeader()) then
+        bepgp:shareSettings(true)
+      end
+    end,
+  }
+  bepgp._options.args["alts_percent"] = {
+    type = "range",
+    name = L["Alts EP %"],
+    desc = L["Set the % EP Alts can earn."],
+    order = 66,
+    hidden = function() return (not bepgp.db.profile.altspool) or (not IsGuildLeader()) end,
+    get = function() return bepgp.db.profile.altpercent end,
+    set = function(info, val) 
+      bepgp.db.profile.altpercent = val
+      if (IsGuildLeader()) then
+        bepgp:shareSettings(true)
+      end
+    end,
+    min = 0.5,
+    max = 1,
+    step = 0.05,
+    isPercent = true
+  }  
 end
 
 function bepgp_alts:Toggle()

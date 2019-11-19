@@ -3,32 +3,62 @@ local moduleName = addonName.."_io"
 local bepgp_io = bepgp:NewModule(moduleName)
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local Dump = LibStub("LibTextDump-1.0")
-local Json = LibStub("LibJSON-1.0")
+local Parse = LibStub("LibParse")
+
+local temp_data = {}
 
 function bepgp_io:OnEnable()
   self._iostandings = Dump:New(L["Export Standings"],250,290)
   self._ioloot = Dump:New(L["Export Loot"],500,320)
   self._iologs = Dump:New(L["Export Logs"],450,320)
+  local bastionexport,_,_,_,reason = GetAddOnInfo("BastionEPGP_Export")
+  if not (reason == "ADDON_MISSING" or reason == "ADDON_DISABLED") then
+    local loaded, finished = IsAddOnLoaded("BastionEPGP_Export")
+    if loaded then
+      BastionEPGPExport = BastionEPGPExport or {}
+      self._fileexport = BastionEPGPExport
+      bepgp:debugPrint(L["BastionEPGP will be saving to file in `\\WTF\\Account\\<ACCOUNT>\\SavedVariables\\BastionEPGP_Export.lua`"])
+    end
+  end
 end
 
 function bepgp_io:Standings()
+  local keys
   self._iostandings:Clear()
   local members = bepgp:buildRosterTable()
   self._iostandings:AddLine(string.format("%s;%s;%s;%s",L["Name"],L["ep"],L["gp"],L["pr"]))
+  if self._fileexport then
+    table.wipe(temp_data)
+    keys = {L["Name"],L["ep"],L["gp"],L["pr"]}
+  end
   for k,v in pairs(members) do
     local ep = bepgp:get_ep(v.name,v.onote) or 0
     if ep > 0 then
       local gp = bepgp:get_gp(v.name,v.onote) or bepgp.VARS.basegp
       local pr = ep/gp
       self._iostandings:AddLine(string.format("%s;%s;%s;%.4g",v.name,ep,gp,pr))
+      if self._fileexport then
+        local entry = {}
+        entry[L["Name"]] = v.name
+        entry[L["ep"]] = ep
+        entry[L["gp"]] = gp
+        entry[L["pr"]] = tonumber(string.format("%.4g",pr))
+        table.insert(temp_data, entry)
+      end
     end
   end
   self._iostandings:Display()
+  self:export("Standings", temp_data, keys, ";")
 end
 
 function bepgp_io:Loot(loot_indices)
+  local keys
   self._ioloot:Clear()
   self._ioloot:AddLine(string.format("%s;%s;%s;%s",L["Time"],L["Item"],L["Looter"],L["GP Action"]))
+  if self._fileexport then
+    table.wipe(temp_data)
+    keys = {L["Time"],L["Item"],L["Looter"],L["GP Action"]}
+  end
   for i,data in ipairs(bepgp.db.char.loot) do
     local time = data[loot_indices.time]
     local item = data[loot_indices.item]
@@ -37,18 +67,55 @@ function bepgp_io:Loot(loot_indices)
     local action = data[loot_indices.action]
     if action == bepgp.VARS.msgp or action == bepgp.VARS.osgp or action == bepgp.VARS.bankde then
       self._ioloot:AddLine(string.format("%s;%s;%s;%s",time,itemName,looter,action))
+      if self._fileexport then
+        local entry = {}
+        entry[L["Time"]] = time
+        entry[L["Item"]] = itemName
+        entry[L["Looter"]] = looter
+        entry[L["GP Action"]] = action
+        table.insert(temp_data, entry)
+      end
     end
   end
   self._ioloot:Display()
+  self:export("Loot", temp_data, keys, ";")
 end
 
 function bepgp_io:Logs()
+  local keys
   self._iologs:Clear()
   self._iologs:AddLine(string.format("%s;%s",L["Time"],L["Action"]))
+  if self._fileexport then
+    table.wipe(temp_data)
+    keys = {L["Time"],L["Action"]}
+  end
   for i,data in ipairs(bepgp.db.char.logs) do
     self._iologs:AddLine(string.format("%s;%s",data[1],data[2]))
+    if self._fileexport then
+      local entry = {}
+      entry[L["Time"]] = data[1]
+      entry[L["Action"]] = data[2]
+      table.insert(temp_data, entry)
+    end
   end
   self._iologs:Display()
+  self:export("Logs", temp_data, ";")
+end
+
+function bepgp_io:export(context,data,keys,sep)
+  if not self._fileexport then return end
+  if context == "Standings" then
+    table.sort(data, function(a,b)
+      return a[L["pr"]] > b[L["pr"]]
+    end)
+  end
+  self._fileexport[context] = {}
+  self._fileexport[context].JSON = Parse:JSONEncode(data)
+  self._fileexport[context].CSV = Parse:CSVEncode(keys, data, sep)
+end
+
+function bepgp_io:StandingsImport()
+  if not IsGuildLeader() then return end
 end
 
 --[[

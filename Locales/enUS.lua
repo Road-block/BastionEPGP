@@ -240,6 +240,9 @@ Results will print here when done.]]
   L["Select Price Scheme"] = true
   L["Select From Registered Price Systems"] = true
   L["%s is offline. Getting info from guild cache."] = true
+  L["BastionEPGP will be saving to file in `\\WTF\\Account\\<ACCOUNT>\\SavedVariables\\BastionEPGP_Export.lua`"] = true
+  L["Started Standby AFKCheck for 1min."] = true
+  L["Standby AFKCheck finished."] = true
   
 
 bepgp.L = L

@@ -347,19 +347,29 @@ function bepgp_loot:bidCall(frame, button)
   if not IsAltKeyDown() then return end
   if not self:raidLootAdmin() then return end
   local slot = frame.slot -- lootframe/MasterLooterFrame
-  local hasItem = frame.hasItem -- default bags & Bagnon
+  local hasItem = frame.hasItem -- default bags, Bagnon and Baggins
   local bagID, slotID = frame.bagID, frame.slotID -- cargBags_Nivaya
   if not (slot or hasItem or (bagID and slotID)) then return end
   local itemLink
   if hasItem then
-    local bag, slot = frame:GetParent():GetID(), frame:GetID() -- get from ItemButton (default bags, Bagnon, BaudManifest, tdBag2)
-    itemLink = GetContainerItemLink(bag, slot)
+    local bag, slot = frame:GetParent():GetID(), frame:GetID() -- get from ItemButton (default bags, Bagnon, BaudManifest, tdBag2, Baggins)
+    if bag and slot then
+      itemLink = GetContainerItemLink(bag, slot)
+    end
     if not itemLink then 
       itemLink = frame.itemLink -- AdiBags
     end
     if not itemLink then -- ArkInventory
       if frame.ARK_Data then
         local bag, slot = frame.ARK_Data.blizzard_id, frame.ARK_Data.slot_id
+        if bag and slot then
+          itemLink = GetContainerItemLink(bag, slot)
+        end
+      end
+    end
+    if not itemLink then -- Baggins fallback
+      if frame.slots then
+        local bag, slot = frame.slots[1]:match("(%d+):(%d+)")
         if bag and slot then
           itemLink = GetContainerItemLink(bag, slot)
         end
@@ -387,11 +397,12 @@ function bepgp_loot:bidCall(frame, button)
 end
 
 local bag_addons = {
-  ["Bagnon"] = false,
-  ["Combuctor"] = false,
   ["AdiBags"] = false,
   ["ArkInventory"] = false,
+  ["Baggins"] = false,
+  ["Bagnon"] = false,
   ["cargBags_Nivaya"] = false,
+  ["Combuctor"] = false,
   ["tdBag2"] = false,
 }
 function bepgp_loot:hookBagAddons()
@@ -413,6 +424,14 @@ function bepgp_loot:hookContainerButton(itemButton)
       end
       itemButton._bepgpclicks = true
     end
+  end
+end
+
+function bepgp_loot:bagginsHook()
+  local numbuttons = Baggins.db.char.lastNumItemButtons + Baggins.minSpareItemButtons
+  for i=1,numbuttons do
+    local itemButton = _G["BagginsPooledItemButton"..i]
+    bepgp_loot:hookContainerButton(itemButton)
   end
 end
 
@@ -439,6 +458,10 @@ function bepgp_loot:clickHandlerBags(id)
           self:hookContainerButton(itemButton)
         end
       end
+      bag_addons[addon] = true
+    elseif addon == "Baggins" then
+      self:SecureHook(Baggins,"RepopulateButtonPool","bagginsHook")
+      self:bagginsHook()
       bag_addons[addon] = true
     elseif addon == "tdBag2" then
       for b = 1, NUM_CONTAINER_FRAMES do
