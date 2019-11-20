@@ -136,8 +136,8 @@ Results will print here when done.]]
   L["All EP and GP has been reset to 0/%d."] = true
   L["You now have: %d EP %d GP |cffffff00%.03f|r|cffff7f00PR|r."] = true
   L["Close to EPGP Cap. Next Decay will change your |cffff7f00PR|r by |cffff0000%.4g|r."] = true
-  L["|cffffff00Click|r to toggle Standings.%s \n|cffffff00Right-Click|r for Options."] = true
-  L[" \n|cffffff00Ctrl+Click|r to toggle Standby. \n|cffffff00Alt+Click|r to toggle Bids. \n|cffffff00Shift+Click|r to toggle Loot. \n|cffffff00Ctrl+Alt+Click|r to toggle Alts. \n|cffffff00Ctrl+Shift+Click|r to toggle Logs."] = true
+  L["|cffff7f00Click|r to toggle Standings.%s \n|cffff7f00Right-Click|r for Options."] = true
+  L[" \n|cffff7f00Ctrl+Click|r to toggle Standby. \n|cffff7f00Alt+Click|r to toggle Bids. \n|cffff7f00Shift+Click|r to toggle Loot. \n|cffff7f00Ctrl+Alt+Click|r to toggle Alts. \n|cffff7f00Ctrl+Shift+Click|r to toggle Logs."] = true
   L["Account EPs to %s."] = true
   L["Account GPs to %s."] = true
   L["BastionEPGP options"] = true
@@ -243,6 +243,7 @@ Results will print here when done.]]
   L["BastionEPGP will be saving to file in `\\WTF\\Account\\<ACCOUNT>\\SavedVariables\\BastionEPGP_Export.lua`"] = true
   L["Started Standby AFKCheck for 1min."] = true
   L["Standby AFKCheck finished."] = true
+  L["Price system set to: %q %s"] = true
   
 
 bepgp.L = L

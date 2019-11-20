@@ -535,19 +535,15 @@ function bepgp.OnLDBTooltipShow(tooltip)
   tooltip = tooltip or GameTooltip
   tooltip:SetText(addonName)
   tooltip:AddLine(" ")
-  local hint = L["|cffffff00Click|r to toggle Standings.%s \n|cffffff00Right-Click|r for Options."]
+  local hint = L["|cffff7f00Click|r to toggle Standings.%s \n|cffff7f00Right-Click|r for Options."]
   if bepgp:admin() then
-    hint = hint:format(L[" \n|cffffff00Ctrl+Click|r to toggle Standby. \n|cffffff00Alt+Click|r to toggle Bids. \n|cffffff00Shift+Click|r to toggle Loot. \n|cffffff00Ctrl+Alt+Click|r to toggle Alts. \n|cffffff00Ctrl+Shift+Click|r to toggle Logs."])
+    hint = hint:format(L[" \n|cffff7f00Ctrl+Click|r to toggle Standby. \n|cffff7f00Alt+Click|r to toggle Bids. \n|cffff7f00Shift+Click|r to toggle Loot. \n|cffff7f00Ctrl+Alt+Click|r to toggle Alts. \n|cffff7f00Ctrl+Shift+Click|r to toggle Logs."])
   else
     hint = hint:format("")
   end
   tooltip:AddLine(hint)
 end
---[[
- local tabardBackgroundUpper, tabardBackgroundLower, tabardEmblemUpper, tabardEmblemLower, tabardBorderUpper, tabardBorderLower = GetGuildTabardFileNames()-- returns paths >> GetGuildTabardFiles() -- returns ids;
- -- fileID = GetFileIDFromPath(filePath)
-local bkgR, bkgG, bkgB, borderR, borderG, borderB, emblemR, emblemG, emblemB, emblemFilename = GetGuildLogoInfo()
-]]
+
 function bepgp:templateCache(id)
   local key = addonName..id
   self._dialogTemplates = self._dialogTemplates or {}
@@ -902,7 +898,8 @@ function bepgp:OnInitialize() -- 1. ADDON_LOADED
   -- guild specific stuff should go in profile named after guild
   -- player specific in char
   self._versionString = GetAddOnMetadata(addonName,"Version")
-  self._websiteString = GetAddOnMetadata(addonName,"X-Website")  
+  self._websiteString = GetAddOnMetadata(addonName,"X-Website")
+  self._labelfull = string.format("%s %s",label,self._versionString)
   self.db = LibStub("AceDB-3.0"):New("BastionEPGPDB", defaults)
   self:options()
   self._options.args.profile = ADBO:GetOptionsTable(self.db)
@@ -951,13 +948,31 @@ function bepgp:RefreshConfig()
 
 end
 
+function bepgp:guildInfoSettings()
+  local now = GetTime()
+  if not self._lastInfoScan or (self._lastInfoScan and (now - self._lastInfoScan) > self.VARS.timeout) then
+    local ginfotxt = GetGuildInfoText()
+    if ginfotxt and ginfotxt ~= "" and ginfotxt ~= GUILD_INFO_EDITLABEL then
+      local system = self.db.profile.system
+      local pricesystem = ginfotxt:match("{([^%c{}]+)}")
+      if pricesystem and pricesystem ~= system then
+        self.db.profile.system = pricesystem
+        self:SetPriceSystem(GUILD_INFORMATION)
+        self._lastInfoScan = now
+      end
+    end
+  end  
+end
+
 function bepgp:deferredInit(guildname)
   self._guildName = guildname
+  self:guildInfoSettings()
+  self:guildBranding()
   if self._initdone then return end
   local realmname = GetRealmName()
   if realmname then
     local profilekey = guildname.." - "..realmname
-    local panelHeader = self:admin() and L["Admin Options"] or L["Member Options"]
+    local panelHeader = self:admin() and string.format("%s %s",self._labelfull,L["Admin Options"]) or string.format("%s %s",self._labelfull,L["Member Options"])
     self._options.name = panelHeader
     self.db:SetProfile(profilekey)
     -- register our dialogs
@@ -1036,6 +1051,127 @@ function bepgp:AddTipInfo(tooltip,...)
       end
     end
   end
+end
+
+function bepgp:guildBranding()
+  local f = CreateFrame("Frame", nil, UIParent)
+  f:SetWidth(64)
+  f:SetHeight(64)
+  f:SetPoint("CENTER",UIParent,"CENTER",0,0)
+
+  local tabardBackgroundUpper, tabardBackgroundLower, tabardEmblemUpper, tabardEmblemLower, tabardBorderUpper, tabardBorderLower = GetGuildTabardFileNames()
+  if ( not tabardEmblemUpper ) then
+    tabardBackgroundUpper = "Textures\\GuildEmblems\\Background_49_TU_U"
+    tabardBackgroundLower = "Textures\\GuildEmblems\\Background_49_TL_U"
+  end
+
+  f.bgUL = f:CreateTexture(nil, "BACKGROUND")
+  f.bgUL:SetWidth(32)
+  f.bgUL:SetHeight(32)
+  f.bgUL:SetPoint("TOPLEFT",f,"TOPLEFT",0,0)
+  f.bgUL:SetTexCoord(0.5,1,0,1)
+  f.bgUR = f:CreateTexture(nil, "BACKGROUND")
+  f.bgUR:SetWidth(32)
+  f.bgUR:SetHeight(32)
+  f.bgUR:SetPoint("LEFT", f.bgUL, "RIGHT", 0, 0)
+  f.bgUR:SetTexCoord(1,0.5,0,1)
+  f.bgBL = f:CreateTexture(nil, "BACKGROUND")
+  f.bgBL:SetWidth(32)
+  f.bgBL:SetHeight(32)
+  f.bgBL:SetPoint("TOP", f.bgUL, "BOTTOM", 0, 0)
+  f.bgBL:SetTexCoord(0.5,1,0,1)
+  f.bgBR = f:CreateTexture(nil, "BACKGROUND")
+  f.bgBR:SetWidth(32)
+  f.bgBR:SetHeight(32)
+  f.bgBR:SetPoint("LEFT", f.bgBL, "RIGHT", 0,0)
+  f.bgBR:SetTexCoord(1,0.5,0,1)
+
+  f.bdUL = f:CreateTexture(nil, "BORDER")
+  f.bdUL:SetWidth(32)
+  f.bdUL:SetHeight(32)
+  f.bdUL:SetPoint("TOPLEFT", f.bgUL, "TOPLEFT", 0,0)
+  f.bdUL:SetTexCoord(0.5,1,0,1)
+  f.bdUR = f:CreateTexture(nil, "BORDER")
+  f.bdUR:SetWidth(32)
+  f.bdUR:SetHeight(32)
+  f.bdUR:SetPoint("LEFT", f.bdUL, "RIGHT", 0,0)
+  f.bdUR:SetTexCoord(1,0.5,0,1)
+  f.bdBL = f:CreateTexture(nil, "BORDER")
+  f.bdBL:SetWidth(32)
+  f.bdBL:SetHeight(32)
+  f.bdBL:SetPoint("TOP", f.bdUL, "BOTTOM", 0,0)
+  f.bdBL:SetTexCoord(0.5,1,0,1)
+  f.bdBR = f:CreateTexture(nil, "BORDER")
+  f.bdBR:SetWidth(32)
+  f.bdBR:SetHeight(32)
+  f.bdBR:SetPoint("LEFT", f.bdBL, "RIGHT", 0,0)
+  f.bdBR:SetTexCoord(1,0.5,0,1)
+
+  f.emUL = f:CreateTexture(nil, "BORDER")
+  f.emUL:SetWidth(32)
+  f.emUL:SetHeight(32)
+  f.emUL:SetPoint("TOPLEFT", f.bgUL, "TOPLEFT", 0,0)
+  f.emUL:SetTexCoord(0.5,1,0,1)
+  f.emUR = f:CreateTexture(nil, "BORDER")
+  f.emUR:SetWidth(32)
+  f.emUR:SetHeight(32)
+  f.emUR:SetPoint("LEFT", f.bdUL, "RIGHT", 0,0)
+  f.emUR:SetTexCoord(1,0.5,0,1)
+  f.emBL = f:CreateTexture(nil, "BORDER")
+  f.emBL:SetWidth(32)
+  f.emBL:SetHeight(32)
+  f.emBL:SetPoint("TOP", f.emUL, "BOTTOM", 0,0)
+  f.emBL:SetTexCoord(0.5,1,0,1)
+  f.emBR = f:CreateTexture(nil, "BORDER")
+  f.emBR:SetWidth(32)
+  f.emBR:SetHeight(32)
+  f.emBR:SetPoint("LEFT", f.emBL, "RIGHT", 0,0)
+  f.emBR:SetTexCoord(1,0.5,0,1)
+
+  f.bgUL:SetTexture(tabardBackgroundUpper)
+  f.bgUR:SetTexture(tabardBackgroundUpper)
+  f.bgBL:SetTexture(tabardBackgroundLower)
+  f.bgBR:SetTexture(tabardBackgroundLower)
+
+  f.emUL:SetTexture(tabardEmblemUpper)
+  f.emUR:SetTexture(tabardEmblemUpper)
+  f.emBL:SetTexture(tabardEmblemLower)
+  f.emBR:SetTexture(tabardEmblemLower)
+
+  f.bdUL:SetTexture(tabardBorderUpper)
+  f.bdUR:SetTexture(tabardBorderUpper)
+  f.bdBL:SetTexture(tabardBorderLower)
+  f.bdBR:SetTexture(tabardBorderLower)
+  
+  f.mask = f:CreateMaskTexture()
+  f.mask:SetTexture("Interface\\Minimap\\UI-Minimap-Background")
+  f.mask:SetSize(48,48)
+  f.mask:SetPoint("CENTER", f, "CENTER", 0,0)
+  f.bgUL:AddMaskTexture(f.mask)
+  f.bgUR:AddMaskTexture(f.mask)
+  f.bgBL:AddMaskTexture(f.mask)
+  f.bgBR:AddMaskTexture(f.mask)
+  f.bdUL:AddMaskTexture(f.mask)
+  f.bdUR:AddMaskTexture(f.mask)
+  f.bdBL:AddMaskTexture(f.mask)
+  f.bdBR:AddMaskTexture(f.mask)
+
+  f:SetScript("OnEnter",function(self)
+    GameTooltip:SetOwner(self, "ANCHOR_TOP")
+    GameTooltip:SetText(bepgp._guildName)
+    GameTooltip:AddLine(string.format(INSPECT_GUILD_NUM_MEMBERS,bepgp:table_count(bepgp.db.profile.guildcache)),1,1,1)
+    GameTooltip:Show()
+  end)
+  f:SetScript("OnLeave",function(self)
+    if GameTooltip:IsOwned(self) then
+      GameTooltip_Hide()
+    end
+  end)
+  self._guildLogo = f
+  self._guildLogo:SetParent(self.blizzoptions)
+  self._guildLogo:ClearAllPoints()
+  self._guildLogo:SetPoint("TOPRIGHT", self.blizzoptions, "TOPRIGHT", 0,0)
+  --self._guildLogo:SetIgnoreParentAlpha(true)
 end
 
 function bepgp:GuildRosterSetOfficerNote(index,note,fromAddon)
@@ -1499,7 +1635,7 @@ function bepgp:suggestEPAward()
   return tostring(self.VARS.baseaward_ep)
 end
 
-function bepgp:SetPriceSystem()
+function bepgp:SetPriceSystem(context)
   local system = self.db.profile.system
   if not price_systems[system] then
     self.GetPrice = price_systems[self.VARS.pricesystem]
@@ -1507,6 +1643,7 @@ function bepgp:SetPriceSystem()
   else
     self.GetPrice = price_systems[system]
   end
+  self:debugPrint(string.format(L["Price system set to: %q %s"],self.db.profile.system,(context or "")))
 end
 
 function bepgp:RegisterPriceSystem(name, priceFunc)
@@ -1518,6 +1655,14 @@ end
 -------------------------------------------
 function bepgp:num_round(i)
   return math.floor(i+0.5)
+end
+
+function bepgp:table_count(t)
+  local count = 0
+  for k,v in pairs(t) do
+    count = count+1
+  end
+  return count
 end
 
 function bepgp:camelCase(word)
@@ -1679,7 +1824,7 @@ function bepgp:buildRosterTable()
       if ((self._playerName) and (member_name == self._playerName)) then
         if (not self.db.profile.main) or (self.db.profile.main and self.db.profile.main ~= main) then
           self.db.profile.main = main
-          self:Print(L["Your main has been set to %s"],self.db.profile.main)
+          self:Print(string.format(L["Your main has been set to %s"],self.db.profile.main))
         end
       end
       main = C:Colorize(hexClassColor[main_class], main)

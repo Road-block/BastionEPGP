@@ -125,8 +125,8 @@ if not L then return end
   L["All EP and GP has been reset to 0/%d."] = "所有EP和GP已重置为 0/%d."
   L["You now have: %d EP %d GP |cffffff00%.03f|r|cffff7f00PR|r."] = "你现在有: %d EP %d GP |cffffff00%.03f|r|cffff7f00PR|r."
   L["Close to EPGP Cap. Next Decay will change your |cffff7f00PR|r by |cffff0000%.4g|r."] = "下次递减会改变你的 |cffff7f00PR|r 从 |cffff0000%.4g|r."
-  L["|cffffff00Click|r to toggle Standings.%s \n|cffffff00Right-Click|r for Options."] = "|cffffff00点击|r 切换名单.%s \n|cffffff00右键|r 设置."
-  L[" \n|cffffff00Ctrl+Click|r to toggle Standby. \n|cffffff00Alt+Click|r to toggle Bids. \n|cffffff00Shift+Click|r to toggle Loot. \n|cffffff00Ctrl+Alt+Click|r to toggle Alts. \n|cffffff00Ctrl+Shift+Click|r to toggle Logs."] = " \n|cffffff00Ctrl+点击|r 切换到替补队员. \n|cffffff00Alt+点击|r 切换到竞拍. \n|cffffff00Shift+点击|r 切换到拾取. \n|cffffff00Ctrl+Shift+点击|r 切换到日志." -- needs update
+  L["|cffff7f00Click|r to toggle Standings.%s \n|cffff7f00Right-Click|r for Options."] = "|cffff7f00点击|r 切换名单.%s \n|cffff7f00右键|r 设置."
+  L[" \n|cffff7f00Ctrl+Click|r to toggle Standby. \n|cffff7f00Alt+Click|r to toggle Bids. \n|cffff7f00Shift+Click|r to toggle Loot. \n|cffff7f00Ctrl+Alt+Click|r to toggle Alts. \n|cffff7f00Ctrl+Shift+Click|r to toggle Logs."] = " \n|cffff7f00Ctrl+点击|r 切换到替补队员. \n|cffff7f00Alt+点击|r 切换到竞拍. \n|cffff7f00Shift+点击|r 切换到拾取. \n|cffff7f00Ctrl+Shift+点击|r 切换到日志." -- needs update
   L["Account EPs to %s."] = "记账 EP 到 %s."
   L["Account GPs to %s."] = "记账 GP 到 %s."
   L["BastionEPGP options"] = "BastionEPGP 设置"
@@ -245,5 +245,6 @@ if not L then return end
   L["BastionEPGP will be saving to file in `\\WTF\\Account\\<ACCOUNT>\\SavedVariables\\BastionEPGP_Export.lua`"] = "BastionEPGP will be saving to file in `\\WTF\\Account\\<ACCOUNT>\\SavedVariables\\BastionEPGP_Export.lua`" -- needs translation
   L["Started Standby AFKCheck for 1min."] = "Started Standby AFKCheck for 1min." -- needs translation
   L["Standby AFKCheck finished."] = "Standby AFKCheck finished." -- needs translation
+  L["Price system set to: %q %s"] = "Price system set to: %q %s" -- needs translation
 
   bepgp.L = L
