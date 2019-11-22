@@ -8,30 +8,30 @@ if not L then return end
   L["Clear"] = "清除"
   L["Name"] = "名字"
   L["Raid Only"] = "只显示团队"
-  L["Only show members in raid."] = "只显示在团队里的成员."
+  L["Only show members in raid."] = "只显示在团队里的成员"
   -- bids
   L["BastionEPGP bids"] = "BastionEPGP 竞拍"
   L["Winning Mainspec Bid: %s (%.03f PR)"] = "副天赋竞标获胜: %s (%.03f PR)"
   L["Winning Offspec Bid: %s (%.03f PR)"] = "副天赋竞标获胜: %s (%.03f PR)"
   -- logs
   L["BastionEPGP logs"] = "BastionEPGP 日志"
-  L["Clear Logs."] = "清除日志."
+  L["Clear Logs."] = "清除日志"
   L["Time"] = "时间"
   L["Action"] = "行为"
   -- loot
   L["BastionEPGP loot info"] = "BastionEPGP 拾取信息"
-  L["Clear Loot."] = "清除拾取."
+  L["Clear Loot."] = "清除拾取"
   L["Item"] = "物品"
   L["Binds"] = "竞拍"
   L["Looter"] = "拾取人"
   L["GP Action"] = "GP 行为"
   -- migrations
-  L["Updated %d members to v3 storage."] = "更新 %d 成员到v3存储区."
+  L["Updated %d members to v3 storage."] = "更新 %d 成员到v3存储区"
   -- standby
   L["BastionEPGP standby"] = "BastionEPGP 替补成员" -- needs update
   L["Countdown"] = "倒计时"
-  L["Rank"] = "Rank"
-  L["OnAlt"] = "OnAlt"
+  L["Rank"] = "会阶"
+  L["OnAlt"] = "在小号"
      -- standings
   L["Ctrl-C to copy. Esc to close."] = "Ctrl-C 复制. Esc 退出."
   L["Ctrl-V to paste data. Esc to close."] = "Ctrl-V 粘贴数据. Esc 退出."
@@ -39,8 +39,8 @@ if not L then return end
   L["Imported %d members.\n"] = "导入 %d 成员.\n"
   L["%s\nFailed to import:"] = "%s\n未能导入:"
   L["BastionEPGP standings"] = "BastionEPGP 名单列表"
-  L["Group by class"] = "职业分组"
-  L["Group members by class."] = "按职业分组."
+  L["Group by class"] = "由职业分组"
+  L["Group members by class."] = "按职业分组"
   L["Export"] = "导出"
   L["Export standings to csv."] = "导出排名到CSV文本."
   L["Import"] = "导入"
@@ -54,18 +54,18 @@ if not L then return end
 粘贴这里的所有CSV数据替换文本, 
 然后再导入.
 完成后打印结果.]]
-  L["Group by armor"] = "Group by armor"
-  L["Group members by armor."] = "Group members by armor."
-  L["Group by roles"] = "Group by roles"
-  L["Group members by roles."] = "Group members by roles."
-  L["CLOTH"] = "CLOTH"
-  L["LEATHER"] = "LEATHER"
-  L["MAIL"] = "MAIL"
-  L["PLATE"] = "PLATE"
-  L["TANK"] = "TANK"
-  L["HEALER"] = "HEALER"
-  L["CASTER"] = "CASTER"
-  L["PHYS DPS"] = "PHYS DPS"
+  L["Group by armor"] = "由护甲类型分组"
+  L["Group members by armor."] = "按护甲的类型分组"
+  L["Group by roles"] = "由职责分组"
+  L["Group members by roles."] = "按职业分组"
+  L["CLOTH"] = "布甲"
+  L["LEATHER"] = "皮甲"
+  L["MAIL"] = "锁甲"
+  L["PLATE"] = "板甲"
+  L["TANK"] = "坦克"
+  L["HEALER"] = "治疗"
+  L["CASTER"] = "法术"
+  L["PHYS DPS"] = "物理 DPS"
   -- BastionEPGP
   L["{BEPGP}Type \"+\" if on main, or \"+<YourMainName>\" (without quotes) if on alt within %dsec."] = "{BEPGP}使用 \"+\" 如果你在大号上, 或者 \"+<YourMainName>\" (没有引号) 如果在小号 %d秒."
   L["|cffFF3333|Hbepgpbid:1:$ML|h[Mainspec/NEED]|h|r"] = "|cffFF3333|Hbepgpbid:1:$ML|h[主天赋/需求]|h|r"
@@ -94,7 +94,7 @@ if not L then return end
   L["Whisper %s a + for %s (mainspec)"] = "私聊 %s + 为 %s (主天赋)"
   L["Whisper %s a - for %s (offspec)"] = "私聊 %s - 为 %s (副天赋)"
   L["Whisper %s a + or - for %s (mainspec or offspec)"] = "私聊 %s + 或 - 为 %s (主天赋或副天赋)"
-  L["Click $MS or $OS for %s"] = "Click $MS 或 $OS for %s"
+  L["Click $MS or $OS for %s"] = "点击 $MS 或 $OS 为: %s"
   L["or $OS "] = "或 $OS "
   L["$MS or "] = "$MS 或 "
   L["You have received a %d EP penalty."] = "你已经收到了 %d EP 处罚."
@@ -184,7 +184,7 @@ if not L then return end
   L["%s looted %s. What do you want to do?"] = "%s 拾取了 %s. 你想做什么？"
   L["GP Actions"] = "GP 操作"
   L["Remind me Later"] = "以后提醒我"
-  L["Need MasterLooter to perform Bid Calls!"] = "Need MasterLooter to perform Bid Calls!"
+  L["Need MasterLooter to perform Bid Calls!"] = "需要拾取分配者执行竞拍!"
   L["BastionEPGP alts"] = "BastionEPGP 小号"
   L["Enable Alts"] = "启用小号"
   L["Main"] = "大号"
@@ -213,38 +213,38 @@ if not L then return end
   L["Minimum EP"] = "最小值 EP"
   L["Set Minimum EP"] = "设置最小值 EP"
   L["New Minimum EP"] = "新最小值 EP"
-  L["Standby"] = "Standby" -- needs translation
-  L["BoP"] = "BoP" -- needs translation
-  L["BoE"] = "BoE" -- needs translation
-  L["NoBind"] = "NoBind" -- needs translation
-  L["Mainspec GP"] = "Mainspec GP" -- needs translation
-  L["Offspec GP"] = "Offspec GP" -- needs translation
-  L["Bank-D/E"] = "Bank-D/E" -- needs translation
-  L["Unassigned"] = "Unassigned" -- needs translation
-  L["Admin Options"] = "Admin Options" -- needs translation
-  L["Member Options"] = "Member Options" -- needs translation
-  L["Hide from Minimap"] = "Hide from Minimap" -- needs translation
-  L["You are assigning %s %s to %s."] = "You are assigning %d %s to %s." -- needs translation
-  L["Effort Points"] = "Effort Points" -- needs translation
-  L["Gear Points"] = "Gear Points" -- needs translation
-  L["Armor Class"] = "Armor Class" -- needs translation
-  L["(ms)"] = "(ms)" -- needs translation (patterns)
-  L["(need)"] = "(need)" -- needs translation (patterns)
-  L["(os)"] = "(os)" -- needs translation (patterns)
-  L["(greed)"] = "(greed)" -- needs translation (patterns)
-  L["Mainspec Bids"] = "Mainspec Bids" -- needs translation
-  L["Offspec Bids"] = "Offspec Bids" -- needs translation
-  L["Tooltip Info"] = "Tooltip Info" -- needs translation
-  L["Add EPGP Information to Item Tooltips"] = "Add EPGP Information to Item Tooltips" -- needs translation
-  L["Export Loot"] = "Export Loot" -- needs translation
-  L["Export Logs"] = "Export Logs" -- needs translation
-  L["Export Standings"] = "Export Standings" -- needs translation
-  L["Select Price Scheme"] = "Select Price Scheme" -- needs translation
-  L["Select From Registered Price Systems"] = "Select From Registered Price Systems" -- needs translation
-  L["%s is offline. Getting info from guild cache."] = "%s is offline. Getting info from guild cache." -- needs translation
-  L["BastionEPGP will be saving to file in `\\WTF\\Account\\<ACCOUNT>\\SavedVariables\\BastionEPGP_Export.lua`"] = "BastionEPGP will be saving to file in `\\WTF\\Account\\<ACCOUNT>\\SavedVariables\\BastionEPGP_Export.lua`" -- needs translation
-  L["Started Standby AFKCheck for 1min."] = "Started Standby AFKCheck for 1min." -- needs translation
-  L["Standby AFKCheck finished."] = "Standby AFKCheck finished." -- needs translation
-  L["Price system set to: %q %s"] = "Price system set to: %q %s" -- needs translation
+  L["Standby"] = "替补" 
+  L["BoP"] = "拾绑" 
+  L["BoE"] = "装绑" 
+  L["NoBind"] = "无绑定" 
+  L["Mainspec GP"] = "主天赋 GP" 
+  L["Offspec GP"] = "服天赋 GP" 
+  L["Bank-D/E"] = "银行/分解" 
+  L["Unassigned"] = "未指定" 
+  L["Admin Options"] = "管理员选项" 
+  L["Member Options"] = "成员选项" 
+  L["Hide from Minimap"] = "隐藏小地图" 
+  L["You are assigning %s %s to %s."] = "你正在分配 %d %s 给 %s." 
+  L["Effort Points"] = "努力点" 
+  L["Gear Points"] = "装备点" 
+  L["Armor Class"] = "护甲职业" 
+  L["(ms)"] = "(ms)"  (patterns)
+  L["(need)"] = "(need)"  (patterns)
+  L["(os)"] = "(os)"  (patterns)
+  L["(greed)"] = "(greed)"  (patterns)
+  L["Mainspec Bids"] = "主天赋竞拍" 
+  L["Offspec Bids"] = "副天赋竞拍" 
+  L["Tooltip Info"] = "鼠标提示信息" 
+  L["Add EPGP Information to Item Tooltips"] = "添加EPGP信息到物品鼠标提示" 
+  L["Export Loot"] = "导出拾取" 
+  L["Export Logs"] = "导出日志" 
+  L["Export Standings"] = "导出EPGP排名" 
+  L["Select Price Scheme"] = "选择价格方案" 
+  L["Select From Registered Price Systems"] = "从已有的注册价格系统中选择" 
+  L["%s is offline. Getting info from guild cache."] = "%s 离线了. 从公会缓存获取信息." 
+  L["BastionEPGP will be saving to file in `\\WTF\\Account\\<ACCOUNT>\\SavedVariables\\BastionEPGP_Export.lua`"] = "BastionEPGP 的日志文件会保存在 `\\WTF\\Account\\<ACCOUNT>\\SavedVariables\\BastionEPGP_Export.lua` 中" 
+  L["Started Standby AFKCheck for 1min."] = "替补AFK检查1分钟,已开始" 
+  L["Standby AFKCheck finished."] = "替补AFK检查已结束" 
+  L["Price system set to: %q %s"] = "价格系统设置为: %q %s" 
 
   bepgp.L = L
