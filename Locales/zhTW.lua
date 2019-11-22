@@ -228,10 +228,10 @@ if not L then return end
   L["Effort Points"] = "努力點" 
   L["Gear Points"] = "裝備點" 
   L["Armor Class"] = "護甲職業" 
-  L["(ms)"] = "(ms)"  (patterns)
-  L["(need)"] = "(need)"  (patterns)
-  L["(os)"] = "(os)"  (patterns)
-  L["(greed)"] = "(greed)"  (patterns)
+  L["(ms)"] = "(ms)"  --(patterns)
+  L["(need)"] = "(need)"  --(patterns)
+  L["(os)"] = "(os)"  --(patterns)
+  L["(greed)"] = "(greed)"  --(patterns)
   L["Mainspec Bids"] = "主天賦競拍" 
   L["Offspec Bids"] = "副天賦競拍" 
   L["Tooltip Info"] = "滑鼠提示資訊" 
