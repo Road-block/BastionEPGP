@@ -1,0 +1,8 @@
+## Interface: 11302
+## Author: Roadblock
+## Title: BastionEPGP - Export
+## Notes: Addon Stub to facilitate exporting data from BastionEPGP for external parsers
+## Version: 0.1.0
+## X-Website: 
+## Dependencies: BastionEPGP
+## SavedVariables: BastionEPGPExport

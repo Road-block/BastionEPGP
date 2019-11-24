@@ -1,0 +1,18 @@
+## Interface: 11302
+## Title: BastionEPGP - EPGP Classic Prices
+## Notes: EPGP Clasic prices plugin for BastionEPGP
+## Author: Roadblock
+## Dependencies: BastionEPGP
+## Version: 1.0
+
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+
+Libs\AceAddon-3.0\AceAddon-3.0.xml
+Libs\LibBabble-Inventory-3.0\lib.xml
+Libs\LibDeformat-3.0\lib.xml
+Libs\LibDebug-1.0.lua
+Libs\LibItemUtils-1.0.lua
+Libs\LibGearPoints-1.2.lua
+
+core.lua
