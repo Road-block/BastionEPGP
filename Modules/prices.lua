@@ -831,7 +831,7 @@ function bepgp_prices:ADDON_LOADED(event,...)
     self:UnregisterEvent("ADDON_LOADED")
     local MRT_ItemCost = function(mrt_data)
       local itemstring = mrt_data.ItemString
-      local dkpValue = self:GetPrice(itemstring)
+      local dkpValue = self:GetPrice(itemstring, bepgp.db.profile.progress)
       local itemNote
       if not dkpValue then
         dkpValue = 0
