@@ -1773,7 +1773,7 @@ end
 
 function bepgp:parseAlt(name,officernote)
   if (officernote) then
-    local _,_,_,main,_ = string.find(officernote or "","(.*){([%a][%a]%a*)}(.*)")
+    local _,_,_,main,_ = string.find(officernote or "","(.*){([^%c%s%d{}][^%c%s%d{}][^%c%s%d{}]*)}(.*)")
     if type(main)=="string" and (string.len(main) < 13) then
       main = self:camelCase(main)
       local g_name, g_class, g_rank, g_officernote = self:verifyGuildMember(main)

@@ -1,4 +1,4 @@
-﻿## Interface: 50400
+## Interface: 50400
 ## LoadOnDemand: 1
 ## Title: Lib: Gratuity-3.0
 ## Notes: Tooltip scanning library.
