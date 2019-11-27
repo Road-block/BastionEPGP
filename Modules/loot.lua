@@ -3,6 +3,7 @@ local moduleName = addonName.."_loot"
 local bepgp_loot = bepgp:NewModule(moduleName,"AceEvent-3.0","AceHook-3.0","AceTimer-3.0")
 local ST = LibStub("ScrollingTable")
 local LD = LibStub("LibDialog-1.0")
+local LDD = LibStub("LibDropdown-1.0")
 local C = LibStub("LibCrayon-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local GUI = LibStub("AceGUI-3.0")
@@ -41,6 +42,60 @@ local function st_sorter_numeric(st,rowa,rowb,col)
   local cellb = st.data[rowb].cols[7].value
   return tonumber(cella) > tonumber(cellb)
 end
+local menu_close = function()
+  if bepgp_loot._ddmenu then
+    bepgp_loot._ddmenu:Release()
+  end
+end
+local assign_options = {
+  type = "group",
+  name = L["BastionEPGP options"],
+  desc = L["BastionEPGP options"],
+  handler = bepgp_loot,
+  args = { 
+    ["bankde"] = {
+      type = "execute",
+      name = L["Bank or D/E"],
+      desc = L["Bank or D/E"],
+      order = 1,
+      func = function(info)
+        bepgp_loot._selected[loot_indices.action] = L["Bank-D/E"]
+        bepgp_loot:Refresh()
+        C_Timer.After(0.2, menu_close)
+      end,
+    },
+    ["cancel"] = {
+      type = "execute",
+      name = _G.CANCEL,
+      desc = _G.CANCEL,
+      order = 2,
+      func = function(info)
+        C_Timer.After(0.2, menu_close)
+      end,
+    }
+  }  
+}
+local manual_assign = function(rowFrame, cellFrame, data, cols, row, realrow, column, table, button, ...)
+  if not realrow then return false end
+  local loot_index = data[realrow].cols[7].value
+  local loot_entry
+  if loot_index then
+    loot_entry = bepgp.db.char.loot[loot_index]
+    bepgp_loot._selected = loot_entry
+  else
+    bepgp_loot._selected = nil
+  end
+  if bepgp_loot._selected then
+    local loot_action = data[realrow].cols[5].value
+    if loot_action and loot_action == bepgp.VARS.unassigned then
+      bepgp_loot._ddmenu = LDD:OpenAce3Menu(assign_options)
+      bepgp_loot._ddmenu:SetPoint("CENTER", cellFrame, "CENTER", 0,0)
+    else
+      C_Timer.After(0.2, menu_close)
+    end
+  end
+  return false
+end
 
 function bepgp_loot:OnEnable()
   local container = GUI:Create("Window")
@@ -60,6 +115,10 @@ function bepgp_loot:OnEnable()
     --{["name"]="",["width"]=1,["comparesort"]=st_sorter_numeric,["sort"]=ST.SORT_DSC} -- order
   }
   self._loot_table = ST:CreateST(headers,15,nil,colorHighlight,container.frame) -- cols, numRows, rowHeight, highlight, parent
+  --self._loot_table:EnableSelection(true)
+  self._loot_table:RegisterEvents({
+    ["OnClick"] = manual_assign
+  })
   self._loot_table.frame:SetPoint("BOTTOMRIGHT",self._container.frame,"BOTTOMRIGHT", -10, 10)
   container:SetCallback("OnShow", function() bepgp_loot._loot_table:Show() end)
   container:SetCallback("OnClose", function() bepgp_loot._loot_table:Hide() end)
