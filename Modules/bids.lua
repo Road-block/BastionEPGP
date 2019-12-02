@@ -80,12 +80,15 @@ function bepgp_bids:Refresh()
   local frame = self.qtip
   if not frame then return end
   frame:Clear()
+  frame:SetMovable(true)
   local minep = bepgp.db.profile.minep
   local line
   line = frame:AddHeader()
   frame:SetCell(line,1,L["BastionEPGP bids"],nil,"CENTER",4)
   frame:SetCell(line,5,C:Red("[x]"),nil,"RIGHT")
-  frame:SetCellScript(line,5,"OnMouseUp", function() bepgp_bids.qtip:Hide() end)
+  frame:SetCellScript(line,5,"OnMouseUp", function() frame:Hide() end)
+  frame:SetCellScript(line,1,"OnMouseDown", function() frame:StartMoving() end)
+  frame:SetCellScript(line,1,"OnMouseUp", function() frame:StopMovingOrSizing() end)
   
   if self.bid_item.itemlink then
     line = frame:AddHeader()

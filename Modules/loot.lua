@@ -152,7 +152,8 @@ function bepgp_loot:OnEnable()
   self:RegisterEvent("TRADE_REQUEST","tradeName") -- another is trading
   self:SecureHookScript(TradeFrameTradeButton, "OnClick", "tradeItemAccept")
   -- bid call handlers
-  self:RegisterEvent("LOOT_OPENED","clickHandlerLoot")
+  --self:RegisterEvent("LOOT_OPENED","clickHandlerLoot")
+  self:SecureHook("LootFrame_Update","clickHandlerLoot")
   self:clickHandlerMasterLoot()
   self:SecureHook("ToggleBag","clickHandlerBags") -- default bags
   self._bagsTimer = self:ScheduleTimer("hookBagAddons",30)
@@ -402,43 +403,42 @@ function bepgp_loot:tradeReset() -- TRADE_REQUEST_CANCEL
   self:UnregisterEvent("TRADE_CLOSED")
 end
 
-function bepgp_loot:bidCall(frame, button)
+function bepgp_loot:bidCall(frame, button, context) -- context is one of "masterloot", "lootframe", "container"
   if not IsAltKeyDown() then return end
   if not self:raidLootAdmin() then return end
-  local slot = frame.slot -- lootframe/MasterLooterFrame
-  local hasItem = frame.hasItem -- default bags, Bagnon and Baggins
-  local bagID, slotID = frame.bagID, frame.slotID -- cargBags_Nivaya
-  if not (slot or hasItem or (bagID and slotID)) then return end
-  local itemLink
-  if hasItem then
-    local bag, slot = frame:GetParent():GetID(), frame:GetID() -- get from ItemButton (default bags, Bagnon, BaudManifest, tdBag2, Baggins)
-    if bag and slot then
-      itemLink = GetContainerItemLink(bag, slot)
-    end
-    if not itemLink then 
-      itemLink = frame.itemLink -- AdiBags
-    end
-    if not itemLink then -- ArkInventory
-      if frame.ARK_Data then
-        local bag, slot = frame.ARK_Data.blizzard_id, frame.ARK_Data.slot_id
-        if bag and slot then
-          itemLink = GetContainerItemLink(bag, slot)
-        end
-      end
-    end
-    if not itemLink then -- Baggins fallback
-      if frame.slots then
-        local bag, slot = frame.slots[1]:match("(%d+):(%d+)")
-        if bag and slot then
-          itemLink = GetContainerItemLink(bag, slot)
-        end
-      end
-    end
-  elseif slot then
-    if not LootSlotHasItem(slot) then return end
+  if not context then return end
+  local itemLink,slot,hasItem,bagID,slotID
+  if context == "lootframe" or context == "masterloot" then
+    slot = frame.slot
+    if not slot and LootSlotHasItem(slot) then return end
     itemLink = GetLootSlotLink(slot)
-  elseif bagID and slotID then
-    itemLink = GetContainerItemLink(bagID, slotID) -- cargBags_Nivaya
+  elseif context == "container" then
+    hasItem = frame.hasItem -- default bags, Bagnon, Combuctor, Baggins, AdiBags, tdBag2
+    if hasItem then
+      if frame.ARK_Data then -- ArkInventory
+        bagID, slotID = frame.ARK_Data.blizzard_id, frame.ARK_Data.slot_id
+        if bagID and slotID then
+          itemLink = GetContainerItemLink(bagID, slotID)
+        end
+      elseif frame.itemLink then -- AdiBags
+        itemLink = frame.itemLink
+      elseif frame.slots then -- Baggins
+        bagID, slotID = frame.slots[1]:match("(%d+):(%d+)")
+        if bagID and slotID then
+          itemLink = GetContainerItemLink(bagID, slotID)
+        end
+      else -- get from ItemButton (default bags, Bagnon, BaudManifest, tdBag2, Baggins)
+        bagID, slotID = frame:GetParent():GetID(), frame:GetID()
+        if bagID and slotID then
+          itemLink = GetContainerItemLink(bagID, slotID)
+        end        
+      end
+    elseif (frame.bagID and frame.slotID) then -- cargBags_Nivaya
+      bagID, slotID = frame.bagID, frame.slotID
+      if bagID and slotID then
+        itemLink = GetContainerItemLink(bagID, slotID)
+      end      
+    end
   end
   if not itemLink then return end
   local itemColor, itemString, itemName, itemID = bepgp:getItemData(itemLink)
@@ -471,6 +471,7 @@ function bepgp_loot:hookBagAddons()
       break
     end
   end
+  bepgp:debugPrint(L["Bag hooks initialized"])
 end
 
 function bepgp_loot:hookContainerButton(itemButton)
@@ -479,7 +480,7 @@ function bepgp_loot:hookContainerButton(itemButton)
       itemButton:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
       itemButton.RegisterForClicks = nop
       if not self:IsHooked(itemButton,"OnClick") then
-        self:SecureHookScript(itemButton,"OnClick", "bidCall")
+        self:SecureHookScript(itemButton,"OnClick", function(frame, button) bepgp_loot:bidCall(frame, button, "container") end)
       end
       itemButton._bepgpclicks = true
     end
@@ -568,7 +569,7 @@ function bepgp_loot:clickHandlerMasterLoot()
     local frame = self
     frame.slot = LootFrame.selectedSlot
     if frame.slot then
-      bepgp_loot:bidCall(frame, button)
+      bepgp_loot:bidCall(frame, button, "masterloot")
     end
   end)
   MasterLooterFrame.Item:SetScript("OnEnter", function(self)
@@ -593,7 +594,7 @@ function bepgp_loot:clickHandlerLoot()
       button:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
       button.RegisterForClicks = nop
       if not self:IsHooked(button,"OnClick") then
-        self:HookScript(button,"OnClick", "bidCall")
+        self:HookScript(button,"OnClick", function(frame, button) bepgp_loot:bidCall(frame, button, "lootframe") end)
       end
       button._bepgpclicks = true
     end

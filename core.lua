@@ -1575,7 +1575,8 @@ function bepgp:raidAssistant()
 end
 
 function bepgp:inRaid(name)
-  return IsInRaid() and UnitInRaid(name) >= 0
+  local rid = UnitInRaid(name)
+  return IsInRaid() and rid and (rid >= 0)
 end
 
 function bepgp:GroupStatus()
@@ -1776,7 +1777,7 @@ function bepgp:parseAlt(name,officernote)
     local _,_,_,main,_ = string.find(officernote or "","(.*){([^%c%s%d{}][^%c%s%d{}][^%c%s%d{}]*)}(.*)")
     if type(main)=="string" and (string.len(main) < 13) then
       main = self:camelCase(main)
-      local g_name, g_class, g_rank, g_officernote = self:verifyGuildMember(main)
+      local g_name, g_class, g_rank, g_officernote = self:verifyGuildMember(main,true)
       if (g_name) then
         return g_name, g_class, g_rank, g_officernote
       else

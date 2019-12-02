@@ -244,6 +244,8 @@ Results will print here when done.]]
   L["Started Standby AFKCheck for 1min."] = true
   L["Standby AFKCheck finished."] = true
   L["Price system set to: %q %s"] = true
-  
+  L["Bag hooks initialized"] = true
+  L["|cffffff00%s|r is trying to add %s to Standby but {%s} is missing from Alt's Officer Note."] = true
+  L["|cffffff00%s|r is trying to add themselves to Standby as a Main but are marked as an Alt of %s in Officer Note."] = true
 
 bepgp.L = L

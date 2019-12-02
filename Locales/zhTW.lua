@@ -246,5 +246,8 @@ if not L then return end
   L["Started Standby AFKCheck for 1min."] = "待命AFK檢查1分鐘,已開始" 
   L["Standby AFKCheck finished."] = "待命AFK檢查已結束" 
   L["Price system set to: %q %s"] = "價格系統設置為: %q %s" 
+  L["Bag hooks initialized"] = "Bag hooks initialized" -- needs translation
+  L["|cffffff00%s|r is trying to add %s to Standby but {%s} is missing from Alt's Officer Note."] = "|cffffff00%s|r is trying to add %s to Standby but {%s} is missing from Alt's Officer Note." -- needs translation
+  L["|cffffff00%s|r is trying to add themselves to Standby as a Main but are marked as an Alt of %s in Officer Note."] = "|cffffff00%s|r is trying to add themselves to Standby as a Main but are marked as an Alt of %s in Officer Note." -- needs translation
 
   bepgp.L = L

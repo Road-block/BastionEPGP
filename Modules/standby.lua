@@ -128,30 +128,43 @@ end
 function bepgp_standby:captureStandbyChat(event, text, sender, _, _, _, _, _, channelIndex)
   if channelIndex ~= self._standbyID then return end
   local sender = Ambiguate(sender,"short")
+  local sender_name, sender_class, sender_rank, sender_officernote = bepgp:verifyGuildMember(sender,true)
+  if not sender_name then return end
   -- call incoming, should we respond?
   local query = string.find(text,L["^{BEPGP}Type"])
   if query and not self._runningcheck then
-    local name = bepgp:verifyGuildMember(sender)
-    if name and not bepgp:inRaid(name) then
+    if not bepgp:inRaid(sender_name) then
       LD:Spawn(addonName.."DialogStandbyCheck", bepgp.VARS.timeout)
     end
     return
   end
   -- response incoming
   local standby, standby_class, standby_rank, standby_alt = nil,nil,nil,nil
-  local r,_,rdy,name = string.find(text,standbyanswer)
+  local r,_,rdy,main = string.find(text,standbyanswer)
   if (r) and (self._runningcheck) then
     if (rdy) then
-      if (name) and (name ~= "") then
-        if (not bepgp:inRaid(name)) then
-          standby, standby_class, standby_rank = bepgp:verifyGuildMember(name)
-          if standby ~= sender then
-            standby_alt = sender
+      if bepgp:inRaid(sender_name) then return end -- sender is in our raid, whatever name they sent can't be standby
+      if main and main ~= "" then -- we got a `+Mainname` message
+        main = bepgp:camelCase(main)
+        if bepgp:inRaid(main) then return end -- the character they're trying to add to standby is in our raid
+        local main_name, main_class, main_rank, main_officernote = bepgp:verifyGuildMember(main,true)
+        if main_name and sender_name ~= main_name then
+          local checked_main = bepgp:parseAlt(sender_name, sender_officernote)
+          if checked_main == main_name then
+            standby, standby_class, standby_rank, standby_alt = main_name, main_class, main_rank, sender_name
+          else
+            bepgp:Print(string.format(L["|cffffff00%s|r is trying to add %s to Standby but {%s} is missing from Alt's Officer Note."],sender_name,main_name,main_name))
           end
         end
-      else
-        if (not bepgp:inRaid(sender)) then
-          standby, standby_class, standby_rank = bepgp:verifyGuildMember(sender)    
+      else -- we got a `+` message
+        local main_name, main_class, main_rank, main_officernote = bepgp:verifyGuildMember(sender_name,true)
+        if main_name then
+          local checked_main = bepgp:parseAlt(main_name, main_officernote)
+          if checked_main then
+            bepgp:Print(string.format(L["|cffffff00%s|r is trying to add themselves to Standby as a Main but are marked as an Alt of %s in Officer Note."],main_name,checked_main))
+          else
+            standby, standby_class, standby_rank = main_name, main_class, main_rank
+          end
         end
       end
       if standby and standby_class and standby_rank then
@@ -180,10 +193,13 @@ end
 
 function bepgp_standby:sendCheckResponse()
   if self._standbyID and self._standbyID > 0 then
-    if bepgp.db.profile.main then
-      SendChatMessage("+", "CHANNEL", nil, self._standbyID)
-    else
-      SendChatMessage(string.format("+%s",bepgp.db.profile.main),"CHANNEL", nil, self._standbyID)
+    local main = bepgp.db.profile.main
+    if main then
+      if bepgp._playerName == main then
+        SendChatMessage("+", "CHANNEL", nil, self._standbyID)
+      else
+        SendChatMessage(string.format("+%s",main),"CHANNEL", nil, self._standbyID)
+      end
     end
   end
 end
@@ -209,11 +225,14 @@ function bepgp_standby:Refresh()
   local frame = self.qtip
   if not frame then return end
   frame:Clear()
+  frame:SetMovable(true)
   local line
   line = frame:AddHeader()
   frame:SetCell(line,1,L["BastionEPGP standby"],nil,"CENTER",2)
   frame:SetCell(line,3,C:Red("[x]"),nil,"RIGHT")
-  frame:SetCellScript(line,3,"OnMouseUp", function() bepgp_standby.qtip:Hide() end)
+  frame:SetCellScript(line,3,"OnMouseUp", function() frame:Hide() end)
+  frame:SetCellScript(line,1,"OnMouseDown", function() frame:StartMoving() end)
+  frame:SetCellScript(line,1,"OnMouseUp", function() frame:StopMovingOrSizing() end)  
 
   if #(self.roster) > 0 then
     line = frame:AddLine(" ")
