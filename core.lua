@@ -1023,7 +1023,7 @@ function bepgp:tooltipHook(status)
     if self:IsHooked(GameTooltip, "OnTooltipSetItem") then
       self:Unhook(GameTooltip, "OnTooltipSetItem")
     end
-    if not self:IsHooked(ItemRefTooltip, "OnTooltipSetItem") then
+    if self:IsHooked(ItemRefTooltip, "OnTooltipSetItem") then
       self:Unhook(ItemRefTooltip, "OnTooltipSetItem")
     end    
   end
