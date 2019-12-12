@@ -427,6 +427,11 @@ function bepgp_loot:bidCall(frame, button, context) -- context is one of "master
         if bagID and slotID then
           itemLink = GetContainerItemLink(bagID, slotID)
         end
+      elseif frame.bag then -- Inventorian
+        bagID, slotID = frame.bag, frame.slot
+        if bagID and slotID then
+          itemLink = GetContainerItemLink(bagID, slotID)
+        end
       else -- get from ItemButton (default bags, Bagnon, BaudManifest, tdBag2, Baggins)
         bagID, slotID = frame:GetParent():GetID(), frame:GetID()
         if bagID and slotID then
@@ -462,6 +467,7 @@ local bag_addons = {
   ["Bagnon"] = false,
   ["cargBags_Nivaya"] = false,
   ["Combuctor"] = false,
+  ["Inventorian"] = false,
   ["tdBag2"] = false,
 }
 function bepgp_loot:hookBagAddons()
@@ -523,7 +529,7 @@ function bepgp_loot:clickHandlerBags(id)
       self:SecureHook(Baggins,"RepopulateButtonPool","bagginsHook")
       self:bagginsHook()
       bag_addons[addon] = true
-    elseif addon == "tdBag2" then
+    elseif addon == "tdBag2" or addon == "Inventorian" then
       for b = 1, NUM_CONTAINER_FRAMES do
         local containerName = "ContainerFrame"..b
         for i = 1, MAX_CONTAINER_ITEMS do

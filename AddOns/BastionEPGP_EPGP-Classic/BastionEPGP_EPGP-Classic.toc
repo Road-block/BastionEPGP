@@ -1,4 +1,4 @@
-## Interface: 11302
+## Interface: 11303
 ## Title: BastionEPGP - EPGP Classic Prices
 ## Notes: EPGP Clasic prices plugin for BastionEPGP
 ## Author: Roadblock
