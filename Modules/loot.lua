@@ -427,7 +427,7 @@ function bepgp_loot:bidCall(frame, button, context) -- context is one of "master
         if bagID and slotID then
           itemLink = GetContainerItemLink(bagID, slotID)
         end
-      elseif frame.bag then -- Inventorian
+      elseif frame.bag and frame.slot then -- Inventorian
         bagID, slotID = frame.bag, frame.slot
         if bagID and slotID then
           itemLink = GetContainerItemLink(bagID, slotID)
