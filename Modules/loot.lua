@@ -374,6 +374,12 @@ function bepgp_loot:tradeName(event, name)
 end
 function bepgp_loot:tradeItemAccept()
   if self:raidLootAdmin() then
+    if not self._tradeTarget then
+      local name = UnitName("npc")
+      if name then
+        self._tradeTarget = Ambiguate(name,"short")
+      end
+    end
     if self._tradeTarget then
       local itemLink
       for id=1,MAX_TRADABLE_ITEMS do
