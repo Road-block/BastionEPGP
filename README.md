@@ -13,4 +13,5 @@ In-game EPGP guild helper, supports standby, main/alt shared pools, minEP, offpe
  2. Download latest .zip file and extract in AddOns.
   
 * from addon hosting sites (stable)
- (NYA)
+ 1. [BastionEPGP](https://www.curseforge.com/wow/addons/bastionepgp) on Curseforge
+ 2. [BastionEPGP](https://www.wowinterface.com/downloads/info25460) on Wowinterface
