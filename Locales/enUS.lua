@@ -136,8 +136,7 @@ Results will print here when done.]]
   L["All EP and GP has been reset to 0/%d."] = true
   L["You now have: %d EP %d GP |cffffff00%.03f|r|cffff7f00PR|r."] = true
   L["Close to EPGP Cap. Next Decay will change your |cffff7f00PR|r by |cffff0000%.4g|r."] = true
-  L["|cffff7f00Click|r to toggle Standings.%s \n|cffff7f00Right-Click|r for Options."] = true
-  L[" \n|cffff7f00Ctrl+Click|r to toggle Standby. \n|cffff7f00Alt+Click|r to toggle Bids. \n|cffff7f00Shift+Click|r to toggle Loot. \n|cffff7f00Ctrl+Alt+Click|r to toggle Alts. \n|cffff7f00Ctrl+Shift+Click|r to toggle Logs."] = true
+  L["|cffff7f00Click|r to toggle Standings."] = true
   L["Account EPs to %s."] = true
   L["Account GPs to %s."] = true
   L["BastionEPGP options"] = true
@@ -247,5 +246,13 @@ Results will print here when done.]]
   L["Bag hooks initialized"] = true
   L["|cffffff00%s|r is trying to add %s to Standby but {%s} is missing from Alt's Officer Note."] = true
   L["|cffffff00%s|r is trying to add themselves to Standby as a Main but are marked as an Alt of %s in Officer Note."] = true
+  L["Admin Actions"] = true
+  L["|cffff7f00Alt+Click|r to toggle Bids."] = true
+  L["|cffff7f00Shift+Click|r to toggle Loot."] = true
+  L["|cffff7f00Ctrl+Click|r to toggle Standby."] = true
+  L["|cffff7f00Ctrl+Alt+Click|r to toggle Alts."] = true
+  L["|cffff7f00Ctrl+Shift+Click|r to toggle Logs."] = true
+  L["|cffff7f00Right Click|r for %s."] = true
+  L["|cffff7f00Middle Click|r for %s"] = true
 
 bepgp.L = L

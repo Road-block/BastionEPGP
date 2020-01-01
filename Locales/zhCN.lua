@@ -125,8 +125,7 @@ if not L then return end
   L["All EP and GP has been reset to 0/%d."] = "所有EP和GP已重置为 0/%d."
   L["You now have: %d EP %d GP |cffffff00%.03f|r|cffff7f00PR|r."] = "你现在有: %d EP %d GP |cffffff00%.03f|r|cffff7f00PR|r."
   L["Close to EPGP Cap. Next Decay will change your |cffff7f00PR|r by |cffff0000%.4g|r."] = "下次递减会改变你的 |cffff7f00PR|r 从 |cffff0000%.4g|r."
-  L["|cffff7f00Click|r to toggle Standings.%s \n|cffff7f00Right-Click|r for Options."] = "|cffff7f00点击|r 切换名单.%s \n|cffff7f00右键|r 设置."
-  L[" \n|cffff7f00Ctrl+Click|r to toggle Standby. \n|cffff7f00Alt+Click|r to toggle Bids. \n|cffff7f00Shift+Click|r to toggle Loot. \n|cffff7f00Ctrl+Alt+Click|r to toggle Alts. \n|cffff7f00Ctrl+Shift+Click|r to toggle Logs."] = " \n|cffff7f00Ctrl+点击|r 切换到替补队员. \n|cffff7f00Alt+点击|r 切换到竞拍. \n|cffff7f00Shift+点击|r 切换到拾取. \n|cffff7f00Ctrl+Shift+点击|r 切换到日志." -- needs update
+  L["|cffff7f00Click|r to toggle Standings."] = "|cffff7f00点击|r 切换名单." -- needs update
   L["Account EPs to %s."] = "记账 EP 到 %s."
   L["Account GPs to %s."] = "记账 GP 到 %s."
   L["BastionEPGP options"] = "BastionEPGP 设置"
@@ -249,5 +248,13 @@ if not L then return end
   L["Bag hooks initialized"] = "Bag hooks initialized" -- needs translation
   L["|cffffff00%s|r is trying to add %s to Standby but {%s} is missing from Alt's Officer Note."] = "|cffffff00%s|r is trying to add %s to Standby but {%s} is missing from Alt's Officer Note."
   L["|cffffff00%s|r is trying to add themselves to Standby as a Main but are marked as an Alt of %s in Officer Note."] = "|cffffff00%s|r is trying to add themselves to Standby as a Main but are marked as an Alt of %s in Officer Note." -- needs translation
+  L["Admin Actions"] = "Admin Actions" -- needs translation
+  L["|cffff7f00Alt+Click|r to toggle Bids."] = "|cffff7f00Alt+Click|r to toggle Bids." -- needs translation
+  L["|cffff7f00Shift+Click|r to toggle Loot."] = "|cffff7f00Shift+Click|r to toggle Loot." -- needs translation
+  L["|cffff7f00Ctrl+Click|r to toggle Standby."] = "|cffff7f00Ctrl+Click|r to toggle Standby." -- needs translation
+  L["|cffff7f00Ctrl+Alt+Click|r to toggle Alts."] = "|cffff7f00Ctrl+Alt+Click|r to toggle Alts." -- needs translation
+  L["|cffff7f00Ctrl+Shift+Click|r to toggle Logs."] = "|cffff7f00Ctrl+Shift+Click|r to toggle Logs." -- needs translation
+  L["|cffff7f00Right Click|r for %s."] = "|cffff7f00Right Click|r for %s." -- needs translation
+  L["|cffff7f00Middle Click|r for %s"] = "|cffff7f00Middle Click|r for %s" -- needs translation
 
   bepgp.L = L

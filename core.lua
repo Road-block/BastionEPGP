@@ -533,15 +533,31 @@ end
 
 function bepgp.OnLDBTooltipShow(tooltip)
   tooltip = tooltip or GameTooltip
-  tooltip:SetText(addonName)
+  tooltip:SetText(label)
   tooltip:AddLine(" ")
-  local hint = L["|cffff7f00Click|r to toggle Standings.%s \n|cffff7f00Right-Click|r for Options."]
-  if bepgp:admin() then
-    hint = hint:format(L[" \n|cffff7f00Ctrl+Click|r to toggle Standby. \n|cffff7f00Alt+Click|r to toggle Bids. \n|cffff7f00Shift+Click|r to toggle Loot. \n|cffff7f00Ctrl+Alt+Click|r to toggle Alts. \n|cffff7f00Ctrl+Shift+Click|r to toggle Logs."])
-  else
-    hint = hint:format("")
-  end
+  local hint = L["|cffff7f00Click|r to toggle Standings."]
   tooltip:AddLine(hint)
+  if bepgp:admin() then
+    tooltip:AddLine(" ")
+    hint = L["|cffff7f00Alt+Click|r to toggle Bids."]
+    tooltip:AddLine(hint)
+    hint = L["|cffff7f00Shift+Click|r to toggle Loot."]
+    tooltip:AddLine(hint)
+    hint = L["|cffff7f00Ctrl+Click|r to toggle Standby."]
+    tooltip:AddLine(hint)
+    hint = L["|cffff7f00Ctrl+Alt+Click|r to toggle Alts."]
+    tooltip:AddLine(hint)
+    hint = L["|cffff7f00Ctrl+Shift+Click|r to toggle Logs."]
+    tooltip:AddLine(hint)
+    tooltip:AddLine(" ")
+    hint = L["|cffff7f00Middle Click|r for %s"]:format(L["Admin Options"])
+    tooltip:AddLine(hint)
+    hint = L["|cffff7f00Right Click|r for %s."]:format(L["Admin Actions"])
+    tooltip:AddLine(hint)
+  else
+    hint = L["|cffff7f00Right Click|r for %s."]:format(L["Member Options"])
+    tooltip:AddLine(hint)
+  end
 end
 
 function bepgp:templateCache(id)
