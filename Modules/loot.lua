@@ -419,7 +419,7 @@ function bepgp_loot:bidCall(frame, button, context) -- context is one of "master
     if not slot and LootSlotHasItem(slot) then return end
     itemLink = GetLootSlotLink(slot)
   elseif context == "container" then
-    hasItem = frame.hasItem -- default bags, Bagnon, Combuctor, Baggins, AdiBags, tdBag2
+    hasItem = frame.hasItem -- default bags, Bagnon, Combuctor, Baggins, AdiBags, tdBag2, Tukui, ElvUI
     if hasItem then
       if frame.ARK_Data then -- ArkInventory
         bagID, slotID = frame.ARK_Data.blizzard_id, frame.ARK_Data.slot_id
@@ -433,12 +433,12 @@ function bepgp_loot:bidCall(frame, button, context) -- context is one of "master
         if bagID and slotID then
           itemLink = GetContainerItemLink(bagID, slotID)
         end
-      elseif frame.bag and frame.slot then -- Inventorian
+      elseif frame.bag and frame.slot then -- Inventorian, tdBag2
         bagID, slotID = frame.bag, frame.slot
         if bagID and slotID then
           itemLink = GetContainerItemLink(bagID, slotID)
         end
-      else -- get from ItemButton (default bags, Bagnon, BaudManifest, tdBag2, Baggins)
+      else -- get from ItemButton (default bags, Bagnon, BaudManifest, tdBag2, Baggins, Tukui, ElvUI)
         bagID, slotID = frame:GetParent():GetID(), frame:GetID()
         if bagID and slotID then
           itemLink = GetContainerItemLink(bagID, slotID)
@@ -473,8 +473,10 @@ local bag_addons = {
   ["Bagnon"] = false,
   ["cargBags_Nivaya"] = false,
   ["Combuctor"] = false,
+  ["ElvUI"] = false,
   ["Inventorian"] = false,
   ["tdBag2"] = false,
+  ["Tukui"] = false,
 }
 function bepgp_loot:hookBagAddons()
   for k,v in pairs(bag_addons) do
@@ -522,7 +524,7 @@ function bepgp_loot:clickHandlerBags(id)
     end
   else
     local addon = id
-    if addon == "Bagnon" or addon == "Combuctor" then
+    if addon == "Bagnon" or addon == "Combuctor" or addon == "Tukui" then
       for b = BACKPACK_CONTAINER,NUM_BAG_FRAMES do
         local containerName = "ContainerFrame"..(b+1)
         for i = 1, MAX_CONTAINER_ITEMS do
@@ -568,6 +570,15 @@ function bepgp_loot:clickHandlerBags(id)
             local itemButton = _G["NivayaSlot"..slotcount]
             self:hookContainerButton(itemButton)
           end
+        end
+      end
+      bag_addons[addon] = true
+    elseif addon == "ElvUI" then
+      for b = BACKPACK_CONTAINER,NUM_BAG_FRAMES do
+        local containerName = "ElvUI_ContainerFrame"
+        for i = 1, MAX_CONTAINER_ITEMS do
+          local itemButton = _G[containerName.."Bag"..b.."Slot"..i]
+          self:hookContainerButton(itemButton)
         end
       end
       bag_addons[addon] = true

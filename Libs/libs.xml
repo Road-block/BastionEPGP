@@ -21,6 +21,7 @@
 <Include file="AceLocale-3.0\AceLocale-3.0.xml"/>
 <!--@end-no-lib-strip@-->
 <Script file="LibWindow-1.1\LibWindow-1.1.lua"/>
+<Include file="LibSharedMedia-3.0\lib.xml"/>
 <Include file="LibPubSub-1.0\LibPubSub-1.0.xml"/>
 <Include file="LibDropdown-1.0\lib.xml"/>
 <Include file="LibDDI-1.0\lib.xml"/>
