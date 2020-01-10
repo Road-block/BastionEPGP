@@ -254,5 +254,11 @@ Results will print here when done.]]
   L["|cffff7f00Ctrl+Shift+Click|r to toggle Logs."] = true
   L["|cffff7f00Right Click|r for %s."] = true
   L["|cffff7f00Middle Click|r for %s"] = true
+  L["Set Banker"] = true
+  L["Set Disenchanter"] = true
+  L["Self"] = true
+  L["Random"] = true
+  L["Banker"] = true
+  L["Disenchanter"] = true
 
 bepgp.L = L

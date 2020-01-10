@@ -3,7 +3,7 @@
 ## Title: BastionEPGP
 ## Notes: In-game EPGP guild helper, supports standby, main/alt shared pool, minEP, offpecGP. Pluggable price list.
 ## Version: 1.0.7
-## X-Alpha: 
+## X-Alpha: 1.1.0
 ## X-Website: https://github.com/Road-block/BastionEPGP
 ## OptionalDeps: Ace3, BastionEPGP_Prices, MizusRaidTracker
 ## SavedVariables: BastionEPGPDB
@@ -22,5 +22,6 @@ Modules\io.lua
 Modules\logs.lua
 Modules\loot.lua
 Modules\prices.lua
+Modules\rolls.lua
 Modules\standby.lua
 Modules\standings.lua

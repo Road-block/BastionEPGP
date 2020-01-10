@@ -256,5 +256,11 @@ if not L then return end
   L["|cffff7f00Ctrl+Shift+Click|r to toggle Logs."] = "|cffff7f00Ctrl+Shift+Click|r to toggle Logs." -- needs translation
   L["|cffff7f00Right Click|r for %s."] = "|cffff7f00Right Click|r for %s." -- needs translation
   L["|cffff7f00Middle Click|r for %s"] = "|cffff7f00Middle Click|r for %s" -- needs translation
+  L["Set Banker"] = "Set Banker" -- needs translation
+  L["Set Disenchanter"] = "Set Disenchanter" -- needs translation
+  L["Self"] = "Self" -- needs translation
+  L["Random"] = "Random" -- needs translation
+  L["Banker"] = "Banker" -- needs translation
+  L["Disenchanter"] = "Disenchanter" -- needs translation  
 
   bepgp.L = L
