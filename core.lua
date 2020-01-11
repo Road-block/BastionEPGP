@@ -1022,6 +1022,7 @@ function bepgp:deferredInit(guildname)
     -- set price system
     bepgp:SetPriceSystem()
     self._initdone = true
+    self:SendMessage(addonName.."_INIT_DONE")
   end
 end
 

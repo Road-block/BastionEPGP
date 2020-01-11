@@ -68,6 +68,7 @@ function bepgp_rolls:SetBanker()
   local name = UIDROPDOWNMENU_OPEN_MENU.name
   if type(name)=="string" then
     bepgp_rolls.special_recipients.BANKER = name
+    bepgp:Print(L["Banker"]..":"..name)
   end
   CloseDropDownMenus()
 end
@@ -76,6 +77,7 @@ function bepgp_rolls:SetDisenchanter()
   local name = UIDROPDOWNMENU_OPEN_MENU.name
   if type(name)=="string" then
     bepgp_rolls.special_recipients.DISENCHANTER = name
+    bepgp:Print(L["Disenchanter"]..":"..name)
   end
   CloseDropDownMenus()
 end
@@ -181,12 +183,18 @@ function bepgp_rolls:MasterLooterFrame_UpdatePlayers()
     local id, name = self.eligible_recipients[random_recipient][1], self.eligible_recipients[random_recipient][2]
     self._randomFrame.id = id
     self._randomFrame.Name:SetText(L["Random"])
-    self._randomFrame.tooltip = id..":"..name
+    self._randomFrame.tooltip = string.format("%d:%s (1-%d)",random_recipient, name, num_recipients)
   end
   self:positionMasterLootAdditions()
 end
 
-function bepgp_rolls:OnEnable()
+function bepgp_rolls:CoreInit()
+  if not self._initDone then
+    self:CheckStatus()
+  end
+end
+
+function bepgp_rolls:CheckStatus()
   if bepgp:admin() then
     self:SecureHook("MasterLooterFrame_UpdatePlayers")
     self:ToggleMenus(true)
@@ -203,5 +211,11 @@ function bepgp_rolls:OnEnable()
     self._disenchanterFrame.Bg:SetColorTexture(0, 0, 0, .75)
     self._randomFrame.Bg:SetColorTexture(0, 0, 0, .75)
     self._randomFrame:Hide()
-  end
+    self._initDone = true
+  end  
+end
+
+function bepgp_rolls:OnEnable()
+  self:RegisterMessage(addonName.."_INIT_DONE","CoreInit")
+  self:CheckStatus()
 end
