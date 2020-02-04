@@ -6,13 +6,14 @@ local LDD = LibStub("LibDropdown-1.0")
 local C = LibStub("LibCrayon-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local GUI = LibStub("AceGUI-3.0")
+local Item = Item
 --/run BastionEPGP:GetModule("BastionEPGP_browser"):Toggle()
 local data, subdata = { }, { }
 local colorHighlight = {r=0, g=0, b=0, a=.9}
 local GetPrice, progress, pricelist
 local favorites 
 local tiervalues = { }
-local filter = {["_FAV"]=L["|cffffff00Favorites|r"]}
+local filter = {["_FAV"]=C:Yellow(L["Favorites"])}
 local locsorted = {"_FAV", "INVTYPE_HEAD", "INVTYPE_NECK", "INVTYPE_SHOULDER", "INVTYPE_CHEST", "INVTYPE_ROBE", "INVTYPE_WAIST", "INVTYPE_LEGS", "INVTYPE_FEET", "INVTYPE_WRIST", "INVTYPE_HAND", "INVTYPE_FINGER", "INVTYPE_TRINKET", "INVTYPE_CLOAK", "INVTYPE_WEAPON", "INVTYPE_SHIELD", "INVTYPE_2HWEAPON", "INVTYPE_WEAPONMAINHAND", "INVTYPE_WEAPONOFFHAND", "INVTYPE_HOLDABLE", "INVTYPE_RANGED", "INVTYPE_THROWN", "INVTYPE_RANGEDRIGHT", "INVTYPE_RELIC"}
 local progressmap = {
   ["T3"] = {"T3","T2.5","T2","T1.5","T1"},
@@ -20,44 +21,10 @@ local progressmap = {
   ["T2"] = {"T2","T1.5","T1"},
   ["T1"] = {"T1.5","T1"}
 }
+local questionblue = CreateAtlasMarkup("QuestRepeatableTurnin")
 
 local function st_sorter_numeric(st,rowa,rowb,col)
-  --[[local cella = st.data[rowa].cols[col].value
-  local cellb = st.data[rowb].cols[col].value
-  local sort = st.cols[col].sort or st.cols[col].defaultsort
-  if bepgp.db.char.classgroup then
-    local classa = st.data[rowa].cols[5].value
-    local classb = st.data[rowb].cols[5].value
-    if classa == classb then
-      if cella == cellb then
-        local sortnext = st.cols[col].sortnext
-        if sortnext then
-          return st.data[rowa].cols[sortnext].value < st.data[rowb].cols[sortnext].value
-        end
-      else
-        return tonumber(cella) > tonumber(cellb)
-      end      
-    else
-      if sort == ST.SORT_DSC then
-        return classa < classb
-      else
-        return classa > classb
-      end
-    end
-  else
-    if cella == cellb then
-      local sortnext = st.cols[col].sortnext
-      if sortnext then
-        return st.data[rowa].cols[sortnext].value < st.data[rowb].cols[sortnext].value
-      end
-    else
-      if sort == ST.SORT_DSC then
-        return tonumber(cella) > tonumber(cellb)
-      else
-        return tonumber(cella) < tonumber(cellb)
-      end
-    end
-  end]]
+
 end
 local favmap = bepgp._favmap
 local fav5,fav4,fav3,fav2,fav1 = favmap[5],favmap[4],favmap[3],favmap[2],favmap[1]
@@ -149,17 +116,29 @@ local favorite_options = {
     }
   }  
 }
-local favorite_assign = function(rowFrame, cellFrame, data, cols, row, realrow, column, table, button, ...)
+local item_interact = function(rowFrame, cellFrame, data, cols, row, realrow, column, table, button, ...)
   if not realrow then return false end
-  if not (button == "RightButton") then return false end
   local itemID = data[realrow].cols[6].value
   if itemID then
     bepgp_browser._selected = tonumber(itemID)
-  end
-  if bepgp_browser._selected then
-    bepgp_browser._ddmenu = LDD:OpenAce3Menu(favorite_options)
-    bepgp_browser._ddmenu:SetPoint("CENTER", cellFrame, "CENTER", 0,0)
-    return true
+    local link = data[realrow].cols[1].value
+    if button == "LeftButton" then
+      if IsModifiedClick("DRESSUP") then
+        return DressUpItemLink(link)
+      elseif IsModifiedClick("CHATLINK") then
+        if ( ChatEdit_InsertLink(link) ) then
+          return true
+        end
+      else
+        return false
+      end
+    elseif button == "RightButton" then
+      if bepgp_browser._selected then
+        bepgp_browser._ddmenu = LDD:OpenAce3Menu(favorite_options)
+        bepgp_browser._ddmenu:SetPoint("CENTER", cellFrame, "CENTER", 0,0)
+        return true
+      end      
+    end
   end
   return false
 end
@@ -198,7 +177,7 @@ function bepgp_browser:OnEnable()
   self._browser_table = ST:CreateST(headers,15,nil,colorHighlight,container.frame) -- cols, numRows, rowHeight, highlight, parent
   self._browser_table:EnableSelection(true)
   self._browser_table:RegisterEvents({
-    ["OnClick"] = favorite_assign,
+    ["OnClick"] = item_interact,
     ["OnEnter"] = item_onenter,
     ["OnLeave"] = item_onleave,
   })
@@ -248,9 +227,9 @@ function bepgp_browser:OnEnable()
 
   local help = GUI:Create("Label")
   help:SetWidth(150)
-  help:SetText("\n\n"..L["Right-click a row to add or remove a Favorite"])
+  help:SetText("\n\n"..string.format("%s%s",questionblue,L["Right-click a row to add or remove a Favorite"]))
   help:SetColor(1,1,0)
-  help:SetJustifyV("CENTER")
+  help:SetJustifyV("TOP")
   help:SetJustifyH("CENTER")
   self._container._help = help
   container:AddChild(help)
@@ -268,6 +247,17 @@ function bepgp_browser:Toggle()
   self:Refresh()
 end
 
+local function populate(data,link,subtype,price,tier,favrank,id)
+  table.insert(data,{["cols"]={
+    {["value"]=link},
+    {["value"]=subtype},
+    {["value"]=price},
+    {["value"]=tier},
+    {["value"]=favrank},
+    {["value"]=id} -- 6
+  }})
+end
+
 function bepgp_browser:Refresh()
   local slotvalue = self._container._filterslots:GetValue() or "_FAV"
   for i, widget in self._container._filtertier.pullout:IterateItems() do
@@ -279,32 +269,36 @@ function bepgp_browser:Refresh()
   if slotvalue == "_FAV" then
     for id, rank in pairs(favorites) do
       local price, tier = GetPrice(bepgp,id,progress),pricelist[id][2]
-      local name,link,_,_,_,_,subtype = GetItemInfo(id)
       local favrank = favmap[rank]
-      table.insert(subdata,{["cols"]={
-        {["value"]=name and link or id},
-        {["value"]=name and subtype or id},
-        {["value"]=name and price or id},
-        {["value"]=name and tier or id},
-        {["value"]=favrank},
-        {["value"]=id} -- 6
-      }})
+      local name,link,_,_,_,_,subtype = GetItemInfo(id)
+      if (link) then
+        populate(subdata,link,subtype,price,tier,favrank,id)
+      else
+        local item = Item:CreateFromItemID(id)
+        item:ContinueOnItemLoad(function()
+          local id = item:GetItemID()
+          local name,link,_,_,_,_,subtype = GetItemInfo(id)
+          populate(subdata,link,subtype,price,tier,favrank,id)
+        end)
+      end
     end
   else
     for _, info in pairs(data[slotvalue]) do
       local id,price,tier = info[1],info[2],info[3]
       if tiervalues[tier] then
-        local name,link,_,_,_,_,subtype = GetItemInfo(id)
         local rank = favorites[id]
         local favrank = rank and favmap[rank] or ""
-        table.insert(subdata,{["cols"]={
-          {["value"]=name and link or id},
-          {["value"]=name and subtype or id},
-          {["value"]=name and price or id},
-          {["value"]=name and tier or id},
-          {["value"]=favrank},
-          {["value"]=id} -- 6
-        }})        
+        local name,link,_,_,_,_,subtype = GetItemInfo(id)
+        if (link) then
+          populate(subdata,link,subtype,price,tier,favrank,id)
+        else
+          local item = Item:CreateFromItemID(id)
+          item:ContinueOnItemLoad(function()
+            local id = item:GetItemID()
+            local name,link,_,_,_,_,subtype = GetItemInfo(id)
+            populate(subdata,link,subtype,price,tier,favrank,id)
+          end)
+        end
       end
     end
   end

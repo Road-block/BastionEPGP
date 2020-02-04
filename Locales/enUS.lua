@@ -261,7 +261,6 @@ Results will print here when done.]]
   L["Banker"] = true
   L["Disenchanter"] = true
   L["BastionEPGP browser"] = true
-  L["|cffffff00Favorites|r"] = true
   L["Item Type"] = true
   L["Item Pool"] = true
   L["Favorites"] = true

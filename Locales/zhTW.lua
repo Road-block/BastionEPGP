@@ -263,7 +263,6 @@ if not L then return end
   L["Banker"] = "Banker" -- needs translation
   L["Disenchanter"] = "Disenchanter" -- needs translation
   L["BastionEPGP browser"] = "BastionEPGP browser" -- needs translation
-  L["|cffffff00Favorites|r"] = "|cffffff00Favorites|r" -- needs translation
   L["Item Type"] = "Item Type" -- needs translation
   L["Item Pool"] = "Item Pool" -- needs translation
   L["Favorites"] = "Favorites" -- needs translation
