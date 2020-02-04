@@ -1,0 +1,355 @@
+local addonName, bepgp = ...
+local moduleName = addonName.."_browser"
+local bepgp_browser = bepgp:NewModule(moduleName, "AceEvent-3.0")
+local ST = LibStub("ScrollingTable")
+local LDD = LibStub("LibDropdown-1.0")
+local C = LibStub("LibCrayon-3.0")
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
+local GUI = LibStub("AceGUI-3.0")
+--/run BastionEPGP:GetModule("BastionEPGP_browser"):Toggle()
+local data, subdata = { }, { }
+local colorHighlight = {r=0, g=0, b=0, a=.9}
+local GetPrice, progress, pricelist
+local favorites 
+local tiervalues = { }
+local filter = {["_FAV"]=L["|cffffff00Favorites|r"]}
+local locsorted = {"_FAV", "INVTYPE_HEAD", "INVTYPE_NECK", "INVTYPE_SHOULDER", "INVTYPE_CHEST", "INVTYPE_ROBE", "INVTYPE_WAIST", "INVTYPE_LEGS", "INVTYPE_FEET", "INVTYPE_WRIST", "INVTYPE_HAND", "INVTYPE_FINGER", "INVTYPE_TRINKET", "INVTYPE_CLOAK", "INVTYPE_WEAPON", "INVTYPE_SHIELD", "INVTYPE_2HWEAPON", "INVTYPE_WEAPONMAINHAND", "INVTYPE_WEAPONOFFHAND", "INVTYPE_HOLDABLE", "INVTYPE_RANGED", "INVTYPE_THROWN", "INVTYPE_RANGEDRIGHT", "INVTYPE_RELIC"}
+local progressmap = {
+  ["T3"] = {"T3","T2.5","T2","T1.5","T1"},
+  ["T2.5"] = {"T2.5","T2","T1.5","T1"},
+  ["T2"] = {"T2","T1.5","T1"},
+  ["T1"] = {"T1.5","T1"}
+}
+
+local function st_sorter_numeric(st,rowa,rowb,col)
+  --[[local cella = st.data[rowa].cols[col].value
+  local cellb = st.data[rowb].cols[col].value
+  local sort = st.cols[col].sort or st.cols[col].defaultsort
+  if bepgp.db.char.classgroup then
+    local classa = st.data[rowa].cols[5].value
+    local classb = st.data[rowb].cols[5].value
+    if classa == classb then
+      if cella == cellb then
+        local sortnext = st.cols[col].sortnext
+        if sortnext then
+          return st.data[rowa].cols[sortnext].value < st.data[rowb].cols[sortnext].value
+        end
+      else
+        return tonumber(cella) > tonumber(cellb)
+      end      
+    else
+      if sort == ST.SORT_DSC then
+        return classa < classb
+      else
+        return classa > classb
+      end
+    end
+  else
+    if cella == cellb then
+      local sortnext = st.cols[col].sortnext
+      if sortnext then
+        return st.data[rowa].cols[sortnext].value < st.data[rowb].cols[sortnext].value
+      end
+    else
+      if sort == ST.SORT_DSC then
+        return tonumber(cella) > tonumber(cellb)
+      else
+        return tonumber(cella) < tonumber(cellb)
+      end
+    end
+  end]]
+end
+local favmap = bepgp._favmap
+local fav5,fav4,fav3,fav2,fav1 = favmap[5],favmap[4],favmap[3],favmap[2],favmap[1]
+local menu_close = function()
+  if bepgp_browser._ddmenu then
+    bepgp_browser._ddmenu:Release()
+  end
+end
+local favorite_options = {
+  type = "group",
+  name = L["BastionEPGP options"],
+  desc = L["BastionEPGP options"],
+  handler = bepgp_browser,
+  args = { 
+    ["5"] = {
+      type = "execute",
+      name = fav5,
+      desc = fav5,
+      order = 1,
+      func = function(info)
+        favorites[bepgp_browser._selected]=5
+        bepgp_browser:Refresh()
+        C_Timer.After(0.2, menu_close)
+      end,
+    },
+    ["4"] = {
+      type = "execute",
+      name = fav4,
+      desc = fav4,
+      order = 2,
+      func = function(info)
+        favorites[bepgp_browser._selected]=4
+        bepgp_browser:Refresh()
+        C_Timer.After(0.2, menu_close)
+      end,
+    },
+    ["3"] = {
+      type = "execute",
+      name = fav3,
+      desc = fav3,
+      order = 3,
+      func = function(info)
+        favorites[bepgp_browser._selected]=3
+        bepgp_browser:Refresh()
+        C_Timer.After(0.2, menu_close)
+      end,
+    },
+    ["2"] = {
+      type = "execute",
+      name = fav2,
+      desc = fav2,
+      order = 4,
+      func = function(info)
+        favorites[bepgp_browser._selected]=2
+        bepgp_browser:Refresh()
+        C_Timer.After(0.2, menu_close)
+      end,
+    },
+    ["1"] = {
+      type = "execute",
+      name = fav1,
+      desc = fav1,
+      order = 5,
+      func = function(info)
+        favorites[bepgp_browser._selected]=1
+        bepgp_browser:Refresh()
+        C_Timer.After(0.2, menu_close)
+      end,
+    },
+    ["0"] = {
+      type = "execute",
+      name = L["Remove Favorite"],
+      desc = L["Remove Favorite"],
+      order = 6,
+      func = function(info)
+        favorites[bepgp_browser._selected]=nil
+        bepgp_browser:Refresh()
+        C_Timer.After(0.2, menu_close)
+      end,
+    },
+    ["cancel"] = {
+      type = "execute",
+      name = _G.CANCEL,
+      desc = _G.CANCEL,
+      order = 7,
+      func = function(info)
+        C_Timer.After(0.2, menu_close)
+      end,
+    }
+  }  
+}
+local favorite_assign = function(rowFrame, cellFrame, data, cols, row, realrow, column, table, button, ...)
+  if not realrow then return false end
+  if not (button == "RightButton") then return false end
+  local itemID = data[realrow].cols[6].value
+  if itemID then
+    bepgp_browser._selected = tonumber(itemID)
+  end
+  if bepgp_browser._selected then
+    bepgp_browser._ddmenu = LDD:OpenAce3Menu(favorite_options)
+    bepgp_browser._ddmenu:SetPoint("CENTER", cellFrame, "CENTER", 0,0)
+    return true
+  end
+  return false
+end
+local item_onenter = function(rowFrame, cellFrame, data, cols, row, realrow, column, table, ...)
+  if not realrow then return false end
+  local itemID = data[realrow].cols[6].value
+  if itemID then
+    GameTooltip:SetOwner(rowFrame,"ANCHOR_TOP")
+    GameTooltip:SetItemByID(itemID)
+    GameTooltip:Show()
+  end
+end
+local item_onleave = function(rowFrame, cellFrame, data, cols, row, realrow, column, table, ...)
+  if not realrow then return false end
+  if GameTooltip:IsOwned(rowFrame) then
+    GameTooltip_Hide()
+  end
+end
+
+function bepgp_browser:OnEnable()
+  local container = GUI:Create("Window")
+  container:SetTitle(L["BastionEPGP browser"])
+  container:SetWidth(640)
+  container:SetHeight(290)
+  container:EnableResize(false)
+  container:SetLayout("List")
+  container:Hide()
+  self._container = container
+  local headers = {
+    {["name"]=C:Orange(_G.ITEMS),["width"]=150}, --name
+    {["name"]=C:Orange(L["Item Type"]),["width"]=80}, --type
+    {["name"]=C:Orange(L["Mainspec GP"]),["width"]=80}, --ms_gp
+    {["name"]=C:Orange(L["Item Pool"]),["width"]=60,}, --tier
+    {["name"]=C:Orange(L["Favorites"]),["width"]=60}, -- favorited
+  }
+  self._browser_table = ST:CreateST(headers,15,nil,colorHighlight,container.frame) -- cols, numRows, rowHeight, highlight, parent
+  self._browser_table:EnableSelection(true)
+  self._browser_table:RegisterEvents({
+    ["OnClick"] = favorite_assign,
+    ["OnEnter"] = item_onenter,
+    ["OnLeave"] = item_onleave,
+  })
+  self._browser_table.frame:SetPoint("BOTTOMRIGHT",self._container.frame,"BOTTOMRIGHT", -10, 10)
+  container:SetCallback("OnShow", function() bepgp_browser._browser_table:Show() end)
+  container:SetCallback("OnClose", function() bepgp_browser._browser_table:Hide() end)
+  
+  local filterslots = GUI:Create("Dropdown")
+  filterslots:SetList(filter)
+  filterslots:SetValue("FAV")
+  filterslots:SetCallback("OnValueChanged", function(obj, event, choice)
+    bepgp_browser:Refresh()
+  end)
+  filterslots:SetLabel(L["Filter by Slot"])
+  filterslots:SetWidth(150)
+  self._container._filterslots = filterslots
+  container:AddChild(filterslots)
+
+  local filtertier = GUI:Create("Dropdown")
+  filtertier:SetList(
+    {["T3"]="T3",["T2.5"]="T2.5",["T2"]="T2",["T1.5"]="T1.5",["T1"]="T1"},
+    {"T3","T2.5","T2","T1.5","T1"}
+  )
+
+  filtertier:SetCallback("OnValueChanged", function(obj, event, choice, checked)
+    bepgp_browser:Refresh()
+  end)
+  filtertier:SetLabel(L["Filter by Tier"])
+  filtertier:SetWidth(150)
+  filtertier:SetMultiselect(true)
+  self._container._filtertier = filtertier
+  container:AddChild(filtertier)
+
+  local modpreview = GUI:Create("Dropdown")
+  modpreview:SetList(
+    {["T3"]="T3",["T2.5"]="T2.5",["T2"]="T2",["T1"]="T1"}
+  )
+  modpreview:SetValue("FAV")
+  modpreview:SetCallback("OnValueChanged", function(obj, event, choice)
+    progress = choice
+    bepgp_browser:Refresh()
+  end)
+  modpreview:SetLabel(L["Modifier Preview"])
+  modpreview:SetWidth(150)
+  self._container._modpreview = modpreview
+  container:AddChild(modpreview)
+
+  local help = GUI:Create("Label")
+  help:SetWidth(150)
+  help:SetText("\n\n"..L["Right-click a row to add or remove a Favorite"])
+  help:SetColor(1,1,0)
+  help:SetJustifyV("CENTER")
+  help:SetJustifyH("CENTER")
+  self._container._help = help
+  container:AddChild(help)
+
+  bepgp:make_escable(container,"add")
+  self:RegisterMessage(addonName.."_INIT_DONE","CoreInit")
+end
+
+function bepgp_browser:Toggle()
+  if self._container.frame:IsShown() then
+    self._container:Hide()
+  else
+    self._container:Show()
+  end
+  self:Refresh()
+end
+
+function bepgp_browser:Refresh()
+  local slotvalue = self._container._filterslots:GetValue() or "_FAV"
+  for i, widget in self._container._filtertier.pullout:IterateItems() do
+    if widget.GetValue and widget.userdata.value then
+      tiervalues[widget.userdata.value] = widget:GetValue()
+    end
+  end
+  table.wipe(subdata)
+  if slotvalue == "_FAV" then
+    for id, rank in pairs(favorites) do
+      local price, tier = GetPrice(bepgp,id,progress),pricelist[id][2]
+      local name,link,_,_,_,_,subtype = GetItemInfo(id)
+      local favrank = favmap[rank]
+      table.insert(subdata,{["cols"]={
+        {["value"]=name and link or id},
+        {["value"]=name and subtype or id},
+        {["value"]=name and price or id},
+        {["value"]=name and tier or id},
+        {["value"]=favrank},
+        {["value"]=id} -- 6
+      }})
+    end
+  else
+    for _, info in pairs(data[slotvalue]) do
+      local id,price,tier = info[1],info[2],info[3]
+      if tiervalues[tier] then
+        local name,link,_,_,_,_,subtype = GetItemInfo(id)
+        local rank = favorites[id]
+        local favrank = rank and favmap[rank] or ""
+        table.insert(subdata,{["cols"]={
+          {["value"]=name and link or id},
+          {["value"]=name and subtype or id},
+          {["value"]=name and price or id},
+          {["value"]=name and tier or id},
+          {["value"]=favrank},
+          {["value"]=id} -- 6
+        }})        
+      end
+    end
+  end
+  self._browser_table:SetData(subdata)  
+  if self._browser_table and self._browser_table.showing then
+    self._browser_table:SortData()
+  end
+end
+
+function bepgp_browser:CoreInit()
+  if not self._initDone then
+    GetPrice = bepgp.GetPrice
+    progress = bepgp.db.profile.progress
+    favorites = bepgp.db.char.favorites
+    local bepgp_prices = bepgp:GetModule(addonName.."_prices")
+    if bepgp_prices and bepgp_prices._prices then
+      pricelist = bepgp_prices._prices
+    end
+    for id,info in pairs(pricelist) do
+      local itemID, itemType, itemSubType, itemEquipLoc, icon, itemClassID, itemSubClassID = GetItemInfoInstant(id)
+      local price = GetPrice(bepgp,id,progress)
+      local tier = info[2]
+      if itemEquipLoc and itemEquipLoc ~= "" then
+        if itemEquipLoc == "INVTYPE_ROBE" then itemEquipLoc = "INVTYPE_CHEST" end
+        data[itemEquipLoc] = data[itemEquipLoc] or {}
+        table.insert(data[itemEquipLoc],{id,price,tier})
+        local equipLocDesc = _G[itemEquipLoc]
+        if itemEquipLoc == "INVTYPE_SHIELD" then equipLocDesc = _G["SHIELDSLOT"] end
+        if itemEquipLoc == "INVTYPE_RANGEDRIGHT" then equipLocDesc = _G["INVTYPE_RANGED"].."2" end
+        filter[itemEquipLoc] = equipLocDesc
+      end
+    end
+    for i=#(locsorted),1,-1 do
+      local loc = locsorted[i]
+      if loc ~= "_FAV" and filter[loc]==nil then
+        table.remove(locsorted,i)
+      end
+    end
+    self._container._filterslots:SetList(filter,locsorted)
+    self._container._filterslots:SetValue("_FAV")
+    local tierfilter = progressmap[progress]
+    for _,option in pairs(tierfilter) do
+      self._container._filtertier:SetItemValue(option,true)
+    end
+    self._container._modpreview:SetValue(progress)
+    self._initDone = true
+  end
+end

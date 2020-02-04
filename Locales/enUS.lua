@@ -260,5 +260,18 @@ Results will print here when done.]]
   L["Random"] = true
   L["Banker"] = true
   L["Disenchanter"] = true
+  L["BastionEPGP browser"] = true
+  L["|cffffff00Favorites|r"] = true
+  L["Item Type"] = true
+  L["Item Pool"] = true
+  L["Favorites"] = true
+  L["Filter by Slot"] = true
+  L["Filter by Tier"] = true
+  L["Remove Favorite"] = true
+  L["Modifier Preview"] = true
+  L["Right-click a row to add or remove a Favorite"] = true
+  L["Show Favorites Table."] = true
+  L["|cffff7f00Shift+Alt+Click|r to toggle Favorites."] = true
+  L["|cffff7f00Alt+Click|r to toggle Favorites."] = true
 
 bepgp.L = L

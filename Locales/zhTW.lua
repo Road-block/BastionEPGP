@@ -261,6 +261,19 @@ if not L then return end
   L["Self"] = "Self" -- needs translation
   L["Random"] = "Random" -- needs translation
   L["Banker"] = "Banker" -- needs translation
-  L["Disenchanter"] = "Disenchanter" -- needs translation  
+  L["Disenchanter"] = "Disenchanter" -- needs translation
+  L["BastionEPGP browser"] = "BastionEPGP browser" -- needs translation
+  L["|cffffff00Favorites|r"] = "|cffffff00Favorites|r" -- needs translation
+  L["Item Type"] = "Item Type" -- needs translation
+  L["Item Pool"] = "Item Pool" -- needs translation
+  L["Favorites"] = "Favorites" -- needs translation
+  L["Filter by Slot"] = "Filter by Slot" -- needs translation
+  L["Filter by Tier"] = "Filter by Tier" -- needs translation
+  L["Remove Favorite"] = "Remove Favorite" -- needs translation
+  L["Modifier Preview"] = "Modifier Preview" -- needs translation
+  L["Right-click a row to add or remove a Favorite"] = "Right-click a row to add or remove a Favorite" -- needs translation
+  L["Show Favorites Table."] = "Show Favorites Table." -- needs translation
+  L["|cffff7f00Shift+Alt+Click|r to toggle Favorites."] = "|cffff7f00Shift+Alt+Click|r to toggle Favorites." -- needs translation
+  L["|cffff7f00Alt+Click|r to toggle Favorites."] = "|cffff7f00Alt+Click|r to toggle Favorites." -- needs translation  
 
   bepgp.L = L

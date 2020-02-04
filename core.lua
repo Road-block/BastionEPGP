@@ -69,6 +69,16 @@ do
     hexClassColor[class] = RAID_CLASS_COLORS[eClass].colorStr:gsub("^(ff)","")
   end
 end
+do
+  local star,star_off = CreateAtlasMarkup("tradeskills-star"),CreateAtlasMarkup("tradeskills-star-off")
+  bepgp._favmap = {
+    [1]=string.format("%s%s%s%s%s",star,star_off,star_off,star_off,star_off),
+    [2]=string.format("%s%s%s%s%s",star,star,star_off,star_off,star_off),
+    [3]=string.format("%s%s%s%s%s",star,star,star,star_off,star_off),
+    [4]=string.format("%s%s%s%s%s",star,star,star,star,star_off),
+    [5]=string.format("%s%s%s%s%s",star,star,star,star,star),
+  }
+end
 
 local defaults = {
   profile = {
@@ -94,6 +104,7 @@ local defaults = {
     standby = false,
     logs = {},
     loot = {},
+    favorites = {},
   },
 }
 local admincmd, membercmd = 
@@ -121,6 +132,18 @@ local admincmd, membercmd =
         end
       end,
       order = 2,
+    },
+    browser = {
+      type = "execute",
+      name = L["Favorites"],
+      desc = L["Show Favorites Table."],
+      func = function()
+        local browser = bepgp:GetModule(addonName.."_browser")
+        if browser then
+          browser:Toggle()
+        end
+      end,
+      order = 3,      
     },    
     clearloot = {
       type = "execute",
@@ -132,7 +155,7 @@ local admincmd, membercmd =
           loot:Clear()
         end
       end,
-      order = 3,
+      order = 4,
     },
     clearlogs = {
       type = "execute",
@@ -144,7 +167,7 @@ local admincmd, membercmd =
           logs:Clear()
         end
       end,
-      order = 4,
+      order = 5,
     },
     progress = {
       type = "execute",
@@ -153,7 +176,7 @@ local admincmd, membercmd =
       func = function()
         bepgp:Print(bepgp.db.profile.progress)
       end,
-      order = 5,
+      order = 6,
     },
     offspec = {
       type = "execute",
@@ -162,7 +185,7 @@ local admincmd, membercmd =
       func = function()
         bepgp:Print(string.format("%s%%",bepgp.db.profile.discount*100))
       end,
-      order = 6,
+      order = 7,
     },
     restart = {
       type = "execute",
@@ -172,7 +195,7 @@ local admincmd, membercmd =
         bepgp:OnEnable()
         bepgp:Print(L["Restarted"])
       end,
-      order = 7,
+      order = 8,
     },
   }},
 {type = "group", handler = bepgp, args = {
@@ -188,6 +211,18 @@ local admincmd, membercmd =
       end,
       order = 1,
     },
+    browser = {
+      type = "execute",
+      name = L["Favorites"],
+      desc = L["Show Favorites Table."],
+      func = function()
+        local browser = bepgp:GetModule(addonName.."_browser")
+        if browser then
+          browser:Toggle()
+        end
+      end,
+      order = 2,      
+    },
     progress = {
       type = "execute",
       name = L["Progress"],
@@ -195,7 +230,7 @@ local admincmd, membercmd =
       func = function()
         bepgp:Print(bepgp.db.profile.progress)
       end,
-      order = 2,
+      order = 3,
     },
     offspec = {
       type = "execute",
@@ -204,7 +239,7 @@ local admincmd, membercmd =
       func = function()
         bepgp:Print(string.format("%s%%",bepgp.db.profile.discount*100))
       end,
-      order = 3,
+      order = 4,
     },
     restart = {
       type = "execute",
@@ -214,7 +249,7 @@ local admincmd, membercmd =
         bepgp:OnEnable()
         bepgp:Print(L["Restarted"])
       end,
-      order = 4,
+      order = 5,
     },    
   }}
 bepgp.cmdtable = function() 
@@ -486,48 +521,71 @@ function bepgp:ddoptions()
 end
 
 function bepgp.OnLDBClick(obj,button)
-  local is_admin = bepgp:admin() 
-  if button == "LeftButton" then
-    if IsControlKeyDown() and IsShiftKeyDown() and is_admin then
-      -- logs
-      local logs = bepgp:GetModule(addonName.."_logs")
-      if logs then
-        logs:Toggle()
+  local is_admin = bepgp:admin()
+  local logs = bepgp:GetModule(addonName.."_logs")
+  local alts = bepgp:GetModule(addonName.."_alts")
+  local browser = bepgp:GetModule(addonName.."_browser")
+  local standby = bepgp:GetModule(addonName.."_standby")
+  local loot = bepgp:GetModule(addonName.."_loot")
+  local bids = bepgp:GetModule(addonName.."_bids")
+  local standings = bepgp:GetModule(addonName.."_standings")
+  if is_admin then
+    if button == "LeftButton" then
+      if IsControlKeyDown() and IsShiftKeyDown() then
+        -- logs
+        if logs then
+          logs:Toggle()
+        end
+      elseif IsControlKeyDown() and IsAltKeyDown() then
+        -- alts
+        if alts then
+          alts:Toggle()
+        end
+      elseif IsAltKeyDown() and IsShiftKeyDown() then
+        -- favorites
+        if browser then
+          browser:Toggle()
+        end
+      elseif IsControlKeyDown() then
+        -- standby
+        if standby then
+          standby:Toggle()
+        end
+      elseif IsShiftKeyDown() then
+        if loot then
+          loot:Toggle()
+        end
+      elseif IsAltKeyDown() then
+        -- bids
+        if bids then
+          bids:Toggle(obj)
+        end
+      else
+        if standings then
+          standings:Toggle()
+        end      
       end
-    elseif IsControlKeyDown() and IsAltKeyDown() and is_admin then
-      -- alts
-      local alts = bepgp:GetModule(addonName.."_alts")
-      if alts then
-        alts:Toggle()
-      end
-    elseif IsControlKeyDown() and is_admin then
-      -- standby
-      local standby = bepgp:GetModule(addonName.."_standby")
-      if standby then
-        standby:Toggle()
-      end
-    elseif IsShiftKeyDown() and is_admin then
-      local loot = bepgp:GetModule(addonName.."_loot")
-      if loot then
-        loot:Toggle()
-      end
-    elseif IsAltKeyDown() and is_admin then
-      -- bids
-      local bids = bepgp:GetModule(addonName.."_bids")
-      if bids then
-        bids:Toggle(obj)
-      end
-    else
-      local standings = bepgp:GetModule(addonName.."_standings")
-      if standings then
-        standings:Toggle()
-      end      
+    elseif button == "RightButton" then
+      bepgp:OpenRosterActions(obj)
+    elseif button == "MiddleButton" then
+      InterfaceOptionsFrame_OpenToCategory(bepgp.blizzoptions)
+      InterfaceOptionsFrame_OpenToCategory(bepgp.blizzoptions)
     end
-  elseif button == "MiddleButton" then
-    InterfaceOptionsFrame_OpenToCategory(bepgp.blizzoptions)
-    InterfaceOptionsFrame_OpenToCategory(bepgp.blizzoptions)
-  elseif button == "RightButton" then
-    bepgp:OpenRosterActions(obj)
+  else
+    if button == "LeftButton" then
+      if IsAltKeyDown() then
+        if browser then
+          browser:Toggle()
+        end
+      else
+        if standings then
+          standings:Toggle()
+        end
+      end
+    elseif button == "RightButton" then
+      InterfaceOptionsFrame_OpenToCategory(bepgp.blizzoptions)
+      InterfaceOptionsFrame_OpenToCategory(bepgp.blizzoptions)      
+    end
   end
 end
 
@@ -547,6 +605,8 @@ function bepgp.OnLDBTooltipShow(tooltip)
     tooltip:AddLine(hint)
     hint = L["|cffff7f00Ctrl+Alt+Click|r to toggle Alts."]
     tooltip:AddLine(hint)
+    hint = L["|cffff7f00Shift+Alt+Click|r to toggle Favorites."]
+    tooltip:AddLine(hint)    
     hint = L["|cffff7f00Ctrl+Shift+Click|r to toggle Logs."]
     tooltip:AddLine(hint)
     tooltip:AddLine(" ")
@@ -555,6 +615,8 @@ function bepgp.OnLDBTooltipShow(tooltip)
     hint = L["|cffff7f00Right Click|r for %s."]:format(L["Admin Actions"])
     tooltip:AddLine(hint)
   else
+    hint = L["|cffff7f00Alt+Click|r to toggle Favorites."]
+    tooltip:AddLine(hint)
     hint = L["|cffff7f00Right Click|r for %s."]:format(L["Member Options"])
     tooltip:AddLine(hint)
   end
@@ -1048,9 +1110,12 @@ end
 
 function bepgp:AddTipInfo(tooltip,...)
   local name, link = tooltip:GetItem()
+  local item = Item:CreateFromItemLink(link)
   if name and link then
     local price = self:GetPrice(link, self.db.profile.progress)
     if not price then return end
+    local item = Item:CreateFromItemLink(link)
+    local itemid = item:GetItemID()
     local off_price = math.floor(price*self.db.profile.discount)
     local ep,gp = (self:get_ep(self._playerName) or 0), (self:get_gp(self._playerName) or bepgp.VARS.basegp)
     local pr,new_pr,new_pr_off = ep/gp, ep/(gp+price), ep/(gp+off_price)
@@ -1066,6 +1131,10 @@ function bepgp:AddTipInfo(tooltip,...)
       if owner and owner._bepgpclicks then
         tooltip:AddDoubleLine(C:Yellow(L["Alt Click/RClick/MClick"]), C:Orange(L["Call for: MS/OS/Both"]))
       end
+    end
+    local favorite = self.db.char.favorites[itemid]
+    if favorite then
+      tooltip:AddLine(self._favmap[favorite])
     end
   end
 end
@@ -1512,12 +1581,6 @@ function bepgp:make_escable(object,operation)
 end
 
 function bepgp:OpenRosterActions(obj)
-  if not self:admin() then
-    -- just open to options
-    InterfaceOptionsFrame_OpenToCategory(bepgp.blizzoptions)
-    InterfaceOptionsFrame_OpenToCategory(bepgp.blizzoptions)
-    return 
-  end
   if not self._ddoptions then
     self:ddoptions()
   end
