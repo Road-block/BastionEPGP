@@ -6,6 +6,37 @@ local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local DF = LibStub("LibDeformat-3.0")
 local T = LibStub("LibQTip-1.0")
 
+--[[
+TODO: Send back the itemid of the currently equipped item for that slot
+reconstruct the link on the bids table and show it in a separate column
+local slotMap = {
+  ["INVTYPE_HEAD"] = {1}, -- Head
+  ["INVTYPE_NECK"] = {2}, -- Neck
+  ["INVTYPE_SHOULDER"] = {3}, -- Shoulder
+  ["INVTYPE_CHEST"] = {5}, -- Chest
+  ["INVTYPE_ROBE"] = {5}, -- Chest
+  ["INVTYPE_WAIST"] = {6}, -- Waist
+  ["INVTYPE_LEGS"] = {7}, -- Legs
+  ["INVTYPE_FEET"] = {8}, -- Feet
+  ["INVTYPE_WRIST"] = {9}, -- Wrist
+  ["INVTYPE_HAND"] = {10}, -- Hands
+  ["INVTYPE_FINGER"] = {11,12}, -- Rings
+  ["INVTYPE_TRINKET"] = {13,14}, -- Trinkets
+  ["INVTYPE_CLOAK"] = {15}, -- Cloak
+  ["INVTYPE_WEAPON"] = {16,17}, -- One-Hand
+  ["INVTYPE_SHIELD"] = {17}, -- Shield
+  ["INVTYPE_2HWEAPON"] = {16}, -- Two-Handed
+  ["INVTYPE_WEAPONMAINHAND"] = {16}, -- Main-Hand
+  ["INVTYPE_WEAPONOFFHAND"] = {17}, -- Off-Hand
+  ["INVTYPE_HOLDABLE"] = {17}, -- Held in Off-Hand
+  ["INVTYPE_RANGED"] = {18}, -- Bow
+  ["INVTYPE_THROWN"] = {18}, -- Thrown
+  ["INVTYPE_RANGEDRIGHT"] = {18}, -- Wand,Gun or Crossbow
+  ["INVTYPE_RELIC"] = {18}, -- Relic
+}
+local itemID = GetInventoryItemID("player",slotID)
+]]
+
 bepgp_bids.bids_main,bepgp_bids.bids_off,bepgp_bids.bid_item = {},{},{}
 local bids_blacklist = {}
 local bidlink = {

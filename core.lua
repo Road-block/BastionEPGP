@@ -1110,7 +1110,6 @@ end
 
 function bepgp:AddTipInfo(tooltip,...)
   local name, link = tooltip:GetItem()
-  local item = Item:CreateFromItemLink(link)
   if name and link then
     local price = self:GetPrice(link, self.db.profile.progress)
     if not price then return end
@@ -1670,11 +1669,11 @@ function bepgp:GroupStatus()
 end
 
 local raidZones = {
-  [249] = {"T1.5",(GetRealZoneText(249))}, -- Onyxia's Lair
-  [409] = {"T1",(GetRealZoneText(409))}, -- Molten Core
-  [469] = {"T2",(GetRealZoneText(469))}, -- Blackwing Lair
-  [531] = {"T2.5",(GetRealZoneText(531))}, -- Ahn'Qiraj Temple
-  [533] = {"T3",(GetRealZoneText(533))}, -- Naxxramas
+  [(GetRealZoneText(249))] = "T1.5", -- Onyxia's Lair
+  [(GetRealZoneText(409))] = "T1",   -- Molten Core
+  [(GetRealZoneText(469))] = "T2",   -- Blackwing Lair
+  [(GetRealZoneText(531))] = "T2.5", -- Ahn'Qiraj Temple
+  [(GetRealZoneText(533))] = "T3",   -- Naxxramas
 }
 local mapZones = {
   [(C_Map.GetAreaInfo(4))] = {"T1.5",(C_Map.GetAreaInfo(73))}, -- Blasted Lands - Tainted Scar, Kazzak
@@ -1695,8 +1694,8 @@ function bepgp:suggestEPAward()
   local inInstance, instanceType = IsInInstance()
   local inRaid = IsInRaid()
   if inInstance and instanceType == "raid" then
-    local uiMapID = C_Map.GetBestMapForUnit("player")
-    checkTier = raidZones[uiMapID] and raidZones[uiMapID][1]
+    local locZone, locSubZone = GetRealZoneText(), GetSubZoneText()
+    checkTier = raidZones[locZone]
     if checkTier then
       currentTier = checkTier
     end
@@ -1837,7 +1836,11 @@ end
 
 function bepgp:testMain()
   if (not self.db.profile.main) or self.db.profile.main == "" then
-    LD:Spawn(addonName.."DialogSetMain")
+    if self._playerLevel and (self._playerLevel < bepgp.VARS.minlevel) then
+      return
+    else
+      LD:Spawn(addonName.."DialogSetMain")
+    end
   end
 end
 
