@@ -273,6 +273,11 @@ if not L then return end
   L["Right-click a row to add or remove a Favorite"] = "Right-click a row to add or remove a Favorite" -- needs translation
   L["Show Favorites Table."] = "Show Favorites Table." -- needs translation
   L["|cffff7f00Shift+Alt+Click|r to toggle Favorites."] = "|cffff7f00Shift+Alt+Click|r to toggle Favorites." -- needs translation
-  L["|cffff7f00Alt+Click|r to toggle Favorites."] = "|cffff7f00Alt+Click|r to toggle Favorites." -- needs translation  
+  L["|cffff7f00Alt+Click|r to toggle Favorites."] = "|cffff7f00Alt+Click|r to toggle Favorites." -- needs translation
+  L["Bid Popup"] = "Bid Popup" -- needs translation
+  L["Show a Bid Popup in addition to chat links"] = "Show a Bid Popup in addition to chat links" -- needs translation
+  L["Bid Mainspec/Need"] = "Bid Mainspec/Need" -- needs translation
+  L["Bid Offspec/Greed"] = "Bid Offspec/Greed" -- needs translation
+  L["Bid Call for %s[%d]"] = "Bid Call for %s[%d]" -- needs translation
 
   bepgp.L = L

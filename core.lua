@@ -102,6 +102,7 @@ local defaults = {
     tooltip = true,
     classgroup = false,
     standby = false,
+    bidpopup = false,
     logs = {},
     loot = {},
     favorites = {},
@@ -317,6 +318,16 @@ function bepgp:options()
       set = function(info, val) 
         bepgp.db.char.tooltip = not bepgp.db.char.tooltip
         bepgp:tooltipHook(bepgp.db.char.tooltip)
+      end,
+    }
+    self._options.args["bid_popup"] = {
+      type = "toggle",
+      name = L["Bid Popup"],
+      desc = L["Show a Bid Popup in addition to chat links"],
+      order = 83,
+      get = function() return not not bepgp.db.char.bidpopup end,
+      set = function(info, val) 
+        bepgp.db.char.bidpopup = not bepgp.db.char.bidpopup
       end,
     }
     self._options.args["progress_tier_header"] = {
@@ -849,6 +860,59 @@ function bepgp:templateCache(id)
               LD:Dismiss(addonName.."DialogItemPoints")
             end,            
           },]]
+        },
+      }
+    elseif id == "DialogMemberBid" then
+      self._dialogTemplates[key] = {
+        hide_on_escape = true,
+        show_whlle_dead = true,
+        is_exclusive = true,
+        duration = 30,
+        text = L["Bid Call for %s[%d]"],
+        on_show = function(self)
+          local data = self.data
+          local link = data[1]
+          self.text:SetText(string.format(L["Bid Call for %s[%d]"],link,self.duration))
+          self:SetScript("OnEnter", function(f) 
+            GameTooltip:SetOwner(f, "ANCHOR_RIGHT")
+            GameTooltip:SetHyperlink(link)
+            GameTooltip:Show()
+          end)
+          self:SetScript("OnLeave", function(f)
+            if GameTooltip:IsOwned(f) then
+              GameTooltip_Hide()
+            end
+          end)
+          self:SetScript("OnHide", function(f)
+            if GameTooltip:IsOwned(f) then
+              GameTooltip_Hide()
+            end
+          end)
+        end,
+        on_update = function(self,elapsed)
+          local remain = self.time_remaining
+          local link = self.data[1]
+          self.text:SetText(string.format(L["Bid Call for %s[%d]"],link,remain))
+        end,
+        buttons = {
+          { -- MainSpec
+            text = L["Bid Mainspec/Need"],
+            on_click = function(self, button, down)
+              local data = self.data
+              local masterlooter = data[2]
+              SendChatMessage("+","WHISPER",nil,masterlooter)
+              LD:Dismiss(addonName.."DialogMemberBid")
+            end,
+          },
+          { -- OffSpec
+            text = L["Bid Offspec/Greed"],
+            on_click = function(self, button, down)
+              local data = self.data
+              local masterlooter = data[2]
+              SendChatMessage("-","WHISPER",nil,masterlooter)
+              LD:Dismiss(addonName.."DialogMemberBid")
+            end,
+          },
         },
       }      
     elseif id == "DialogSetMain" then

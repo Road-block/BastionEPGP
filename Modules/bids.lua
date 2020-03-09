@@ -5,6 +5,7 @@ local C = LibStub("LibCrayon-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local DF = LibStub("LibDeformat-3.0")
 local T = LibStub("LibQTip-1.0")
+local LD = LibStub("LibDialog-1.0")
 
 --[[
 TODO: Send back the itemid of the currently equipped item for that slot
@@ -86,6 +87,7 @@ function bepgp_bids:OnEnable()
   self.qtip:SetClampedToScreen(true)
   self.qtip:SetClampRectInsets(-100,100,50,-50)
   self.qtip:SetPoint("TOP",UIParent,"TOP",0,-50)
+  LD:Register(addonName.."DialogMemberBid", bepgp:templateCache("DialogMemberBid"))
 end
 
 function bepgp_bids:announceWinner(data)
@@ -110,6 +112,7 @@ end
 function bepgp_bids:Refresh()
   local frame = self.qtip
   if not frame then return end
+  frame:StopMovingOrSizing() -- free the mouse if we're mid-drag
   frame:Clear()
   frame:SetMovable(true)
   local minep = bepgp.db.profile.minep
@@ -436,6 +439,10 @@ function bepgp_bids:bidPrint(link,masterlooter,need,greed,bid)
       FCF_SelectDockFrame(DEFAULT_CHAT_FRAME)
     end
     chatframe = DEFAULT_CHAT_FRAME
+  end
+  if bepgp.db.char.bidpopup then
+    local data = {link,masterlooter}
+    LD:Spawn(addonName.."DialogMemberBid", data)
   end
   if (chatframe) then
     chatframe:AddMessage(" ")

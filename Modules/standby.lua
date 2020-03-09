@@ -224,6 +224,7 @@ end
 function bepgp_standby:Refresh()
   local frame = self.qtip
   if not frame then return end
+  frame:StopMovingOrSizing() -- free the mouse if we're mid-drag
   frame:Clear()
   frame:SetMovable(true)
   local line

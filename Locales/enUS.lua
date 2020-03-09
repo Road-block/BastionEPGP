@@ -272,5 +272,10 @@ Results will print here when done.]]
   L["Show Favorites Table."] = true
   L["|cffff7f00Shift+Alt+Click|r to toggle Favorites."] = true
   L["|cffff7f00Alt+Click|r to toggle Favorites."] = true
+  L["Bid Popup"] = true
+  L["Show a Bid Popup in addition to chat links"] = true
+  L["Bid Mainspec/Need"] = true
+  L["Bid Offspec/Greed"] = true
+  L["Bid Call for %s[%d]"] = true
 
 bepgp.L = L
