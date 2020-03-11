@@ -3,66 +3,88 @@ local moduleName = addonName.."_autoroll"
 local bepgp_autoroll = bepgp:NewModule(moduleName, "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local GUI = LibStub("AceGUI-3.0")
---[[
-inject options for auto rolling need/greed/pass/ignore
-ZG: hakkari coin / hakkari bijou
-AQ20: scarabs / idols
-AQ40:
-instance greens
-]]
--- ZG 0=pass, 1=need, 2=greed
+local ACD = LibStub("AceConfigDialog-3.0")
+-- -1 = manual rolling, 0 = pass, 1 = need, 2 = greed
 local autoroll = {
+  zg_coin = {
 -- ZG coin
-  [19698] = 1, --zulian
-  [19699] = 1, --razzashi
-  [19700] = 1, --hakkari -- turnin 1
-  [19701] = 1, --gurubashi
-  [19702] = 1, --vilebranch
-  [19703] = 1, --witherbark -- turnin 2
-  [19704] = 1, --sandfury
-  [19705] = 1, --skullsplitter
-  [19706] = 1, --bloodscalp -- turnin 3
+    [19698] = true, --zulian
+    [19699] = true, --razzashi
+    [19700] = true, --hakkari -- turnin 1
+    [19701] = true, --gurubashi
+    [19702] = true, --vilebranch
+    [19703] = true, --witherbark -- turnin 2
+    [19704] = true, --sandfury
+    [19705] = true, --skullsplitter
+    [19706] = true, --bloodscalp -- turnin 3    
+  },
+  zg_bijou = {
 -- ZG bijou
-  [19707] = 1, --red
-  [19708] = 1, --blue
-  [19709] = 1, --yellow
-  [19710] = 1, --orange
-  [19711] = 1, --green
-  [19712] = 1, --purple
-  [19713] = 1, --bronze
-  [19714] = 1, --silver
-  [19715] = 1, --gold
--- AQ scarabs
-  [20858] = 1, --stone
-  [20859] = 1, --gold
-  [20860] = 1, --silver
-  [20861] = 1, --bronze
-  [20862] = 1, --crystal
-  [20863] = 1, --clay
-  [20864] = 1, --bone
-  [20865] = 1, --ivory
--- AQ20 idols
-  [20866] = {["HUNTER"]=1,["ROGUE"]=1,["MAGE"]=1}, --azure
-  [20867] = {["WARRIOR"]=1,["ROGUE"]=1,["WARLOCK"]=1}, --onyx
-  [20868] = {["WARRIOR"]=1,["HUNTER"]=1,["PRIEST"]=1}, --lambent
-  [20869] = {["PALADIN"]=1,["HUNTER"]=1,["SHAMAN"]=1,["WARLOCK"]=1}, --amber
-  [20870] = {["PRIEST"]=1,["WARLOCK"]=1,["DRUID"]=1}, --jasper
-  [20871] = {["PALADIN"]=1,["PRIEST"]=1,["SHAMAN"]=1,["MAGE"]=1}, --obsidian
-  [20872] = {["PALADIN"]=1,["ROGUE"]=1,["SHAMAN"]=1,["DRUID"]=1}, --vermillion
-  [20873] = {["WARRIOR"]=1,["MAGE"]=1,["DRUID"]=1}, --alabaster
--- AQ40 idols
-  [20874] = {["WARRIOR"]=1,["HUNTER"]=1,["ROGUE"]=1,["MAGE"]=1}, --sun
-  [20875] = {["WARRIOR"]=1,["ROGUE"]=1,["MAGE"]=1,["WARLOCK"]=1}, --night
-  [20876] = {["WARRIOR"]=1,["PRIEST"]=1,["MAGE"]=1,["WARLOCK"]=1}, --death
-  [20877] = {["PALADIN"]=1,["PRIEST"]=1,["SHAMAN"]=1,["MAGE"]=1,["WARLOCK"]=1}, --sage
-  [20878] = {["PALADIN"]=1,["PRIEST"]=1,["SHAMAN"]=1,["WARLOCK"]=1,["DRUID"]=1}, --rebirth
-  [20879] = {["PALADIN"]=1,["HUNTER"]=1,["PRIEST"]=1,["SHAMAN"]=1,["DRUID"]=1}, --life
-  [20881] = {["PALADIN"]=1,["HUNTER"]=1,["ROGUE"]=1,["SHAMAN"]=1,["DRUID"]=1}, --strife
-  [20882] = {["WARRIOR"]=1,["HUNTER"]=1,["ROGUE"]=1,["DRUID"]=1}, --war
+    [19707] = true, --red
+    [19708] = true, --blue
+    [19709] = true, --yellow
+    [19710] = true, --orange
+    [19711] = true, --green
+    [19712] = true, --purple
+    [19713] = true, --bronze
+    [19714] = true, --silver
+    [19715] = true, --gold
+  },
+  aq_scarab = {
+  -- AQ scarabs
+    [20858] = true, --stone
+    [20859] = true, --gold
+    [20860] = true, --silver
+    [20861] = true, --bronze
+    [20862] = true, --crystal
+    [20863] = true, --clay
+    [20864] = true, --bone
+    [20865] = true, --ivory    
+  },
+  aq_20_idol = {
+  -- AQ20 idols
+    [20866] = {["HUNTER"]=true,["ROGUE"]=true,["MAGE"]=true}, --azure
+    [20867] = {["WARRIOR"]=true,["ROGUE"]=true,["WARLOCK"]=true}, --onyx
+    [20868] = {["WARRIOR"]=true,["HUNTER"]=true,["PRIEST"]=true}, --lambent
+    [20869] = {["PALADIN"]=true,["HUNTER"]=true,["SHAMAN"]=true,["WARLOCK"]=true}, --amber
+    [20870] = {["PRIEST"]=true,["WARLOCK"]=true,["DRUID"]=true}, --jasper
+    [20871] = {["PALADIN"]=true,["PRIEST"]=true,["SHAMAN"]=true,["MAGE"]=true}, --obsidian
+    [20872] = {["PALADIN"]=true,["ROGUE"]=true,["SHAMAN"]=true,["DRUID"]=true}, --vermillion
+    [20873] = {["WARRIOR"]=true,["MAGE"]=true,["DRUID"]=true}, --alabaster
+  },
+  aq_40_idol = {
+  -- AQ40 idols
+    [20874] = {["WARRIOR"]=true,["HUNTER"]=true,["ROGUE"]=true,["MAGE"]=true}, --sun
+    [20875] = {["WARRIOR"]=true,["ROGUE"]=true,["MAGE"]=true,["WARLOCK"]=true}, --night
+    [20876] = {["WARRIOR"]=true,["PRIEST"]=true,["MAGE"]=true,["WARLOCK"]=true}, --death
+    [20877] = {["PALADIN"]=true,["PRIEST"]=true,["SHAMAN"]=true,["MAGE"]=true,["WARLOCK"]=true}, --sage
+    [20878] = {["PALADIN"]=true,["PRIEST"]=true,["SHAMAN"]=true,["WARLOCK"]=true,["DRUID"]=true}, --rebirth
+    [20879] = {["PALADIN"]=true,["HUNTER"]=true,["PRIEST"]=true,["SHAMAN"]=true,["DRUID"]=true}, --life
+    [20881] = {["PALADIN"]=true,["HUNTER"]=true,["ROGUE"]=true,["SHAMAN"]=true,["DRUID"]=true}, --strife
+    [20882] = {["WARRIOR"]=true,["HUNTER"]=true,["ROGUE"]=true,["DRUID"]=true}, --war    
+  }
 }
 
-function bepgp_autoroll:getAction(itemID,action)
-  return (action[self._playerClass]) or 2 -- need my class, greed the rest
+function bepgp_autoroll:getAction(itemID)
+  local group,item
+  for option,data in pairs(autoroll) do
+    if data[itemID] then
+      group = option
+      item = data[itemID]
+      break
+    end
+  end
+  if group and item then
+    if (group == "aq_40_idol") or (group == "aq_20_idol") then
+      if item[self._playerClass] then
+        return bepgp.db.char.autoroll[group].class
+      else
+        return bepgp.db.char.autoroll[group].other
+      end
+    else
+      return bepgp.db.char.autoroll[group]
+    end
+  end
 end
 
 function bepgp_autoroll:Roll(event, rollID, rollTime, lootHandle)
@@ -70,21 +92,133 @@ function bepgp_autoroll:Roll(event, rollID, rollTime, lootHandle)
   if (name) and (canNeed or canGreed) then
     local link = GetLootRollItemLink(rollID)
     local _, _, _, itemID = bepgp:getItemData(link)
-    local action = autoroll[itemID]
-    if (action) then
-      if type(action)=="number" then
-        RollOnLoot(rollID,action)
-      elseif type(action)=="table" then
-        action = self:getAction(itemID,action)
-        if action then
-          RollOnLoot(rollID,action)
-        end
-      end
+    local action = self:getAction(itemID)
+    if action and action >= 0 then
+      RollOnLoot(rollID,action)
     end
   end
 end
 
+local zg_label = string.format("%s %%s",(GetRealZoneText(309)))
+local aq20_label = string.format("%s %%s",(GetRealZoneText(509)))
+local aq40_label = string.format("%s %%s",(GetRealZoneText(531)))
+local aq_label = string.format("%s %%s",(C_Map.GetAreaInfo(3428)))
+local options = {
+  type = "group",
+  name = L["Autoroll"],
+  desc = L["Autoroll"],
+  handler = bepgp_autoroll,
+  args = {
+    ["zg_coin"] = {
+      type = "select",
+      name = string.format(zg_label,L["Coins"]),
+      desc = string.format(zg_label,L["Coins"]),
+      order = 10,
+      get = function() return bepgp.db.char.autoroll.zg_coin end,
+      set = function(info, val) bepgp.db.char.autoroll.zg_coin = val end,
+      values = { [-1]=_G.TRACKER_SORT_MANUAL, [0]=_G.PASS, [1]=_G.NEED, [2]=_G.GREED },
+      sorting = {-1, 1, 2, 0}
+    },
+    ["zg_bijou"] = {
+      type = "select",
+      name = string.format(zg_label,L["Bijous"]),
+      desc = string.format(zg_label,L["Bijous"]),
+      order = 20,
+      get = function() return bepgp.db.char.autoroll.zg_bijou end,
+      set = function(info, val) bepgp.db.char.autoroll.zg_bijou = val end,
+      values = { [-1]=_G.TRACKER_SORT_MANUAL, [0]=_G.PASS, [1]=_G.NEED, [2]=_G.GREED },
+      sorting = {-1, 1, 2, 0}
+    },
+    ["aq_scarab"] = {
+      type = "select",
+      name = string.format(aq_label,L["Scarabs"]),
+      desc = string.format(aq_label,L["Scarabs"]),
+      order = 30,
+      get = function() return bepgp.db.char.autoroll.aq_scarab end,
+      set = function(info, val) bepgp.db.char.autoroll.aq_scarab = val end,
+      values = { [-1]=_G.TRACKER_SORT_MANUAL, [0]=_G.PASS, [1]=_G.NEED, [2]=_G.GREED },
+      sorting = {-1, 1, 2, 0}
+    },
+    ["aq_20_idol"] = {
+      type = "group",
+      name = string.format(aq20_label,L["Idols"]),
+      desc = string.format(aq20_label,L["Idols"]),
+      order = 40,
+      args = {
+        ["aq_20_class"] = {
+          type = "select",
+          name = string.format(aq20_label,L["Class Idols"]),
+          desc = string.format(aq20_label,L["Class Idols"]),
+          order = 10,
+          get = function() return bepgp.db.char.autoroll.aq_20_idol.class end,
+          set = function(info, val) bepgp.db.char.autoroll.aq_20_idol.class = val end,
+          values = { [-1]=_G.TRACKER_SORT_MANUAL, [0]=_G.PASS, [1]=_G.NEED, [2]=_G.GREED },
+          sorting = {-1, 1, 2, 0}
+        },
+        ["aq_20_other"] = {
+          type = "select",
+          name = string.format(aq20_label,L["Other Idols"]),
+          desc = string.format(aq20_label,L["Other Idols"]),
+          order = 20,
+          get = function() return bepgp.db.char.autoroll.aq_20_idol.other end,
+          set = function(info, val) bepgp.db.char.autoroll.aq_20_idol.other = val end,
+          values = { [-1]=_G.TRACKER_SORT_MANUAL, [0]=_G.PASS, [1]=_G.NEED, [2]=_G.GREED },
+          sorting = {-1, 1, 2, 0}
+        }
+      }
+    },
+    ["aq_40_idol"] = {
+      type = "group",
+      name = string.format(aq40_label,L["Idols"]),
+      desc = string.format(aq40_label,L["Idols"]),
+      order = 50,
+      args = {
+        ["aq_40_class"] = {
+          type = "select",
+          name = string.format(aq40_label,L["Class Idols"]),
+          desc = string.format(aq40_label,L["Class Idols"]),
+          order = 10,
+          get = function() return bepgp.db.char.autoroll.aq_40_idol.class end,
+          set = function(info, val) bepgp.db.char.autoroll.aq_40_idol.class = val end,
+          values = { [-1]=_G.TRACKER_SORT_MANUAL, [0]=_G.PASS, [1]=_G.NEED, [2]=_G.GREED },
+          sorting = {-1, 1, 2, 0}
+        },
+        ["aq_40_other"] = {
+          type = "select",
+          name = string.format(aq40_label,L["Other Idols"]),
+          desc = string.format(aq40_label,L["Other Idols"]),
+          order = 20,
+          get = function() return bepgp.db.char.autoroll.aq_40_idol.other end,
+          set = function(info, val) bepgp.db.char.autoroll.aq_40_idol.other = val end,
+          values = { [-1]=_G.TRACKER_SORT_MANUAL, [0]=_G.PASS, [1]=_G.NEED, [2]=_G.GREED },
+          sorting = {-1, 1, 2, 0}
+        }
+      }
+    },
+  }
+}
+function bepgp_autoroll:injectOptions()
+  bepgp.db.char.autoroll = bepgp.db.char.autoroll or {
+    ["zg_coin"] = 1,
+    ["zg_bijou"] = 1,
+    ["aq_scarab"] = 1,
+  }
+  bepgp.db.char.autoroll.aq_20_idol = bepgp.db.char.autoroll.aq_20_idol or {
+    ["class"] = 1,
+    ["other"] = 2,
+  }
+  bepgp.db.char.autoroll.aq_40_idol = bepgp.db.char.autoroll.aq_40_idol or {
+    ["class"] = 1,
+    ["other"] = 2,
+  }
+  bepgp._options.args.autoroll = options
+  bepgp._options.args.autoroll.guiHidden = true
+  bepgp._options.args.autoroll.cmdHidden = true
+  ACD:AddToBlizOptions(addonName, "Autoroll", addonName, "autoroll")
+end
+
 function bepgp_autoroll:delayInit()
+  self:injectOptions()
   self:RegisterEvent("START_LOOT_ROLL","Roll")
   local _
   _, self._playerClass = UnitClass("player")

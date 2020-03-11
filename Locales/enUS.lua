@@ -277,5 +277,12 @@ Results will print here when done.]]
   L["Bid Mainspec/Need"] = true
   L["Bid Offspec/Greed"] = true
   L["Bid Call for %s[%d]"] = true
+  L["Autoroll"] = true
+  L["Coins"] = true
+  L["Bijous"] = true
+  L["Scarabs"] = true
+  L["Idols"] = true
+  L["Class Idols"] = true
+  L["Other Idols"] = true
 
 bepgp.L = L

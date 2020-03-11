@@ -1,4 +1,4 @@
-## Interface: 11303
+## Interface: 11304
 ## Author: Roadblock
 ## Title: BastionEPGP - Export
 ## Notes: Addon Stub to facilitate exporting data from BastionEPGP for external parsers

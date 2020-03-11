@@ -279,5 +279,12 @@ if not L then return end
   L["Bid Mainspec/Need"] = "Bid Mainspec/Need" -- needs translation
   L["Bid Offspec/Greed"] = "Bid Offspec/Greed" -- needs translation
   L["Bid Call for %s[%d]"] = "Bid Call for %s[%d]" -- needs translation
+  L["Autoroll"] = "Autoroll" -- needs translation
+  L["Coins"] = "Coins" -- needs translation
+  L["Bijous"] = "Bijous" -- needs translation
+  L["Scarabs"] = "Scarabs" -- needs translation
+  L["Idols"] = "Idols" -- needs translation
+  L["Class Idols"] = "Class Idols" -- needs translation
+  L["Other Idols"] = "Other Idols" -- needs translation
 
   bepgp.L = L
