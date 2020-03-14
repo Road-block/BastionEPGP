@@ -278,7 +278,7 @@ if not L then return end
   L["Show a Bid Popup in addition to chat links"] = "Show a Bid Popup in addition to chat links" -- needs translation
   L["Bid Mainspec/Need"] = "Bid Mainspec/Need" -- needs translation
   L["Bid Offspec/Greed"] = "Bid Offspec/Greed" -- needs translation
-  L["Bid Call for %s[%d]"] = "Bid Call for %s[%d]" -- needs translation
+  L["Bid Call for %s [%ds]"] = "Bid Call for %s [%ds]" -- needs translation
   L["Autoroll"] = "Autoroll" -- needs translation
   L["Coins"] = "Coins" -- needs translation
   L["Bijous"] = "Bijous" -- needs translation

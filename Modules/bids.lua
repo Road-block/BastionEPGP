@@ -440,13 +440,12 @@ function bepgp_bids:bidPrint(link,masterlooter,need,greed,bid)
     end
     chatframe = DEFAULT_CHAT_FRAME
   end
-  if bepgp.db.char.bidpopup then
-    local data = {link,masterlooter}
-    LD:Spawn(addonName.."DialogMemberBid", data)
-  end
   if (chatframe) then
     chatframe:AddMessage(" ")
     chatframe:AddMessage(string.format(out,msg),NORMAL_FONT_COLOR.r,NORMAL_FONT_COLOR.g,NORMAL_FONT_COLOR.b)
+    if bepgp.db.char.bidpopup then
+      LD:Spawn(addonName.."DialogMemberBid", {link,masterlooter})
+    end    
   end
 end
 

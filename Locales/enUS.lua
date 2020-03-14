@@ -276,7 +276,7 @@ Results will print here when done.]]
   L["Show a Bid Popup in addition to chat links"] = true
   L["Bid Mainspec/Need"] = true
   L["Bid Offspec/Greed"] = true
-  L["Bid Call for %s[%d]"] = true
+  L["Bid Call for %s [%ds]"] = true
   L["Autoroll"] = true
   L["Coins"] = true
   L["Bijous"] = true

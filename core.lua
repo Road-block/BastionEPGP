@@ -868,11 +868,11 @@ function bepgp:templateCache(id)
         show_whlle_dead = true,
         is_exclusive = true,
         duration = 30,
-        text = L["Bid Call for %s[%d]"],
+        text = L["Bid Call for %s [%ds]"],
         on_show = function(self)
           local data = self.data
-          local link = data[1]
-          self.text:SetText(string.format(L["Bid Call for %s[%d]"],link,self.duration))
+          local link = data[1]         
+          self.text:SetText(string.format(L["Bid Call for %s [%ds]"],link,self.duration))
           self:SetScript("OnEnter", function(f) 
             GameTooltip:SetOwner(f, "ANCHOR_RIGHT")
             GameTooltip:SetHyperlink(link)
@@ -883,16 +883,18 @@ function bepgp:templateCache(id)
               GameTooltip_Hide()
             end
           end)
-          self:SetScript("OnHide", function(f)
-            if GameTooltip:IsOwned(f) then
-              GameTooltip_Hide()
-            end
-          end)
-        end,
+          if not bepgp:IsHooked(self, "OnHide") then
+            bepgp:HookScript(self,"OnHide",function(f)
+              if GameTooltip:IsOwned(f) then
+                GameTooltip_Hide()
+              end             
+            end)
+          end
+        end,       
         on_update = function(self,elapsed)
           local remain = self.time_remaining
           local link = self.data[1]
-          self.text:SetText(string.format(L["Bid Call for %s[%d]"],link,remain))
+          self.text:SetText(string.format(L["Bid Call for %s [%ds]"],link,remain))
         end,
         buttons = {
           { -- MainSpec
