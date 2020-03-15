@@ -48,10 +48,10 @@ if not L then return end
   L["ep"] = "ep(贡献点)"
   L["gp"] = "gp(装备点)"
   L["pr"] = "pr(优先)"
-  L.IMPORT_WARNING = [[警告: 
+  L.IMPORT_WARNING = [[警告:
 导入会覆盖所有现有的EPGP值.
 
-粘贴这里的所有CSV数据替换文本, 
+粘贴这里的所有CSV数据替换文本,
 然后再导入.
 完成后打印结果.]]
   L["Group by armor"] = "由护甲类型分组"
@@ -212,39 +212,39 @@ if not L then return end
   L["Minimum EP"] = "最小值 EP"
   L["Set Minimum EP"] = "设置最小值 EP"
   L["New Minimum EP"] = "新最小值 EP"
-  L["Standby"] = "替补" 
-  L["BoP"] = "拾绑" 
-  L["BoE"] = "装绑" 
-  L["NoBind"] = "无绑定" 
-  L["Mainspec GP"] = "主天赋 GP" 
-  L["Offspec GP"] = "服天赋 GP" 
-  L["Bank-D/E"] = "银行/分解" 
-  L["Unassigned"] = "未指定" 
-  L["Admin Options"] = "管理员选项" 
-  L["Member Options"] = "成员选项" 
-  L["Hide from Minimap"] = "隐藏小地图" 
-  L["You are assigning %s %s to %s."] = "你正在分配 %d %s 给 %s." 
-  L["Effort Points"] = "努力点" 
-  L["Gear Points"] = "装备点" 
-  L["Armor Class"] = "护甲职业" 
+  L["Standby"] = "替补"
+  L["BoP"] = "拾绑"
+  L["BoE"] = "装绑"
+  L["NoBind"] = "无绑定"
+  L["Mainspec GP"] = "主天赋 GP"
+  L["Offspec GP"] = "服天赋 GP"
+  L["Bank-D/E"] = "银行/分解"
+  L["Unassigned"] = "未指定"
+  L["Admin Options"] = "管理员选项"
+  L["Member Options"] = "成员选项"
+  L["Hide from Minimap"] = "隐藏小地图"
+  L["You are assigning %s %s to %s."] = "你正在分配 %d %s 给 %s."
+  L["Effort Points"] = "努力点"
+  L["Gear Points"] = "装备点"
+  L["Armor Class"] = "护甲职业"
   L["(ms)"] = "(ms)"  --(patterns)
   L["(need)"] = "(need)"  --(patterns)
   L["(os)"] = "(os)"  --(patterns)
   L["(greed)"] = "(greed)"  --(patterns)
-  L["Mainspec Bids"] = "主天赋竞拍" 
-  L["Offspec Bids"] = "副天赋竞拍" 
-  L["Tooltip Info"] = "鼠标提示信息" 
-  L["Add EPGP Information to Item Tooltips"] = "添加EPGP信息到物品鼠标提示" 
-  L["Export Loot"] = "导出拾取" 
-  L["Export Logs"] = "导出日志" 
-  L["Export Standings"] = "导出EPGP排名" 
-  L["Select Price Scheme"] = "选择价格方案" 
-  L["Select From Registered Price Systems"] = "从已有的注册价格系统中选择" 
-  L["%s is offline. Getting info from guild cache."] = "%s 离线了. 从公会缓存获取信息." 
-  L["BastionEPGP will be saving to file in `\\WTF\\Account\\<ACCOUNT>\\SavedVariables\\BastionEPGP_Export.lua`"] = "BastionEPGP 的日志文件会保存在 `\\WTF\\Account\\<ACCOUNT>\\SavedVariables\\BastionEPGP_Export.lua` 中" 
-  L["Started Standby AFKCheck for 1min."] = "替补AFK检查1分钟,已开始" 
-  L["Standby AFKCheck finished."] = "替补AFK检查已结束" 
-  L["Price system set to: %q %s"] = "价格系统设置为: %q %s" 
+  L["Mainspec Bids"] = "主天赋竞拍"
+  L["Offspec Bids"] = "副天赋竞拍"
+  L["Tooltip Info"] = "鼠标提示信息"
+  L["Add EPGP Information to Item Tooltips"] = "添加EPGP信息到物品鼠标提示"
+  L["Export Loot"] = "导出拾取"
+  L["Export Logs"] = "导出日志"
+  L["Export Standings"] = "导出EPGP排名"
+  L["Select Price Scheme"] = "选择价格方案"
+  L["Select From Registered Price Systems"] = "从已有的注册价格系统中选择"
+  L["%s is offline. Getting info from guild cache."] = "%s 离线了. 从公会缓存获取信息."
+  L["BastionEPGP will be saving to file in `\\WTF\\Account\\<ACCOUNT>\\SavedVariables\\BastionEPGP_Export.lua`"] = "BastionEPGP 的日志文件会保存在 `\\WTF\\Account\\<ACCOUNT>\\SavedVariables\\BastionEPGP_Export.lua` 中"
+  L["Started Standby AFKCheck for 1min."] = "替补AFK检查1分钟,已开始"
+  L["Standby AFKCheck finished."] = "替补AFK检查已结束"
+  L["Price system set to: %q %s"] = "价格系统设置为: %q %s"
   L["Bag hooks initialized"] = "Bag hooks initialized" -- needs translation
   L["|cffffff00%s|r is trying to add %s to Standby but {%s} is missing from Alt's Officer Note."] = "|cffffff00%s|r is trying to add %s to Standby but {%s} is missing from Alt's Officer Note."
   L["|cffffff00%s|r is trying to add themselves to Standby as a Main but are marked as an Alt of %s in Officer Note."] = "|cffffff00%s|r is trying to add themselves to Standby as a Main but are marked as an Alt of %s in Officer Note." -- needs translation
@@ -286,5 +286,6 @@ if not L then return end
   L["Idols"] = "Idols" -- needs translation
   L["Class Idols"] = "Class Idols" -- needs translation
   L["Other Idols"] = "Other Idols" -- needs translation
+  L["Export Favorites"] = "Export Favorites" -- needs translation
 
   bepgp.L = L

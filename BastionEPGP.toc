@@ -3,7 +3,7 @@
 ## Title: BastionEPGP
 ## Notes: In-game EPGP guild helper, supports standby, main/alt shared pool, minEP, offpecGP. Pluggable price list.
 ## Version: 1.3.2
-## X-Alpha: 
+## X-Alpha: 1.3.3
 ## X-Website: https://github.com/Road-block/BastionEPGP
 ## OptionalDeps: Ace3, BastionEPGP_Prices, MizusRaidTracker
 ## SavedVariables: BastionEPGPDB

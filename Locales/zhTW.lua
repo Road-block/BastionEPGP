@@ -48,10 +48,10 @@ if not L then return end
   L["ep"] = "ep(貢獻點)"
   L["gp"] = "gp(裝備點)"
   L["pr"] = "pr(優先)"
-  L.IMPORT_WARNING = [[警告: 
+  L.IMPORT_WARNING = [[警告:
 導入會覆蓋所有現有的EPGP值.
 
-粘貼這裏的所有CSV數據替換文本, 
+粘貼這裏的所有CSV數據替換文本,
 然後再導入.
 完成後列印結果.]]
   L["Group by armor"] = "由護甲類型分組"
@@ -212,39 +212,39 @@ if not L then return end
   L["Minimum EP"] = "最小值 EP"
   L["Set Minimum EP"] = "設置最小值 EP"
   L["New Minimum EP"] = "新最小值 EP"
-  L["Standby"] = "待命" 
-  L["BoP"] = "拾綁" 
-  L["BoE"] = "裝綁" 
-  L["NoBind"] = "無綁定" 
-  L["Mainspec GP"] = "主天賦 GP" 
-  L["Offspec GP"] = "服天賦 GP" 
-  L["Bank-D/E"] = "銀行/分解" 
-  L["Unassigned"] = "未指定" 
-  L["Admin Options"] = "管理員選項" 
-  L["Member Options"] = "成員選項" 
-  L["Hide from Minimap"] = "隱藏小地圖" 
-  L["You are assigning %s %s to %s."] = "你正在分配 %d %s 給 %s." 
-  L["Effort Points"] = "努力點" 
-  L["Gear Points"] = "裝備點" 
-  L["Armor Class"] = "護甲職業" 
+  L["Standby"] = "待命"
+  L["BoP"] = "拾綁"
+  L["BoE"] = "裝綁"
+  L["NoBind"] = "無綁定"
+  L["Mainspec GP"] = "主天賦 GP"
+  L["Offspec GP"] = "服天賦 GP"
+  L["Bank-D/E"] = "銀行/分解"
+  L["Unassigned"] = "未指定"
+  L["Admin Options"] = "管理員選項"
+  L["Member Options"] = "成員選項"
+  L["Hide from Minimap"] = "隱藏小地圖"
+  L["You are assigning %s %s to %s."] = "你正在分配 %d %s 給 %s."
+  L["Effort Points"] = "努力點"
+  L["Gear Points"] = "裝備點"
+  L["Armor Class"] = "護甲職業"
   L["(ms)"] = "(ms)"  --(patterns)
   L["(need)"] = "(need)"  --(patterns)
   L["(os)"] = "(os)"  --(patterns)
   L["(greed)"] = "(greed)"  --(patterns)
-  L["Mainspec Bids"] = "主天賦競拍" 
-  L["Offspec Bids"] = "副天賦競拍" 
-  L["Tooltip Info"] = "滑鼠提示資訊" 
-  L["Add EPGP Information to Item Tooltips"] = "添加EPGP資訊到物品滑鼠提示" 
-  L["Export Loot"] = "導出拾取" 
-  L["Export Logs"] = "導出日誌" 
-  L["Export Standings"] = "導出EPGP排名" 
-  L["Select Price Scheme"] = "選擇價格方案" 
-  L["Select From Registered Price Systems"] = "從已有的註冊價格系統中選擇" 
-  L["%s is offline. Getting info from guild cache."] = "%s 離線了. 從公會緩存獲取資訊." 
-  L["BastionEPGP will be saving to file in `\\WTF\\Account\\<ACCOUNT>\\SavedVariables\\BastionEPGP_Export.lua`"] = "BastionEPGP 的日誌檔會保存在 `\\WTF\\Account\\<ACCOUNT>\\SavedVariables\\BastionEPGP_Export.lua` 中" 
-  L["Started Standby AFKCheck for 1min."] = "待命AFK檢查1分鐘,已開始" 
-  L["Standby AFKCheck finished."] = "待命AFK檢查已結束" 
-  L["Price system set to: %q %s"] = "價格系統設置為: %q %s" 
+  L["Mainspec Bids"] = "主天賦競拍"
+  L["Offspec Bids"] = "副天賦競拍"
+  L["Tooltip Info"] = "滑鼠提示資訊"
+  L["Add EPGP Information to Item Tooltips"] = "添加EPGP資訊到物品滑鼠提示"
+  L["Export Loot"] = "導出拾取"
+  L["Export Logs"] = "導出日誌"
+  L["Export Standings"] = "導出EPGP排名"
+  L["Select Price Scheme"] = "選擇價格方案"
+  L["Select From Registered Price Systems"] = "從已有的註冊價格系統中選擇"
+  L["%s is offline. Getting info from guild cache."] = "%s 離線了. 從公會緩存獲取資訊."
+  L["BastionEPGP will be saving to file in `\\WTF\\Account\\<ACCOUNT>\\SavedVariables\\BastionEPGP_Export.lua`"] = "BastionEPGP 的日誌檔會保存在 `\\WTF\\Account\\<ACCOUNT>\\SavedVariables\\BastionEPGP_Export.lua` 中"
+  L["Started Standby AFKCheck for 1min."] = "待命AFK檢查1分鐘,已開始"
+  L["Standby AFKCheck finished."] = "待命AFK檢查已結束"
+  L["Price system set to: %q %s"] = "價格系統設置為: %q %s"
   L["Bag hooks initialized"] = "Bag hooks initialized" -- needs translation
   L["|cffffff00%s|r is trying to add %s to Standby but {%s} is missing from Alt's Officer Note."] = "|cffffff00%s|r is trying to add %s to Standby but {%s} is missing from Alt's Officer Note." -- needs translation
   L["|cffffff00%s|r is trying to add themselves to Standby as a Main but are marked as an Alt of %s in Officer Note."] = "|cffffff00%s|r is trying to add themselves to Standby as a Main but are marked as an Alt of %s in Officer Note." -- needs translation
@@ -286,5 +286,6 @@ if not L then return end
   L["Idols"] = "Idols" -- needs translation
   L["Class Idols"] = "Class Idols" -- needs translation
   L["Other Idols"] = "Other Idols" -- needs translation
+  L["Export Favorites"] = "Export Favorites" -- needs translation
 
   bepgp.L = L

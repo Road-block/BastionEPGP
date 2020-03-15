@@ -11,7 +11,7 @@ local Item = Item
 local data, subdata = { }, { }
 local colorHighlight = {r=0, g=0, b=0, a=.9}
 local GetPrice, progress, pricelist
-local favorites 
+local favorites
 local tiervalues = { }
 local filter = {["_FAV"]=C:Yellow(L["Favorites"])}
 local locsorted = {"_FAV", "INVTYPE_HEAD", "INVTYPE_NECK", "INVTYPE_SHOULDER", "INVTYPE_CHEST", "INVTYPE_ROBE", "INVTYPE_WAIST", "INVTYPE_LEGS", "INVTYPE_FEET", "INVTYPE_WRIST", "INVTYPE_HAND", "INVTYPE_FINGER", "INVTYPE_TRINKET", "INVTYPE_CLOAK", "INVTYPE_WEAPON", "INVTYPE_SHIELD", "INVTYPE_2HWEAPON", "INVTYPE_WEAPONMAINHAND", "INVTYPE_WEAPONOFFHAND", "INVTYPE_HOLDABLE", "INVTYPE_RANGED", "INVTYPE_THROWN", "INVTYPE_RANGEDRIGHT", "INVTYPE_RELIC"}
@@ -38,7 +38,7 @@ local favorite_options = {
   name = L["BastionEPGP options"],
   desc = L["BastionEPGP options"],
   handler = bepgp_browser,
-  args = { 
+  args = {
     ["5"] = {
       type = "execute",
       name = fav5,
@@ -114,7 +114,7 @@ local favorite_options = {
         C_Timer.After(0.2, menu_close)
       end,
     }
-  }  
+  }
 }
 local item_interact = function(rowFrame, cellFrame, data, cols, row, realrow, column, table, button, ...)
   if not realrow then return false end
@@ -137,7 +137,7 @@ local item_interact = function(rowFrame, cellFrame, data, cols, row, realrow, co
         bepgp_browser._ddmenu = LDD:OpenAce3Menu(favorite_options)
         bepgp_browser._ddmenu:SetPoint("CENTER", cellFrame, "CENTER", 0,0)
         return true
-      end      
+      end
     end
   end
   return false
@@ -184,7 +184,7 @@ function bepgp_browser:OnEnable()
   self._browser_table.frame:SetPoint("BOTTOMRIGHT",self._container.frame,"BOTTOMRIGHT", -10, 10)
   container:SetCallback("OnShow", function() bepgp_browser._browser_table:Show() end)
   container:SetCallback("OnClose", function() bepgp_browser._browser_table:Hide() end)
-  
+
   local filterslots = GUI:Create("Dropdown")
   filterslots:SetList(filter)
   filterslots:SetValue("FAV")
@@ -224,6 +224,18 @@ function bepgp_browser:OnEnable()
   modpreview:SetWidth(150)
   self._container._modpreview = modpreview
   container:AddChild(modpreview)
+
+  local export = GUI:Create("Button")
+  export:SetAutoWidth(true)
+  export:SetText(L["Export"])
+  export:SetCallback("OnClick",function()
+    local iof = bepgp:GetModule(addonName.."_io")
+    if iof then
+      iof:Browser(subdata)
+    end
+  end)
+  self._container._export = export
+  container:AddChild(export)
 
   local help = GUI:Create("Label")
   help:SetWidth(150)
@@ -282,9 +294,11 @@ function bepgp_browser:Refresh()
         end)
       end
     end
+    self._container._export.frame:Show()
   else
     for _, info in pairs(data[slotvalue]) do
       local id,price,tier = info[1],info[2],info[3]
+      price = GetPrice(bepgp,id,progress)
       if tiervalues[tier] then
         local rank = favorites[id]
         local favrank = rank and favmap[rank] or ""
@@ -301,8 +315,9 @@ function bepgp_browser:Refresh()
         end
       end
     end
+    self._container._export.frame:Hide()
   end
-  self._browser_table:SetData(subdata)  
+  self._browser_table:SetData(subdata)
   if self._browser_table and self._browser_table.showing then
     self._browser_table:SortData()
   end

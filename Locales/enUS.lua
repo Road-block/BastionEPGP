@@ -60,10 +60,10 @@ if not L then return end
   L["ep"] = true
   L["gp"] = true
   L["pr"] = true
-  L.IMPORT_WARNING = [[Warning: 
+  L.IMPORT_WARNING = [[Warning:
 Import overwrites all existing EPGP values.
 
-Paste all the csv data here replacing this text, 
+Paste all the csv data here replacing this text,
 then hit Import.
 Results will print here when done.]]
   L["Group by armor"] = true
@@ -91,15 +91,15 @@ Results will print here when done.]]
   L["Clear Logs Table."] = true
   L["Standings"] = true
   L["Show Standings Table."] = true
-  L["Restart"] = true  
+  L["Restart"] = true
   L["Restart BastionEPGP if having startup problems."] = true
-  L["v%s Loaded."] = true  
+  L["v%s Loaded."] = true
   L["Alt Click/RClick/MClick"] = true
-  L["Call for: MS/OS/Both"] = true  
+  L["Call for: MS/OS/Both"] = true
   L["gp:|cff32cd32%d|r gp_os:|cff20b2aa%d|r"] = true
-  L["pr:|cffff0000%.02f|r(%.02f) pr_os:|cffff0000%.02f|r(%.02f)"] = true  
+  L["pr:|cffff0000%.02f|r(%.02f) pr_os:|cffff0000%.02f|r(%.02f)"] = true
   L["|cffff0000Finished|r"] = true
-  L["|cff00ff00%02d|r|cffffffffsec|r"] = true  
+  L["|cff00ff00%02d|r|cffffffffsec|r"] = true
   L["Manually modified %s\'s note. EPGP was %s"] = true
   L["|cffff0000Manually modified %s\'s note. EPGP was %s|r"] = true
   L["Whisper %s a + for %s (mainspec)"] = true
@@ -186,7 +186,7 @@ Results will print here when done.]]
   L["Logs cleared"] = true
   L["Loot info cleared"] = true
   L["Loot info can be cleared at any time from the loot window or '/bepgp clearloot' command"] = true
-  L["Set your main to be able to participate in Standby List EPGP Checks."] = true  
+  L["Set your main to be able to participate in Standby List EPGP Checks."] = true
   L["Standby AFKCheck. Are you available? |cff00ff00%0d|rsec."] = true
   L["|cffff0000Are you sure you want to Reset ALL EPGP?|r"] = true
   L["Add MainSpec GP"] = true
@@ -284,5 +284,6 @@ Results will print here when done.]]
   L["Idols"] = true
   L["Class Idols"] = true
   L["Other Idols"] = true
+  L["Export Favorites"] = true
 
 bepgp.L = L

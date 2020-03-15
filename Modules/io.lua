@@ -11,6 +11,7 @@ function bepgp_io:OnEnable()
   self._iostandings = Dump:New(L["Export Standings"],250,290)
   self._ioloot = Dump:New(L["Export Loot"],500,320)
   self._iologs = Dump:New(L["Export Logs"],450,320)
+  self._iobrowser = Dump:New(L["Export Favorites"],520,290)
   local bastionexport,_,_,_,reason = GetAddOnInfo("BastionEPGP_Export")
   if not (reason == "ADDON_MISSING" or reason == "ADDON_DISABLED") then
     local loaded, finished = IsAddOnLoaded("BastionEPGP_Export")
@@ -102,6 +103,33 @@ function bepgp_io:Logs()
   self:export("Logs", temp_data, ";")
 end
 
+local url_link = "=HYPERLINK(\"https://classic.wowhead.com/item=%d\";%q)"
+function bepgp_io:Browser(favorites)
+  local keys
+  self._iobrowser:Clear() -- item,itemtype,itempool,gp
+  self._iobrowser:AddLine(string.format("%s?%s?%s?%s",L["Item"],L["Item Type"],L["Item Pool"],L["Mainspec GP"]))
+  if self._fileexport then
+    table.wipe(temp_data)
+    keys = {L["Item"],L["Item Type"],L["Item Pool"],L["Mainspec GP"]}
+  end
+  for _,data in pairs(favorites) do
+    local id,link,subtype,price,tier = data.cols[6].value, data.cols[1].value, data.cols[2].value, data.cols[3].value, data.cols[4].value
+    local _,_,itemname = bepgp:getItemData(link)
+    local url = string.format(url_link,id,itemname)
+    self._iobrowser:AddLine(string.format("%s?%s?%s?%s",url,subtype,tier,price))
+    if self._fileexport then
+      local entry = {}
+      entry[L["Item"]] = string.format("https://classic.wowhead.com/item=%d",id)
+      entry[L["Item Type"]] = subtype
+      entry[L["Item Pool"]] = tier
+      entry[L["Mainspec GP"]] = price
+      table.insert(temp_data, entry)
+    end
+  end
+  self._iobrowser:Display()
+  self:export("Favorites", temp_data, ";")
+end
+
 function bepgp_io:export(context,data,keys,sep)
   if not self._fileexport then return end
   if context == "Standings" then
@@ -119,31 +147,6 @@ function bepgp_io:StandingsImport()
 end
 
 --[[
-bepgp:make_escable("shooty_exportframe","add")
-
-function sepgp_standings:Export()
-  shooty_export.action:Hide()
-  shooty_export.title:SetText(C:Gold(L["Ctrl-C to copy. Esc to close."]))
-  local t = {}
-  for i = 1, GetNumGuildMembers(1) do
-    local name, _, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
-    local ep = (bepgp:get_ep_v3(name,officernote) or 0) 
-    local gp = (bepgp:get_gp_v3(name,officernote) or bepgp.VARS.basegp) 
-    if ep > 0 then
-      table.insert(t,{name,ep,gp,ep/gp})
-    end
-  end 
-  table.sort(t, function(a,b)
-      return tonumber(a[4]) > tonumber(b[4])
-    end)
-  shooty_export:Show()
-  local txt = "Name;EP;GP;PR\n"
-  for i,val in ipairs(t) do
-    txt = string.format("%s%s;%d;%d;%.4f\n",txt,val[1],val[2],val[3],val[4])
-  end
-  shooty_export.AddSelectText(txt)
-end
-
 function sepgp_standings:Import()
   if not IsGuildLeader() then return end
   shooty_export.action:Show()
