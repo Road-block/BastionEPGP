@@ -285,5 +285,6 @@ Results will print here when done.]]
   L["Class Idols"] = true
   L["Other Idols"] = true
   L["Export Favorites"] = true
+  L["%s >> Disenchant."] = true
 
 bepgp.L = L

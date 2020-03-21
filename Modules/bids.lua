@@ -103,6 +103,11 @@ function bepgp_bids:announceWinner(data)
   end
 end
 
+function bepgp_bids:announcedisench(data)
+  local out = string.format(L["%s >> Disenchant."],data)
+  bepgp:widestAudience(out)
+end
+
 function bepgp_bids:updateBids()
   -- {name,class,ep,gp,ep/gp[,main]}
   table.sort(self.bids_main, pr_sorter_bids)
@@ -119,22 +124,26 @@ function bepgp_bids:Refresh()
   local line
   line = frame:AddHeader()
   frame:SetCell(line,1,L["BastionEPGP bids"],nil,"CENTER",4)
-  frame:SetCell(line,5,C:Red("[x]"),nil,"RIGHT")
+  --frame:SetCell(line,5,C:Red("[x]"),nil,"RIGHT")
+  frame:SetCell(line,5,"|TInterface\\Buttons\\UI-Panel-MinimizeButton-Up:16:16:2:-2:32:32:8:24:8:24|t",nil,"RIGHT")
   frame:SetCellScript(line,5,"OnMouseUp", function() frame:Hide() end)
   frame:SetCellScript(line,1,"OnMouseDown", function() frame:StartMoving() end)
   frame:SetCellScript(line,1,"OnMouseUp", function() frame:StopMovingOrSizing() end)
-  
+
   if self.bid_item.itemlink then
     line = frame:AddHeader()
     --SetCell spec : lineNum, colNum, value, font, justification, colSpan, provider
     frame:SetCell(line,1,C:Orange(L["Item"]),nil,"LEFT",2)
     frame:SetCell(line,3,C:Orange(L["Mainspec GP"]),nil,"RIGHT")
     frame:SetCell(line,4,C:Orange(L["Offspec GP"]),nil,"RIGHT")
+    frame:SetCell(line,5,"",nil,"RIGHT")
     line = frame:AddSeparator(2)
     line = frame:AddLine()
     frame:SetCell(line,1,self.bid_item.itemlink,nil,"LEFT",2)
     frame:SetCell(line,3,C:Colorize(color_msgp,self.bid_item.price),nil,"RIGHT")
     frame:SetCell(line,4,C:Colorize(color_osgp,self.bid_item.off_price),nil,"RIGHT")
+    frame:SetCell(line,5,"|TInterface\\Icons\\spell_holy_removecurse:18|t",nil,"RIGHT")
+    frame:SetCellScript(line,5,"OnMouseUp", bepgp_bids.announcedisench, bepgp_bids.bid_item.itemlink)
 
     if #(self.bids_main) > 0 then
       line = frame:AddLine(" ")
@@ -170,10 +179,10 @@ function bepgp_bids:Refresh()
         frame:SetCell(line,5,text5,nil,"RIGHT")
         frame:SetLineScript(line, "OnMouseUp", bepgp_bids.announceWinner, {name, pr, "ms"})
       end
-    end    
+    end
     if #(self.bids_off) > 0 then
       line = frame:AddLine(" ")
-      line = frame:AddHeader()    
+      line = frame:AddHeader()
       frame:SetCell(line,1,C:Silver(L["Offspec Bids"]),nil,"LEFT",5)
       line = frame:AddHeader()
       frame:SetCell(line,1,C:Orange(L["Name"]),nil,"LEFT")
@@ -204,7 +213,7 @@ function bepgp_bids:Refresh()
         frame:SetCell(line,4,text4,nil,"RIGHT")
         frame:SetCell(line,5,text5,nil,"RIGHT")
         frame:SetLineScript(line,"OnMouseUp", bepgp_bids.announceWinner, {name, pr, "os"})
-      end      
+      end
     end
   end
   frame:UpdateScrolling()
@@ -225,7 +234,7 @@ function bepgp_bids:Toggle(anchor)
       self.qtip:ClearAllPoints()
       self.qtip:SetClampedToScreen(true)
       self.qtip:SetClampRectInsets(-100,100,50,-50)
-      self.qtip:SetPoint("TOP",UIParent,"TOP",0,-50)      
+      self.qtip:SetPoint("TOP",UIParent,"TOP",0,-50)
     end
     self:Refresh()
     self.qtip:Show()
@@ -249,7 +258,7 @@ function bepgp_bids:SetItemRef(link, text, button, chatFrame)
       SendChatMessage(bid,"WHISPER",nil,masterlooter)
     end
     return false
-  end  
+  end
 end
 
 function bepgp_bids:SetHyperlink(frame, link, ...)
@@ -266,13 +275,13 @@ local lootCall = {
   ".+[%s%p%c]+(bid)[%s%p%c]*.*",".*[%s%p%c]*(bid)[%s%p%c]+.+"
   },
   ["ms"] = {
-  ".+(%+).*",".*(%+).+", 
-  "^(ms)[%s%p%c]+.+",".+[%s%p%c]+(ms)$",".+[%s%p%c]+(ms)[%s%p%c]+.*",".*[%s%p%c]+(ms)[%s%p%c]+.+", 
+  ".+(%+).*",".*(%+).+",
+  "^(ms)[%s%p%c]+.+",".+[%s%p%c]+(ms)$",".+[%s%p%c]+(ms)[%s%p%c]+.*",".*[%s%p%c]+(ms)[%s%p%c]+.+",
   ".+(mainspec).*",".*(mainspec).+"
   },
   ["os"] = {
-  ".+(%-).*",".*(%-).+", 
-  "^(os)[%s%p%c]+.+",".+[%s%p%c]+(os)$",".+[%s%p%c]+(os)[%s%p%c]+.*",".*[%s%p%c]+(os)[%s%p%c]+.+", 
+  ".+(%-).*",".*(%-).+",
+  "^(os)[%s%p%c]+.+",".+[%s%p%c]+(os)$",".+[%s%p%c]+(os)[%s%p%c]+.*",".*[%s%p%c]+(os)[%s%p%c]+.+",
   ".+(offspec).*",".*(offspec).+"
   },
   ["blacklist"] = {
@@ -355,7 +364,7 @@ function bepgp_bids:captureBid(event, text, sender)
           local name, _, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
           name = Ambiguate(name,"short") --:gsub("(\-.+)","")
           if name == sender then
-            local ep = (bepgp:get_ep(name,officernote) or 0) 
+            local ep = (bepgp:get_ep(name,officernote) or 0)
             local gp = (bepgp:get_gp(name,officernote) or bepgp.VARS.basegp)
             local main_name
             if (bepgp.db.profile.altspool) then
@@ -408,8 +417,6 @@ function bepgp_bids:clearBids(reset)
   running_bid = false
   self:updateBids()
   self:Refresh()
-  --sepgp_bids._counterText = ""
-  --sepgp_bids:Refresh()
 end
 
 function bepgp_bids:bidPrint(link,masterlooter,need,greed,bid)
@@ -427,7 +434,7 @@ function bepgp_bids:bidPrint(link,masterlooter,need,greed,bid)
     msg = string.gsub(msg,L["$MS or "],"")
   elseif (bid) then
     msg = string.gsub(msg,"$MS",mslink)
-    msg = string.gsub(msg,"$OS",oslink)  
+    msg = string.gsub(msg,"$OS",oslink)
   end
   local _, count = string.gsub(msg,"%$","%$")
   if (count > 0) then return end
@@ -445,7 +452,9 @@ function bepgp_bids:bidPrint(link,masterlooter,need,greed,bid)
     chatframe:AddMessage(string.format(out,msg),NORMAL_FONT_COLOR.r,NORMAL_FONT_COLOR.g,NORMAL_FONT_COLOR.b)
     if bepgp.db.char.bidpopup then
       LD:Spawn(addonName.."DialogMemberBid", {link,masterlooter})
-    end    
+    end
+    self:updateBids()
+    self:Refresh()
   end
 end
 

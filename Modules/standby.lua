@@ -13,10 +13,10 @@ local standbycall = string.format(L["{BEPGP}Type \"+\" if on main, or \"+<YourMa
 local standbyanswer = "^(%+)(%a*)$"
 
 local pr_sorter_standby = function(a,b)
-  if (a[2] ~= b[2]) then 
+  if (a[2] ~= b[2]) then
     return a[2] > b[2]
-  else 
-    return a[1] > b[1] 
+  else
+    return a[1] > b[1]
   end
 end
 
@@ -42,12 +42,12 @@ function bepgp_standby:injectOptions()
       name = L["Enable Standby"],
       desc = L["Participate in Standby Raiders List.\n|cffff0000Requires Main Character Name.|r"],
       order = 50,
-      get = function() 
+      get = function()
         return not not bepgp.db.char.standby
       end,
-      set = function(info, val) 
+      set = function(info, val)
         bepgp.db.char.standby = not bepgp.db.char.standby
-        bepgp_standby:standbyToggle(bepgp.db.char.standby) 
+        bepgp_standby:standbyToggle(bepgp.db.char.standby)
       end,
       disabled = function() return not bepgp.db.profile.main end
     }
@@ -67,7 +67,7 @@ function bepgp_standby:injectOptions()
       desc = L["AFK Check Standby List"],
       order = 30,
       func = function(info) bepgp_standby:sendStandbyCheck() end
-    }    
+    }
     self:standbyToggle(not not bepgp.db.char.standby)
   else
     self._channelTimer = self:ScheduleTimer("injectOptions",10)
@@ -121,7 +121,7 @@ function bepgp_standby:sendStandbyCheck()
     self._runningcheck = true
     self.qtip:Show()
     self._checkTimer = self:ScheduleTimer("stopStandbyCheck", bepgp.VARS.timeout)
-    bepgp:Print(L["Started Standby AFKCheck for 1min."])    
+    bepgp:Print(L["Started Standby AFKCheck for 1min."])
   end
 end
 
@@ -188,7 +188,7 @@ function bepgp_standby:captureStandbyChat(event, text, sender, _, _, _, _, _, ch
     self:updateStandby()
     self:Refresh()
     return
-  end  
+  end
 end
 
 function bepgp_standby:sendCheckResponse()
@@ -230,10 +230,11 @@ function bepgp_standby:Refresh()
   local line
   line = frame:AddHeader()
   frame:SetCell(line,1,L["BastionEPGP standby"],nil,"CENTER",2)
-  frame:SetCell(line,3,C:Red("[x]"),nil,"RIGHT")
+  --frame:SetCell(line,3,C:Red("[x]"),nil,"RIGHT")
+  frame:SetCell(line,3,"|TInterface\\Buttons\\UI-Panel-MinimizeButton-Up:16:16:2:-2:32:32:8:24:8:24|t",nil,"RIGHT")
   frame:SetCellScript(line,3,"OnMouseUp", function() frame:Hide() end)
   frame:SetCellScript(line,1,"OnMouseDown", function() frame:StartMoving() end)
-  frame:SetCellScript(line,1,"OnMouseUp", function() frame:StopMovingOrSizing() end)  
+  frame:SetCellScript(line,1,"OnMouseUp", function() frame:StopMovingOrSizing() end)
 
   if #(self.roster) > 0 then
     line = frame:AddLine(" ")
@@ -272,7 +273,7 @@ function bepgp_standby:Toggle(anchor)
       self.qtip:ClearAllPoints()
       self.qtip:SetClampedToScreen(true)
       self.qtip:SetClampRectInsets(-100,100,50,-50)
-      self.qtip:SetPoint("TOP",UIParent,"TOP",0,-50)      
+      self.qtip:SetPoint("TOP",UIParent,"TOP",0,-50)
     end
     self:Refresh()
     self.qtip:Show()
