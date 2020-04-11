@@ -329,7 +329,7 @@ function bepgp_bids:captureLootCall(event, text, sender)
           bepgp_bids.bid_item.off_price = math.floor(price*bepgp.db.profile.discount)
           self._bidTimer = self:ScheduleTimer("clearBids",300)
           running_bid = true
-          bepgp:debugPrint("Capturing Bids for 5min.")
+          bepgp:debugPrint(L["Capturing Bids for 5min."])
           self.qtip:Show()
         end
         self:bidPrint(itemLink,sender,mskw_found,oskw_found,whisperkw_found)

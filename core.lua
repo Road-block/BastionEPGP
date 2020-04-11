@@ -60,7 +60,7 @@ do
     hexColorQuality[ITEM_QUALITY_COLORS[i].hex] = i
   end
 end
-do 
+do
   for eClass, class in pairs(LOCALIZED_CLASS_NAMES_MALE) do
     hexClassColor[class] = RAID_CLASS_COLORS[eClass].colorStr:gsub("^(ff)","")
     classToEnClass[class] = eClass
@@ -85,7 +85,7 @@ local defaults = {
     announce = "GUILD",
     decay = bepgp.VARS.decay,
     minep = bepgp.VARS.minep,
-    system = bepgp.VARS.pricesystem,    
+    system = bepgp.VARS.pricesystem,
     progress = "T1",
     discount = 0.25,
     altspool = false,
@@ -108,7 +108,7 @@ local defaults = {
     favorites = {},
   },
 }
-local admincmd, membercmd = 
+local admincmd, membercmd =
 {type = "group", handler = bepgp, args = {
     bids = {
       type = "execute",
@@ -144,8 +144,8 @@ local admincmd, membercmd =
           browser:Toggle()
         end
       end,
-      order = 3,      
-    },    
+      order = 3,
+    },
     clearloot = {
       type = "execute",
       name = L["ClearLoot"],
@@ -192,7 +192,7 @@ local admincmd, membercmd =
       type = "execute",
       name = L["Restart"],
       desc = L["Restart BastionEPGP if having startup problems."],
-      func = function() 
+      func = function()
         bepgp:OnEnable()
         bepgp:Print(L["Restarted"])
       end,
@@ -222,7 +222,7 @@ local admincmd, membercmd =
           browser:Toggle()
         end
       end,
-      order = 2,      
+      order = 2,
     },
     progress = {
       type = "execute",
@@ -246,14 +246,14 @@ local admincmd, membercmd =
       type = "execute",
       name = L["Restart"],
       desc = L["Restart BastionEPGP if having startup problems."],
-      func = function() 
+      func = function()
         bepgp:OnEnable()
         bepgp:Print(L["Restarted"])
       end,
       order = 5,
-    },    
+    },
   }}
-bepgp.cmdtable = function() 
+bepgp.cmdtable = function()
   if (bepgp:admin()) then
     return admincmd
   else
@@ -278,14 +278,14 @@ function bepgp:options()
       usage = "<MainChar>",
       get = function() return bepgp.db.profile.main end,
       set = function(info, val) bepgp.db.profile.main = (bepgp:verifyGuildMember(val)) end,
-    }    
+    }
     self._options.args["raid_only"] = {
       type = "toggle",
       name = L["Raid Only"],
       desc = L["Only show members in raid."],
       order = 80,
       get = function() return not not bepgp.db.char.raidonly end,
-      set = function(info, val) 
+      set = function(info, val)
         bepgp.db.char.raidonly = not bepgp.db.char.raidonly
         local standings = bepgp:GetModule(addonName.."_standings")
         if standings then
@@ -300,7 +300,7 @@ function bepgp:options()
       desc = L["Group members by class."],
       order = 81,
       get = function() return not not bepgp.db.char.classgroup end,
-      set = function(info, val) 
+      set = function(info, val)
         bepgp.db.char.classgroup = not bepgp.db.char.classgroup
         local standings = bepgp:GetModule(addonName.."_standings")
         if standings then
@@ -315,7 +315,7 @@ function bepgp:options()
       desc = L["Add EPGP Information to Item Tooltips"],
       order = 82,
       get = function() return not not bepgp.db.char.tooltip end,
-      set = function(info, val) 
+      set = function(info, val)
         bepgp.db.char.tooltip = not bepgp.db.char.tooltip
         bepgp:tooltipHook(bepgp.db.char.tooltip)
       end,
@@ -326,7 +326,7 @@ function bepgp:options()
       desc = L["Show a Bid Popup in addition to chat links"],
       order = 83,
       get = function() return not not bepgp.db.char.bidpopup end,
-      set = function(info, val) 
+      set = function(info, val)
         bepgp.db.char.bidpopup = not bepgp.db.char.bidpopup
       end,
     }
@@ -343,7 +343,7 @@ function bepgp:options()
       order = 90,
       hidden = function() return not (bepgp:admin()) end,
       get = function() return bepgp.db.profile.progress end,
-      set = function(info, val) 
+      set = function(info, val)
         bepgp.db.profile.progress = val
         bepgp:refreshPRTablets()
         if (IsGuildLeader()) then
@@ -362,22 +362,22 @@ function bepgp:options()
       get = function() return bepgp.db.profile.announce end,
       set = function(info, val) bepgp.db.profile.announce = val end,
       values = { ["PARTY"]=_G.PARTY, ["RAID"]=_G.RAID, ["GUILD"]=_G.GUILD, ["OFFICER"]=_G.OFFICER },
-    }    
+    }
     self._options.args["decay"] = {
       type = "execute",
       name = L["Decay EPGP"],
       desc = string.format(L["Decays all EPGP by %s%%"],(1-(bepgp.db.profile.decay or bepgp.VARS.decay))*100),
       order = 100,
       hidden = function() return not (bepgp:admin()) end,
-      func = function() bepgp:decay_epgp() end 
-    }    
+      func = function() bepgp:decay_epgp() end
+    }
     self._options.args["set_decay"] = {
       type = "range",
       name = L["Set Decay %"],
       desc = L["Set Decay percentage (Admin only)."],
       order = 110,
       get = function() return (1.0-bepgp.db.profile.decay) end,
-      set = function(info, val) 
+      set = function(info, val)
         bepgp.db.profile.decay = (1 - val)
         self._options.args["decay"].desc = string.format(L["Decays all EPGP by %s%%"],(1-bepgp.db.profile.decay)*100)
         if (IsGuildLeader()) then
@@ -389,7 +389,7 @@ function bepgp:options()
       step = 0.01,
       bigStep = 0.05,
       isPercent = true,
-      hidden = function() return not (bepgp:admin()) end,    
+      hidden = function() return not (bepgp:admin()) end,
     }
     self._options.args["set_discount_header"] = {
       type = "header",
@@ -404,7 +404,7 @@ function bepgp:options()
       order = 115,
       hidden = function() return not (bepgp:admin()) end,
       get = function() return bepgp.db.profile.discount end,
-      set = function(info, val) 
+      set = function(info, val)
         bepgp.db.profile.discount = val
         if (IsGuildLeader()) then
           bepgp:shareSettings(true)
@@ -428,14 +428,14 @@ function bepgp:options()
       usage = "<minep>",
       order = 118,
       get = function() return tostring(bepgp.db.profile.minep) end,
-      set = function(info, val) 
+      set = function(info, val)
         bepgp.db.profile.minep = tonumber(val)
         bepgp:refreshPRTablets()
         if (IsGuildLeader()) then
           bepgp:shareSettings(true)
-        end        
+        end
       end,
-      validate = function(info, val) 
+      validate = function(info, val)
         local n = tonumber(val)
         if n and n >= 0 and n <= bepgp.VARS.max then
           return true
@@ -475,8 +475,8 @@ function bepgp:options()
       order = 135,
       hidden = function() return not (bepgp:admin()) end,
       get = function() return bepgp.db.profile.system end,
-      set = function(info, val) 
-        bepgp.db.profile.system = val 
+      set = function(info, val)
+        bepgp.db.profile.system = val
         bepgp:SetPriceSystem()
       end,
       values = function()
@@ -506,7 +506,7 @@ function bepgp:ddoptions()
       desc = L["Award EPs to all raid members."],
       order = 10,
       func = function(info)
-        LD:Spawn(addonName.."DialogGroupPoints", {"ep", C:Green(L["Effort Points"]), _G.RAID}) 
+        LD:Spawn(addonName.."DialogGroupPoints", {"ep", C:Green(L["Effort Points"]), _G.RAID})
       end,
     }
     self._ddoptions.args["ep"] = {
@@ -522,7 +522,7 @@ function bepgp:ddoptions()
       desc = L["Account GPs for member."],
       order = 50,
       args = { }
-    }      
+    }
   end
   local members = bepgp:buildRosterTable()
   self:debugPrint(string.format(L["Scanning %d members for EP/GP data. (%s)"],#(members),(bepgp.db.char.raidonly and "Raid" or "Full")))
@@ -574,7 +574,7 @@ function bepgp.OnLDBClick(obj,button)
       else
         if standings then
           standings:Toggle()
-        end      
+        end
       end
     elseif button == "RightButton" then
       bepgp:OpenRosterActions(obj)
@@ -595,7 +595,7 @@ function bepgp.OnLDBClick(obj,button)
       end
     elseif button == "RightButton" then
       InterfaceOptionsFrame_OpenToCategory(bepgp.blizzoptions)
-      InterfaceOptionsFrame_OpenToCategory(bepgp.blizzoptions)      
+      InterfaceOptionsFrame_OpenToCategory(bepgp.blizzoptions)
     end
   end
 end
@@ -617,7 +617,7 @@ function bepgp.OnLDBTooltipShow(tooltip)
     hint = L["|cffff7f00Ctrl+Alt+Click|r to toggle Alts."]
     tooltip:AddLine(hint)
     hint = L["|cffff7f00Shift+Alt+Click|r to toggle Favorites."]
-    tooltip:AddLine(hint)    
+    tooltip:AddLine(hint)
     hint = L["|cffff7f00Ctrl+Shift+Click|r to toggle Logs."]
     tooltip:AddLine(hint)
     tooltip:AddLine(" ")
@@ -661,7 +661,7 @@ function bepgp:templateCache(id)
               local amount = tonumber(self:GetText())
               if amount then
                 if what == "ep" then
-                  bepgp:givename_ep(who,amount)
+                  bepgp:givename_ep(who,amount,true)
                 elseif what == "gp" then
                   bepgp:givename_gp(who,amount)
                 end
@@ -701,7 +701,7 @@ function bepgp:templateCache(id)
               amount = tonumber(amount)
               if amount then
                 if what == "ep" then
-                  bepgp:givename_ep(who,amount)
+                  bepgp:givename_ep(who,amount,true)
                 elseif what == "gp" then
                   bepgp:givename_gp(who,amount)
                 end
@@ -789,7 +789,7 @@ function bepgp:templateCache(id)
               local loot = bepgp:GetModule(addonName.."_loot")
               if loot then
                 loot:addOrUpdateLoot(data, update)
-              end              
+              end
             end)
           end
         end,
@@ -801,7 +801,7 @@ function bepgp:templateCache(id)
           local loot = bepgp:GetModule(addonName.."_loot")
           if loot then
             loot:addOrUpdateLoot(data, update)
-          end 
+          end
         end,
         buttons = {
           { -- MainSpec GP
@@ -850,7 +850,7 @@ function bepgp:templateCache(id)
                 loot:addOrUpdateLoot(data, update)
               end
               LD:Dismiss(addonName.."DialogItemPoints")
-            end,            
+            end,
           },
           --[[{ -- Remind Me Later
             text = L["Remind me Later"],
@@ -858,7 +858,7 @@ function bepgp:templateCache(id)
               local data = self.data
               local loot_indices = data.loot_indices
               LD:Dismiss(addonName.."DialogItemPoints")
-            end,            
+            end,
           },]]
         },
       }
@@ -871,9 +871,9 @@ function bepgp:templateCache(id)
         text = L["Bid Call for %s [%ds]"],
         on_show = function(self)
           local data = self.data
-          local link = data[1]         
+          local link = data[1]
           self.text:SetText(string.format(L["Bid Call for %s [%ds]"],link,self.duration))
-          self:SetScript("OnEnter", function(f) 
+          self:SetScript("OnEnter", function(f)
             GameTooltip:SetOwner(f, "ANCHOR_RIGHT")
             GameTooltip:SetHyperlink(link)
             GameTooltip:Show()
@@ -887,10 +887,10 @@ function bepgp:templateCache(id)
             bepgp:HookScript(self,"OnHide",function(f)
               if GameTooltip:IsOwned(f) then
                 GameTooltip_Hide()
-              end             
+              end
             end)
           end
-        end,       
+        end,
         on_update = function(self,elapsed)
           local remain = self.time_remaining
           local link = self.data[1]
@@ -916,7 +916,7 @@ function bepgp:templateCache(id)
             end,
           },
         },
-      }      
+      }
     elseif id == "DialogSetMain" then
       self._dialogTemplates[key] = {
         hide_on_escape = true,
@@ -960,7 +960,7 @@ function bepgp:templateCache(id)
             end,
           },
         },
-      }      
+      }
     elseif id == "DialogClearLoot" then
       self._dialogTemplates[key] = {
         hide_on_escape = true,
@@ -972,7 +972,7 @@ function bepgp:templateCache(id)
         on_cancel = function(self)
           local data = self.data
           bepgp:Print(L["Loot info can be cleared at any time from the loot window button or '/bepgp clearloot' command"])
-        end,        
+        end,
         buttons = {
           {
             text = _G.YES,
@@ -994,7 +994,7 @@ function bepgp:templateCache(id)
               LD:Dismiss(addonName.."DialogClearLoot")
               bepgp:Print(L["Loot info can be cleared at any time from the loot window or '/bepgp clearloot' command"])
             end,
-          },          
+          },
         },
       }
     elseif id == "DialogStandbyCheck" then
@@ -1008,7 +1008,7 @@ function bepgp:templateCache(id)
         on_cancel = function(self)
           local data = self.data
           bepgp:Print(L["AFK Check Standby"])
-        end,        
+        end,
         on_update = function(self, elapsed)
           self.data = self.data - elapsed
           self.text:SetText(L["Standby AFKCheck. Are you available? |cff00ff00%0d|rsec."]:format(self.data))
@@ -1030,9 +1030,9 @@ function bepgp:templateCache(id)
             on_click = function(self, button, down)
               LD:Dismiss(addonName.."DialogStandbyCheck")
             end,
-          },          
+          },
         },
-      }      
+      }
     end
   end
   return self._dialogTemplates[key]
@@ -1084,7 +1084,7 @@ function bepgp:OnEnable() -- 2. PLAYER_LOGIN
   end
 end
 
-function bepgp:OnDisable() -- ADHOC 
+function bepgp:OnDisable() -- ADHOC
 
 end
 
@@ -1105,7 +1105,7 @@ function bepgp:guildInfoSettings()
         self._lastInfoScan = now
       end
     end
-  end  
+  end
 end
 
 function bepgp:deferredInit(guildname)
@@ -1162,7 +1162,7 @@ function bepgp:tooltipHook(status)
     end
     if not self:IsHooked(ItemRefTooltip, "OnTooltipSetItem") then
       self:HookScript(ItemRefTooltip, "OnTooltipSetItem", "AddTipInfo")
-    end    
+    end
   else
     -- tooltip
     if self:IsHooked(GameTooltip, "OnTooltipSetItem") then
@@ -1170,7 +1170,7 @@ function bepgp:tooltipHook(status)
     end
     if self:IsHooked(ItemRefTooltip, "OnTooltipSetItem") then
       self:Unhook(ItemRefTooltip, "OnTooltipSetItem")
-    end    
+    end
   end
 end
 
@@ -1186,7 +1186,7 @@ function bepgp:AddTipInfo(tooltip,...)
     local pr,new_pr,new_pr_off = ep/gp, ep/(gp+price), ep/(gp+off_price)
     local pr_delta = new_pr - pr
     local pr_delta_off = new_pr_off - pr
-    local textRight2 = string.format(L["pr:|cffff0000%.02f|r(%.02f) pr_os:|cffff0000%.02f|r(%.02f)"],pr_delta,new_pr,pr_delta_off,new_pr_off)      
+    local textRight2 = string.format(L["pr:|cffff0000%.02f|r(%.02f) pr_os:|cffff0000%.02f|r(%.02f)"],pr_delta,new_pr,pr_delta_off,new_pr_off)
     local off_price = price*self.db.profile.discount
     local textRight = string.format(L["gp:|cff32cd32%d|r gp_os:|cff20b2aa%d|r"],price,off_price)
     tooltip:AddDoubleLine(label, textRight)
@@ -1293,7 +1293,7 @@ function bepgp:guildBranding()
   f.bdUR:SetTexture(tabardBorderUpper)
   f.bdBL:SetTexture(tabardBorderLower)
   f.bdBR:SetTexture(tabardBorderLower)
-  
+
   f.mask = f:CreateMaskTexture()
   f.mask:SetTexture("Interface\\Minimap\\UI-Minimap-Background")
   f.mask:SetSize(48,48)
@@ -1337,12 +1337,12 @@ function bepgp:GuildRosterSetOfficerNote(index,note,fromAddon)
       local oldmain = self:parseAlt(name,prevnote)
       local main = self:parseAlt(name,note)
       if oldmain ~= nil then
-        if main == nil or main ~= oldmain then 
+        if main == nil or main ~= oldmain then
           self:adminSay(string.format(L["Manually modified %s\'s note. Previous main was %s"],name,oldmain))
           self:Print(string.format(L["|cffff0000Manually modified %s\'s note. Previous main was %s|r"],name,oldmain))
         end
       end
-    end    
+    end
     if oldepgp ~= nil then
       if epgp == nil or epgp ~= oldepgp then
         self:adminSay(string.format(L["Manually modified %s\'s note. EPGP was %s"],name,oldepgp))
@@ -1350,7 +1350,7 @@ function bepgp:GuildRosterSetOfficerNote(index,note,fromAddon)
       end
     end
     local safenote = string.gsub(note,"(.*)({%d+:%d+})(.*)",self.sanitizeNote)
-    return self.hooks["GuildRosterSetOfficerNote"](index,safenote)    
+    return self.hooks["GuildRosterSetOfficerNote"](index,safenote)
   end
 end
 
@@ -1447,7 +1447,7 @@ function bepgp:OnCommReceived(prefix, msg, distro, sender)
             else
               settings_notice = L["New Alts"]
             end
-          end          
+          end
         end
         if altspct and altspct ~= bepgp.db.profile.altpercent then
           bepgp.db.profile.altpercent = altspct
@@ -1457,7 +1457,7 @@ function bepgp:OnCommReceived(prefix, msg, distro, sender)
             else
               settings_notice = L["New Alts EP %"]
             end
-          end          
+          end
         end
         if (settings_notice) and settings_notice ~= "" then
           local _,_, hexclass = self:getClassData(class)
@@ -1492,7 +1492,7 @@ function bepgp:debugPrint(msg,onlyWhenDebug)
         break
       end
     end
-  end  
+  end
   if self._debugchat then
     self:Print(self._debugchat,msg)
   else
@@ -1563,13 +1563,13 @@ function bepgp:parseVersion(version,otherVersion)
     for major,minor,patch in string.gmatch(otherVersion,"(%d+)[^%d]?(%d*)[^%d]?(%d*)") do
       bepgp._otherversion.major = tonumber(major)
       bepgp._otherversion.minor = tonumber(minor)
-      bepgp._otherversion.patch = tonumber(patch)      
+      bepgp._otherversion.patch = tonumber(patch)
     end
     if (bepgp._otherversion.major ~= nil and bepgp._version.major ~= nil) then
       if (bepgp._otherversion.major < bepgp._version.major) then -- we are newer
         return
       elseif (bepgp._otherversion.major > bepgp._version.major) then -- they are newer
-        return true, "major"        
+        return true, "major"
       else -- tied on major, go minor
         if (bepgp._otherversion.minor ~= nil and bepgp._version.minor ~= nil) then
           if (bepgp._otherversion.minor < bepgp._version.minor) then -- we are newer
@@ -1586,7 +1586,7 @@ function bepgp:parseVersion(version,otherVersion)
             elseif (bepgp._otherversion.patch ~= nil and bepgp._version.patch == nil) then -- they are newer
               return true, "patch"
             end
-          end    
+          end
         elseif (bepgp._otherversion.minor ~= nil and bepgp._version.minor == nil) then -- they are newer
           return true, "minor"
         end
@@ -1603,7 +1603,7 @@ function bepgp:widestAudience(msg)
       channel = "RAID_WARNING"
     else
       channel = "RAID"
-    end    
+    end
   elseif groupstatus == "PARTY" then
     channel = "PARTY"
   end
@@ -1632,7 +1632,7 @@ function bepgp:make_escable(object,operation)
       table.insert(UISpecialFrames,object)
     elseif found and operation=="remove" then
       table.remove(UISpecialFrames,found)
-    end    
+    end
   elseif type(object) == "table" then
     if object.Hide then
       local key = tostring(object):gsub("table: ","")
@@ -1653,7 +1653,7 @@ function bepgp:OpenRosterActions(obj)
   local scale, x, y = UIParent:GetEffectiveScale(), GetCursorPosition()
   local half_width, half_height = GetScreenWidth()*scale/2, GetScreenHeight()*scale/2
   local prefix,postfix,anchor
-  if x >= half_width then 
+  if x >= half_width then
     postfix = "RIGHT"
   else
     postfix = "LEFT"
@@ -1744,7 +1744,7 @@ local raidZones = {
 local mapZones = {
   [(C_Map.GetAreaInfo(4))] = {"T1.5",(C_Map.GetAreaInfo(73))}, -- Blasted Lands - Tainted Scar, Kazzak
   [(C_Map.GetAreaInfo(16))] = {"T1.5",(C_Map.GetAreaInfo(1221))}, -- Azshara - Ruins of Eldarath, Azuregos
-  [(C_Map.GetAreaInfo(10))] = {"T2",(C_Map.GetAreaInfo(856))}, -- Duskwood - Twilight Grove, 4Dragons  
+  [(C_Map.GetAreaInfo(10))] = {"T2",(C_Map.GetAreaInfo(856))}, -- Duskwood - Twilight Grove, 4Dragons
   [(C_Map.GetAreaInfo(47))] = {"T2",(C_Map.GetAreaInfo(356))}, -- The Hinterlands - Seradane, 4Dragons
   [(C_Map.GetAreaInfo(331))] = {"T2",(C_Map.GetAreaInfo(438))}, -- Ashenvale - Bough Shadow, 4Dragons
   [(C_Map.GetAreaInfo(357))] = {"T2",(C_Map.GetAreaInfo(1111))}, -- Feralas - Dream Bough, 4Dragons
@@ -1753,7 +1753,7 @@ local tier_multipliers = {
   ["T3"] =   {["T3"]=1,["T2.5"]=0.75,["T2"]=0.5,["T1.5"]=0.25,["T1"]=0.25},
   ["T2.5"] = {["T3"]=1,["T2.5"]=1,   ["T2"]=0.7,["T1.5"]=0.4, ["T1"]=0.4},
   ["T2"] =   {["T3"]=1,["T2.5"]=1,   ["T2"]=1,  ["T1.5"]=0.5, ["T1"]=0.5},
-  ["T1"] =   {["T3"]=1,["T2.5"]=1,   ["T2"]=1,  ["T1.5"]=1,   ["T1"]=1}  
+  ["T1"] =   {["T3"]=1,["T2.5"]=1,   ["T2"]=1,  ["T1.5"]=1,   ["T1"]=1}
 }
 function bepgp:suggestEPAward()
   local currentTier, zoneLoc, checkTier, multiplier
@@ -1812,8 +1812,8 @@ function bepgp:table_count(t)
 end
 
 function bepgp:camelCase(word)
-  return string.gsub(word,"(%a)([%w_']*)",function(head,tail) 
-    return string.format("%s%s",string.upper(head),string.lower(tail)) 
+  return string.gsub(word,"(%a)([%w_']*)",function(head,tail)
+    return string.format("%s%s",string.upper(head),string.lower(tail))
     end)
 end
 
@@ -1938,7 +1938,7 @@ function bepgp:parseAlt(name,officernote)
   else
     for i=1,GetNumGuildMembers(true) do
       local g_name, g_rank, g_rankIndex, g_level, g_class, g_zone, g_note, g_officernote, g_online, g_status, g_eclass, _, _, g_mobile, g_sor, _, g_GUID = GetGuildRosterInfo(i)
-      g_name = Ambiguate(g_name,"short") --:gsub("(\-.+)","") 
+      g_name = Ambiguate(g_name,"short") --:gsub("(\-.+)","")
       if (name == g_name) then
         return self:parseAlt(g_name, g_officernote)
       end
@@ -1989,7 +1989,7 @@ function bepgp:buildRosterTable()
       if is_raid_level then
         table.insert(g,{["name"]=member_name,["class"]=class,["onote"]=officernote})
       end
-    end    
+    end
   end
   return g
 end
@@ -2073,7 +2073,7 @@ function bepgp:award_standby_ep(ep) -- awards ep to reserve list
       local standby = self:GetModule(addonName.."_standby")
       if standby then
         standby:Refresh()
-      end      
+      end
     end
   end
 end
@@ -2098,7 +2098,7 @@ function bepgp:decay_epgp()
   if logs then
     logs:addToLog(msg)
   end
-  self:refreshPRTablets()  
+  self:refreshPRTablets()
   local addonMsg = string.format("ALL;DECAY;%s",(1-(decay or bepgp.VARS.decay))*100)
   self:addonMessage(addonMsg,"GUILD")
 end
@@ -2170,7 +2170,7 @@ function bepgp:update_epgp(ep,gp,guild_index,name,officernote,special_action)
   end
 end
 
-function bepgp:givename_ep(getname,ep) -- awards ep to a single character
+function bepgp:givename_ep(getname,ep,single) -- awards ep to a single character
   if not (self:admin()) then return end
   local postfix, alt = ""
   if self.db.profile.altspool then
@@ -2182,18 +2182,27 @@ function bepgp:givename_ep(getname,ep) -- awards ep to a single character
       postfix = string.format(L[", %s\'s Main."],alt)
     end
   end
-  local newep = ep + (self:get_ep(getname) or 0) 
-  self:update_ep(getname,newep) 
-  self:debugPrint(string.format(L["Giving %d ep to %s%s."],ep,getname,postfix))
-  if ep < 0 then -- inform admins and victim of penalties
-    local msg = string.format(L["%s EP Penalty to %s%s."],ep,getname,postfix)
+  local newep = ep + (self:get_ep(getname) or 0)
+  self:update_ep(getname,newep)
+  local msg = string.format(L["Giving %d ep to %s%s."],ep,getname,postfix)
+  local logs = self:GetModule(addonName.."_logs")
+  if ep < 0 then -- inform member of penalty
+    msg = string.format(L["%s EP Penalty to %s%s."],ep,getname,postfix)
+    self:debugPrint(msg)
     self:adminSay(msg)
-    local logs = self:GetModule(addonName.."_logs")
     if logs then
       logs:addToLog(msg)
     end
     local addonMsg = string.format("%s;%s;%s",getname,"EP",ep)
     self:addonMessage(addonMsg,"WHISPER",getname)
+  else
+    self:debugPrint(msg)
+    if (single == true) then
+      self:adminSay(msg)
+      if logs then
+        logs:addToLog(msg)
+      end
+    end
   end
 end
 
@@ -2207,10 +2216,10 @@ function bepgp:givename_gp(getname,gp) -- assigns gp to a single character
       getname = main
       postfix = string.format(L[", %s\'s Main."],alt)
     end
-  end  
-  local oldgp = (self:get_gp(getname) or bepgp.VARS.basegp) 
+  end
+  local oldgp = (self:get_gp(getname) or bepgp.VARS.basegp)
   local newgp = gp + oldgp
-  self:update_gp(getname,newgp) 
+  self:update_gp(getname,newgp)
   self:debugPrint(string.format(L["Giving %d gp to %s%s."],gp,getname,postfix))
   local msg = string.format(L["Awarding %d GP to %s%s. (Previous: %d, New: %d)"],gp,getname,postfix,oldgp,math.max(bepgp.VARS.basegp,newgp))
   self:adminSay(msg)
@@ -2226,19 +2235,19 @@ function bepgp:update_ep(getname,ep)
   for i = 1, GetNumGuildMembers(true) do
     local name, _, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
     name = Ambiguate(name,"short") --:gsub("(\-.+)","")
-    if (name==getname) then 
+    if (name==getname) then
       self:update_epgp(ep,nil,i,name,officernote)
     end
-  end  
+  end
 end
 function bepgp:update_gp(getname,gp)
   for i = 1, GetNumGuildMembers(true) do
     local name, _, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
     name = Ambiguate(name,"short") --:gsub("(\-.+)","")
-    if (name==getname) then 
-      self:update_epgp(nil,gp,i,name,officernote) 
+    if (name==getname) then
+      self:update_epgp(nil,gp,i,name,officernote)
     end
-  end  
+  end
 end
 
 function bepgp:capcalc(ep,gp,gain)
@@ -2247,8 +2256,8 @@ function bepgp:capcalc(ep,gp,gain)
   local ep_decayed = self:num_round(ep*self.db.profile.decay)
   local gp_decayed = math.max(bepgp.VARS.basegp,self:num_round(gp*self.db.profile.decay))
   local pr_decay = tonumber(string.format("%.03f",pr))-tonumber(string.format("%.03f",ep_decayed/gp_decayed))
-  if (pr_decay < 0.5) then 
-    pr_decay = 0 
+  if (pr_decay < 0.5) then
+    pr_decay = 0
   else
     pr_decay = -tonumber(string.format("%.02f",pr_decay))
   end

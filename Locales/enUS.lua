@@ -286,5 +286,9 @@ Results will print here when done.]]
   L["Other Idols"] = true
   L["Export Favorites"] = true
   L["%s >> Disenchant."] = true
+  L["Capturing Bids for 5min."] = true
+  L["Auto%s %s for %s"] = true
+  L["rolled"] = true
+  L["passed"] = true
 
 bepgp.L = L

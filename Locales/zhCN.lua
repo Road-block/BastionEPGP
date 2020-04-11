@@ -288,5 +288,9 @@ if not L then return end
   L["Other Idols"] = "Other Idols" -- needs translation
   L["Export Favorites"] = "Export Favorites" -- needs translation
   L["%s >> Disenchant."] = "%s >> Disenchant." -- needs translation
+  L["Capturing Bids for 5min."] = "Capturing Bids for 5min." -- needs translation
+  L["Auto%s %s for %s"] = "Auto%s %s for %s" -- needs translation
+  L["rolled"] = "rolled" -- needs translation
+  L["passed"] = "passed" -- needs translation
 
   bepgp.L = L

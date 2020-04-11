@@ -5,6 +5,9 @@ local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local GUI = LibStub("AceGUI-3.0")
 local ACD = LibStub("AceConfigDialog-3.0")
 -- -1 = manual rolling, 0 = pass, 1 = need, 2 = greed
+-- [9454] = true, -- acidic walkers
+-- [9453] = true, -- toxic revenger
+-- [9452] = true, -- hydrocane
 local autoroll = {
   zg_coin = {
 -- ZG coin
@@ -16,7 +19,7 @@ local autoroll = {
     [19703] = true, --witherbark -- turnin 2
     [19704] = true, --sandfury
     [19705] = true, --skullsplitter
-    [19706] = true, --bloodscalp -- turnin 3    
+    [19706] = true, --bloodscalp -- turnin 3
   },
   zg_bijou = {
 -- ZG bijou
@@ -39,7 +42,7 @@ local autoroll = {
     [20862] = true, --crystal
     [20863] = true, --clay
     [20864] = true, --bone
-    [20865] = true, --ivory    
+    [20865] = true, --ivory
   },
   aq_20_idol = {
   -- AQ20 idols
@@ -61,7 +64,7 @@ local autoroll = {
     [20878] = {["PALADIN"]=true,["PRIEST"]=true,["SHAMAN"]=true,["WARLOCK"]=true,["DRUID"]=true}, --rebirth
     [20879] = {["PALADIN"]=true,["HUNTER"]=true,["PRIEST"]=true,["SHAMAN"]=true,["DRUID"]=true}, --life
     [20881] = {["PALADIN"]=true,["HUNTER"]=true,["ROGUE"]=true,["SHAMAN"]=true,["DRUID"]=true}, --strife
-    [20882] = {["WARRIOR"]=true,["HUNTER"]=true,["ROGUE"]=true,["DRUID"]=true}, --war    
+    [20882] = {["WARRIOR"]=true,["HUNTER"]=true,["ROGUE"]=true,["DRUID"]=true}, --war
   }
 }
 
@@ -87,14 +90,25 @@ function bepgp_autoroll:getAction(itemID)
   end
 end
 
+local actions = {
+  [0] = {L["passed"],""},
+  [1] = {L["rolled"],_G.NEED},
+  [2] = {L["rolled"],_G.GREED}
+}
 function bepgp_autoroll:Roll(event, rollID, rollTime, lootHandle)
   local texture, name, count, quality, bindOnPickUp, canNeed, canGreed = GetLootRollItemInfo(rollID)
-  if (name) and (canNeed or canGreed) then
+  if (name) then
     local link = GetLootRollItemLink(rollID)
     local _, _, _, itemID = bepgp:getItemData(link)
-    local action = self:getAction(itemID)
-    if action and action >= 0 then
-      RollOnLoot(rollID,action)
+    if (itemID) then
+      local action = self:getAction(itemID)
+      if (action) and ( action >= 0 ) then
+        local shouldRoll = (action == 0) or ((action == 1) and canNeed) or ((action == 2) and canGreed)
+        if shouldRoll then
+          RollOnLoot(rollID,action)
+          bepgp:debugPrint(string.format(L["Auto%s %s for %s"],actions[action][1],actions[action][2],link))
+        end
+      end
     end
   end
 end
