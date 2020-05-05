@@ -46,7 +46,15 @@ local price_systems = {}
 local special_frames = {}
 local label = string.format("|cff33ff99%s|r",addonName)
 local out_chat = string.format("%s: %%s",addonName)
-
+local icons = {
+  epgp = "Interface\\PetitionFrame\\GuildCharter-Icon",
+  plusroll = "Interface\\Buttons\\UI-GroupLoot-Dice-Up"
+}
+local modes = {
+  epgp = L["EPGP"],
+  plusroll = L["PlusRoll"]
+}
+local switch_icon = "|TInterface\\Buttons\\UI-OptionsButton:16|t"..L["Switch Mode"]
 do
   for i=1,40 do
     raidUnit[i] = "raid"..i
@@ -79,6 +87,14 @@ do
     [5]=string.format("%s%s%s%s%s",star,star,star,star,star),
   }
 end
+local item_bind_patterns = {
+  CRAFT = "("..USE_COLON..")",
+  BOP = "("..ITEM_BIND_ON_PICKUP..")",
+  QUEST = "("..ITEM_BIND_QUEST..")",
+  BOU = "("..ITEM_BIND_ON_EQUIP..")",
+  BOE = "("..ITEM_BIND_ON_USE..")",
+  BOUND = "("..ITEM_SOULBOUND..")"
+}
 
 local defaults = {
   profile = {
@@ -103,9 +119,18 @@ local defaults = {
     classgroup = false,
     standby = false,
     bidpopup = false,
+    mode = "epgp", -- "plusroll"
     logs = {},
     loot = {},
     favorites = {},
+    reserves = {
+      locked=false,
+      players={},
+      items={}
+    },
+    wincount = {},
+    wincountmanual = true,
+    groupcache = {},
   },
 }
 local admincmd, membercmd =
@@ -188,6 +213,21 @@ local admincmd, membercmd =
       end,
       order = 7,
     },
+    mode = {
+      type = "select",
+      name = L["Mode of Operation"],
+      desc = L["Select mode of operation."],
+      get = function()
+        return bepgp.db.char.mode
+      end,
+      set = function(info, val)
+        bepgp.db.char.mode = val
+        bepgp:SetMode(bepgp.db.char.mode)
+      end,
+      values = { ["epgp"]=L["EPGP"], ["plusroll"]=L["PlusRoll"]},
+      sorting = {"epgp", "plusroll"},
+      order = 8,
+    },
     restart = {
       type = "execute",
       name = L["Restart"],
@@ -196,7 +236,7 @@ local admincmd, membercmd =
         bepgp:OnEnable()
         bepgp:Print(L["Restarted"])
       end,
-      order = 8,
+      order = 9,
     },
   }},
 {type = "group", handler = bepgp, args = {
@@ -242,6 +282,21 @@ local admincmd, membercmd =
       end,
       order = 4,
     },
+    mode = {
+      type = "select",
+      name = L["Mode of Operation"],
+      desc = L["Select mode of operation."],
+      get = function()
+        return bepgp.db.char.mode
+      end,
+      set = function(info, val)
+        bepgp.db.char.mode = val
+        bepgp:SetMode(bepgp.db.char.mode)
+      end,
+      values = { ["epgp"]=L["EPGP"], ["plusroll"]=L["PlusRoll"]},
+      sorting = {"epgp", "plusroll"},
+      order = 5,
+    },
     restart = {
       type = "execute",
       name = L["Restart"],
@@ -250,7 +305,7 @@ local admincmd, membercmd =
         bepgp:OnEnable()
         bepgp:Print(L["Restarted"])
       end,
-      order = 5,
+      order = 6,
     },
   }}
 bepgp.cmdtable = function()
@@ -330,10 +385,31 @@ function bepgp:options()
         bepgp.db.char.bidpopup = not bepgp.db.char.bidpopup
       end,
     }
+    self._options.args["minimap"] = {
+      type = "toggle",
+      name = L["Hide from Minimap"],
+      desc = L["Hide from Minimap"],
+      order = 85,
+      get = function() return bepgp.db.profile.minimap.hide end,
+      set = function(info, val)
+        bepgp.db.profile.minimap.hide = val
+        if bepgp.db.profile.minimap.hide then
+          LDI:Hide(addonName)
+        else
+          LDI:Show(addonName)
+        end
+      end
+    }
+    self._options.args["admin_options_header"] = {
+      type = "header",
+      name = L["Admin Options"],
+      order = 86,
+      hidden = function() return (not bepgp:admin()) end,
+    }
     self._options.args["progress_tier_header"] = {
       type = "header",
       name = string.format(L["Progress Setting: %s"],bepgp.db.profile.progress),
-      order = 85,
+      order = 87,
       hidden = function() return bepgp:admin() end,
     }
     self._options.args["progress_tier"] = {
@@ -453,21 +529,6 @@ function bepgp:options()
      hidden = function() return not (IsGuildLeader()) end,
      func = function() StaticPopup_Show("BASTION_EPGP_CONFIRM_RESET") end
     }
-    self._options.args["minimap"] = {
-      type = "toggle",
-      name = L["Hide from Minimap"],
-      desc = L["Hide from Minimap"],
-      order = 130,
-      get = function() return bepgp.db.profile.minimap.hide end,
-      set = function(info, val)
-        bepgp.db.profile.minimap.hide = val
-        if bepgp.db.profile.minimap.hide then
-          LDI:Hide(addonName)
-        else
-          LDI:Show(addonName)
-        end
-      end
-    }
     self._options.args["system"] = {
       type = "select",
       name = L["Select Price Scheme"],
@@ -487,20 +548,83 @@ function bepgp:options()
         return v
       end,
     }
+    self._options.args["rollplus_options_header"] = {
+      type = "header",
+      name = L["PlusRoll"],
+      order = 137,
+      hidden = function() return not (bepgp:admin()) end,
+    }
+    self._options.args["mode"] = {
+      type = "select",
+      name = L["Mode of Operation"],
+      desc = L["Select mode of operation."],
+      get = function()
+        return bepgp.db.char.mode
+      end,
+      set = function(info, val)
+        bepgp.db.char.mode = val
+        bepgp:SetMode(bepgp.db.char.mode)
+      end,
+      values = { ["epgp"]=L["EPGP"], ["plusroll"]=L["PlusRoll"]},
+      sorting = {"epgp", "plusroll"},
+      order = 140,
+    }
+    self._options.args["wincountopt"] = {
+      type = "toggle",
+      name = L["Manual Wincount"],
+      desc = L["Manually reset Wincount at end of raid."],
+      order = 145,
+      get = function() return not not bepgp.db.char.wincountmanual end,
+      set = function(info, val)
+        bepgp.db.char.wincountmanual = not bepgp.db.char.wincountmanual
+      end,
+      hidden = function() return bepgp.db.char.mode ~= "plusroll" end,
+    }
+    self._options.args["wincountclear"] = {
+      type = "execute",
+      name = L["Clear Wincount"],
+      desc = L["Clear Wincount"],
+      order = 150,
+      func = function()
+        local plusroll_loot = bepgp:GetModule(addonName.."_plusroll_loot")
+        if plusroll_loot then
+          plusroll_loot:Clear()
+        end
+      end,
+      hidden = function()
+        return (bepgp.db.char.mode ~= "plusroll") or (not bepgp.db.char.wincountmanual)
+      end,
+    }
   end
   return self._options
 end
 
 function bepgp:ddoptions()
-  if not self._ddoptions then
-    self._ddoptions = {
+  if not self._dda_options then
+    self._dda_options = {
       type = "group",
       name = L["BastionEPGP options"],
       desc = L["BastionEPGP options"],
       handler = bepgp,
       args = { }
     }
-    self._ddoptions.args["ep_raid"] = {
+    self._dda_options.args["mode"] = {
+      type = "execute",
+      name = switch_icon,
+      desc = L["Switch Mode of Operation"],
+      order = 5,
+      func = function(info)
+        local mode = bepgp.db.char.mode
+        if mode == "epgp" then
+          bepgp.db.char.mode = "plusroll"
+          bepgp:SetMode("plusroll")
+        else
+          bepgp.db.char.mode = "epgp"
+          bepgp:SetMode("epgp")
+        end
+      end,
+    }
+    self._dda_options.args["ep_raid"] = {
       type = "execute",
       name = L["+EPs to Raid"],
       desc = L["Award EPs to all raid members."],
@@ -509,30 +633,56 @@ function bepgp:ddoptions()
         LD:Spawn(addonName.."DialogGroupPoints", {"ep", C:Green(L["Effort Points"]), _G.RAID})
       end,
     }
-    self._ddoptions.args["ep"] = {
+    self._dda_options.args["ep"] = {
       type = "group",
       name = L["+EPs to Member"],
       desc = L["Account EPs for member."],
       order = 40,
-      args = { }
+      args = { },
     }
-    self._ddoptions.args["gp"] = {
+    self._dda_options.args["gp"] = {
       type = "group",
       name = L["+GPs to Member"],
       desc = L["Account GPs for member."],
       order = 50,
+      args = { },
+    }
+  end
+  if not self._ddm_options then
+    self._ddm_options = {
+      type = "group",
+      name = L["BastionEPGP options"],
+      desc = L["BastionEPGP options"],
+      handler = bepgp,
       args = { }
+    }
+    self._ddm_options.args["mode"] = {
+      type = "execute",
+      name = switch_icon,
+      desc = L["Switch Mode of Operation"],
+      order = 5,
+      func = function(info)
+        local mode = bepgp.db.char.mode
+        if mode == "epgp" then
+          bepgp.db.char.mode = "plusroll"
+          bepgp:SetMode("plusroll")
+        else
+          bepgp.db.char.mode = "epgp"
+          bepgp:SetMode("epgp")
+        end
+      end,
     }
   end
   local members = bepgp:buildRosterTable()
   self:debugPrint(string.format(L["Scanning %d members for EP/GP data. (%s)"],#(members),(bepgp.db.char.raidonly and "Raid" or "Full")))
-  self._ddoptions.args["ep"].args = bepgp:buildClassMemberTable(members,"ep")
-  self._ddoptions.args["gp"].args = bepgp:buildClassMemberTable(members,"gp")
-  return self._ddoptions
+  self._dda_options.args["ep"].args = bepgp:buildClassMemberTable(members,"ep")
+  self._dda_options.args["gp"].args = bepgp:buildClassMemberTable(members,"gp")
+  return self._dda_options, self._ddm_options
 end
 
 function bepgp.OnLDBClick(obj,button)
   local is_admin = bepgp:admin()
+  local mode = bepgp.db.char.mode
   local logs = bepgp:GetModule(addonName.."_logs")
   local alts = bepgp:GetModule(addonName.."_alts")
   local browser = bepgp:GetModule(addonName.."_browser")
@@ -540,12 +690,23 @@ function bepgp.OnLDBClick(obj,button)
   local loot = bepgp:GetModule(addonName.."_loot")
   local bids = bepgp:GetModule(addonName.."_bids")
   local standings = bepgp:GetModule(addonName.."_standings")
+  -- plusroll
+  local reserves = bepgp:GetModule(addonName.."_plusroll_reserves")
+  local rollbids = bepgp:GetModule(addonName.."_plusroll_bids")
+  local rollloot = bepgp:GetModule(addonName.."_plusroll_loot")
+  local roll_admin = rollloot and rollloot:raidLootAdmin() or false
   if is_admin then
     if button == "LeftButton" then
       if IsControlKeyDown() and IsShiftKeyDown() then
-        -- logs
-        if logs then
-          logs:Toggle()
+        -- logs TODO: conditionally plusroll wincount
+        if mode == "epgp" then
+          if logs then
+            logs:Toggle()
+          end
+        elseif mode == "plusroll" and roll_admin then
+          if rollloot then
+            rollloot:Toggle()
+          end
         end
       elseif IsControlKeyDown() and IsAltKeyDown() then
         -- alts
@@ -563,13 +724,26 @@ function bepgp.OnLDBClick(obj,button)
           standby:Toggle()
         end
       elseif IsShiftKeyDown() then
-        if loot then
-          loot:Toggle()
+        -- loot or reserves conditionally
+        if mode == "epgp" then
+          if loot then
+            loot:Toggle()
+          end
+        elseif mode == "plusroll" and roll_admin then
+          if reserves then
+            reserves:Toggle()
+          end
         end
       elseif IsAltKeyDown() then
-        -- bids
-        if bids then
-          bids:Toggle(obj)
+        -- bids conditionally
+        if mode == "epgp" then
+          if bids then
+            bids:Toggle(obj)
+          end
+        elseif mode == "plusroll" and roll_admin then
+          if rollbids then
+            rollbids:Toggle(obj)
+          end
         end
       else
         if standings then
@@ -577,7 +751,7 @@ function bepgp.OnLDBClick(obj,button)
         end
       end
     elseif button == "RightButton" then
-      bepgp:OpenRosterActions(obj)
+      bepgp:OpenAdminActions(obj)
     elseif button == "MiddleButton" then
       InterfaceOptionsFrame_OpenToCategory(bepgp.blizzoptions)
       InterfaceOptionsFrame_OpenToCategory(bepgp.blizzoptions)
@@ -588,12 +762,26 @@ function bepgp.OnLDBClick(obj,button)
         if browser then
           browser:Toggle()
         end
+      elseif IsControlKeyDown() and IsShiftKeyDown() and (mode == "plusroll") and roll_admin then
+        if rollloot then
+          rollloot:Toggle()
+        end
+      elseif IsControlKeyDown() and (mode == "plusroll") and roll_admin then
+        if rollbids then
+          rollbids:Toggle()
+        end
+      elseif IsShiftKeyDown() and (mode == "plusroll") and roll_admin then
+        if reserves then
+          reserves:Toggle()
+        end
       else
         if standings then
           standings:Toggle()
         end
       end
     elseif button == "RightButton" then
+      bepgp:OpenAdminActions(obj)
+    elseif button == "MiddleButton" then
       InterfaceOptionsFrame_OpenToCategory(bepgp.blizzoptions)
       InterfaceOptionsFrame_OpenToCategory(bepgp.blizzoptions)
     end
@@ -602,24 +790,39 @@ end
 
 function bepgp.OnLDBTooltipShow(tooltip)
   tooltip = tooltip or GameTooltip
-  tooltip:SetText(label)
+  local is_admin = bepgp:admin()
+  local mode = bepgp.db.char.mode
+  local title = string.format("%s [%s]",label,modes[mode])
+  local rollloot = bepgp:GetModule(addonName.."_plusroll_loot")
+  local roll_admin = rollloot and rollloot:raidLootAdmin() or false
+  tooltip:SetText(title)
   tooltip:AddLine(" ")
   local hint = L["|cffff7f00Click|r to toggle Standings."]
   tooltip:AddLine(hint)
-  if bepgp:admin() then
+  if is_admin then
     tooltip:AddLine(" ")
     hint = L["|cffff7f00Alt+Click|r to toggle Bids."]
     tooltip:AddLine(hint)
-    hint = L["|cffff7f00Shift+Click|r to toggle Loot."]
-    tooltip:AddLine(hint)
+    if mode == "epgp" then
+      hint = L["|cffff7f00Shift+Click|r to toggle Loot."]
+      tooltip:AddLine(hint)
+    elseif mode == "plusroll" and roll_admin then
+      hint = L["|cffff7f00Shift+Click|r to toggle Reserves."]
+      tooltip:AddLine(hint)
+    end
     hint = L["|cffff7f00Ctrl+Click|r to toggle Standby."]
     tooltip:AddLine(hint)
     hint = L["|cffff7f00Ctrl+Alt+Click|r to toggle Alts."]
     tooltip:AddLine(hint)
     hint = L["|cffff7f00Shift+Alt+Click|r to toggle Favorites."]
     tooltip:AddLine(hint)
-    hint = L["|cffff7f00Ctrl+Shift+Click|r to toggle Logs."]
-    tooltip:AddLine(hint)
+    if mode == "epgp" then
+      hint = L["|cffff7f00Ctrl+Shift+Click|r to toggle Logs."]
+      tooltip:AddLine(hint)
+    elseif mode == "plusroll" and roll_admin then
+      hint = L["|cffff7f00Ctrl+Shift+Click|r to toggle Wincount."]
+      tooltip:AddLine(hint)
+    end
     tooltip:AddLine(" ")
     hint = L["|cffff7f00Middle Click|r for %s"]:format(L["Admin Options"])
     tooltip:AddLine(hint)
@@ -628,7 +831,17 @@ function bepgp.OnLDBTooltipShow(tooltip)
   else
     hint = L["|cffff7f00Alt+Click|r to toggle Favorites."]
     tooltip:AddLine(hint)
-    hint = L["|cffff7f00Right Click|r for %s."]:format(L["Member Options"])
+    if mode == "plusroll" and roll_admin then
+      hint = L["|cffff7f00Ctrl+Click|r to toggle Bids."]
+      tooltip:AddLine(hint)
+      hint = L["|cffff7f00Shift+Click|r to toggle Reserves."]
+      tooltip:AddLine(hint)
+      hint = L["|cffff7f00Ctrl+Shift+Click|r to toggle Wincount."]
+      tooltip:AddLine(hint)
+    end
+    hint = L["|cffff7f00Right Click|r for %s."]:format(L["Member Actions"])
+    tooltip:AddLine(hint)
+    hint = L["|cffff7f00Middle Click|r for %s"]:format(L["Member Options"])
     tooltip:AddLine(hint)
   end
 end
@@ -862,6 +1075,58 @@ function bepgp:templateCache(id)
           },]]
         },
       }
+    elseif id == "DialogItemPlusPoints" then
+      self._dialogTemplates[key] = {
+        hide_on_escape = true,
+        show_whlle_dead = true,
+        text = L["%s looted to %s. Mark it as.."],
+        on_show = function(self)
+          local data = self.data
+          local loot_indices = data.loot_indices
+          self.text:SetText(string.format(L["%s looted to %s. Mark it as.."],data[loot_indices.item],data[loot_indices.player_c]))
+        end,
+        buttons = {
+          { -- Won as reserve
+            text = L["Reserve"],
+            on_click = function(self, button, down)
+              local data = self.data
+              local loot_indices = data.loot_indices
+              local name = data[loot_indices.player]
+              local item = data[loot_indices.item_id]
+              local reserves = bepgp:GetModule(addonName.."_plusroll_reserves")
+              if reserves then
+                if reserves:IsReservedExact(name,item) then
+                  reserves:RemoveReserve(name,item)
+                end
+              end
+              LD:Dismiss(addonName.."DialogItemPlusPoints")
+            end,
+          },
+          { -- Won as mainspec
+            text = L["Mainspec"],
+            on_click = function(self, button, down)
+              local data = self.data
+              local loot_indices = data.loot_indices
+              local name = data[loot_indices.player]
+              local item = data[loot_indices.item_id]
+              local plusroll_loot = bepgp:GetModule(addonName.."_plusroll_loot")
+              if plusroll_loot then
+                plusroll_loot:addWincount(name,item)
+              end
+              LD:Dismiss(addonName.."DialogItemPlusPoints")
+            end,
+          },
+          { -- Won as offspec
+            text = L["Offspec"],
+            on_click = function(self, button, down)
+              local data = self.data
+              local loot_indices = data.loot_indices
+              -- nothing at the moment
+              LD:Dismiss(addonName.."DialogItemPlusPoints")
+            end,
+          },
+        },
+      }
     elseif id == "DialogMemberBid" then
       self._dialogTemplates[key] = {
         hide_on_escape = true,
@@ -913,6 +1178,56 @@ function bepgp:templateCache(id)
               local masterlooter = data[2]
               SendChatMessage("-","WHISPER",nil,masterlooter)
               LD:Dismiss(addonName.."DialogMemberBid")
+            end,
+          },
+        },
+      }
+    elseif id == "DialogMemberRoll" then
+      self._dialogTemplates[key] = {
+        hide_on_escape = true,
+        show_whlle_dead = true,
+        is_exclusive = true,
+        duration = 30,
+        text = L["Bid Call for %s [%ds]"],
+        on_show = function(self)
+          local link = self.data
+          self.text:SetText(string.format(L["Bid Call for %s [%ds]"],link,self.duration))
+          self:SetScript("OnEnter", function(f)
+            GameTooltip:SetOwner(f, "ANCHOR_RIGHT")
+            GameTooltip:SetHyperlink(link)
+            GameTooltip:Show()
+          end)
+          self:SetScript("OnLeave", function(f)
+            if GameTooltip:IsOwned(f) then
+              GameTooltip_Hide()
+            end
+          end)
+          if not bepgp:IsHooked(self, "OnHide") then
+            bepgp:HookScript(self,"OnHide",function(f)
+              if GameTooltip:IsOwned(f) then
+                GameTooltip_Hide()
+              end
+            end)
+          end
+        end,
+        on_update = function(self,elapsed)
+          local remain = self.time_remaining
+          local link = self.data
+          self.text:SetText(string.format(L["Bid Call for %s [%ds]"],link,remain))
+        end,
+        buttons = {
+          { -- MainSpec
+            text = L["Roll Mainspec/Reserve"],
+            on_click = function(self, button, down)
+              RandomRoll("1", "100")
+              LD:Dismiss(addonName.."DialogMemberRoll")
+            end,
+          },
+          { -- OffSpec
+            text = L["Roll Offspec/Greed"],
+            on_click = function(self, button, down)
+              RandomRoll("1", "50")
+              LD:Dismiss(addonName.."DialogMemberRoll")
             end,
           },
         },
@@ -1057,9 +1372,9 @@ function bepgp:OnInitialize() -- 1. ADDON_LOADED
   self.db.RegisterCallback(self, "OnProfileCopied", "RefreshConfig")
   self.db.RegisterCallback(self, "OnProfileReset", "RefreshConfig")
   LDBO.type = "launcher"
-  LDBO.text = addonName
+  LDBO.text = label
   LDBO.label = string.format("%s %s",addonName,self._versionString)
-  LDBO.icon = "Interface\\PetitionFrame\\GuildCharter-Icon"
+  LDBO.icon = icons.epgp
   LDBO.OnClick = bepgp.OnLDBClick
   LDBO.OnTooltipShow = bepgp.OnLDBTooltipShow
   LDI:Register(addonName, LDBO, bepgp.db.profile.minimap)
@@ -1082,6 +1397,7 @@ function bepgp:OnEnable() -- 2. PLAYER_LOGIN
     end
     self._bucketGuildRoster = self:RegisterBucketEvent("GUILD_ROSTER_UPDATE",3.0)
   end
+  self:SetMode(self.db.char.mode)
 end
 
 function bepgp:OnDisable() -- ADHOC
@@ -1090,6 +1406,12 @@ end
 
 function bepgp:RefreshConfig()
 
+end
+
+function bepgp:SetMode(mode)
+  self:Print(string.format(L["Mode set to %s."],modes[mode]))
+  LDBO.icon = icons[mode]
+  LDBO.text = string.format("%s [%s]",label,modes[mode])
 end
 
 function bepgp:guildInfoSettings()
@@ -1149,6 +1471,9 @@ function bepgp:deferredInit(guildname)
     self:RegisterEvent("PLAYER_ENTERING_WORLD","testLootPrompt")
     -- set price system
     bepgp:SetPriceSystem()
+    -- register whisper responder
+    self:setupResponder()
+
     self._initdone = true
     self:SendMessage(addonName.."_INIT_DONE")
   end
@@ -1201,6 +1526,107 @@ function bepgp:AddTipInfo(tooltip,...)
     if favorite then
       tooltip:AddLine(self._favmap[favorite])
     end
+  end
+end
+
+local recipients = {}
+function bepgp:sendThrottle(recipient)
+  local now = GetTime()
+  local prev = recipients[recipient]
+  recipients[recipient] = now
+  if prev and ((now-prev) < TOOLTIP_UPDATE_TIME) then
+    return true
+  end
+end
+
+local function epgpResponder(frame, event, text, sender, ...)
+  if event == "CHAT_MSG_WHISPER" then
+    local epgp, _, name = text:match("^[%c%s]*(![pP][rR])([%c%s%p]*)([%w]*)")
+    local sender_stripped = Ambiguate(sender,"short")
+    local guild_name, _, _, guild_officernote = bepgp:verifyGuildMember(sender_stripped,true)
+    if epgp and guild_name then
+      local _,perms = bepgp:getGuildPermissions()
+      if perms.OFFICER then
+        if name and strlen(name)>=2 then
+          name = bepgp:camelCase(name)
+          local g_name, _, _, g_officernote = bepgp:verifyGuildMember(name,true)
+          if g_name then
+            local ep,gp
+            local main_name, _, _, main_onote = bepgp:parseAlt(g_name, g_officernote)
+            if main_name then
+              ep = bepgp:get_ep(main_name,main_onote)
+              gp = bepgp:get_gp(main_name,main_onote)
+            else
+              ep = bepgp:get_ep(g_name,g_officernote)
+              gp = bepgp:get_gp(g_name,g_officernote)
+            end
+            if ep and gp then
+              local pr = ep/gp
+              local msg = string.format(L["{bepgp}%s has: %d EP %d GP %.03f PR."], name, ep,gp,pr)
+              if not bepgp:sendThrottle(sender_stripped) then
+                SendChatMessage(msg,"WHISPER",nil,sender_stripped)
+              end
+              return true
+            end
+          end
+        else
+          if sender_stripped ~= bepgp._playerName then
+            local ep,gp
+            local main_name, _, _, main_onote = bepgp:parseAlt(guild_name, guild_officernote)
+            if main_name then
+              ep = bepgp:get_ep(main_name,main_onote)
+              gp = bepgp:get_gp(main_name,main_onote)
+            else
+              ep = bepgp:get_ep(guild_name,guild_officernote)
+              gp = bepgp:get_gp(guild_name,guild_officernote)
+            end
+            if ep and gp then
+              local pr = ep/gp
+              local msg = string.format(L["{bepgp}You have: %d EP %d GP %.03f PR"], ep,gp,pr)
+              if not bepgp:sendThrottle(sender_stripped) then
+                SendChatMessage(msg,"WHISPER",nil,sender_stripped)
+              end
+              return true
+            end
+          end
+        end
+      end
+    end
+    return false, text, sender, ...
+  elseif event == "CHAT_MSG_WHISPER_INFORM" then
+    local epgp = text:match("^({bepgp}).*")
+    if epgp then
+      return true
+    else
+      return false, text, sender, ...
+    end
+  end
+end
+
+function bepgp:setupResponder()
+  -- Hopefully anyone that can think of doing this
+  -- also knows enough to not cause side-effects for filters coming after their own.
+  local filters_incoming = ChatFrame_GetMessageEventFilters("CHAT_MSG_WHISPER")
+  if filters_incoming and #(filters_incoming) > 0 then
+    for index, filterFunc in next, filters_incoming do
+      if ( filterFunc == epgpResponder ) then
+        return
+      end
+    end
+    tinsert(filters_incoming,1,epgpResponder)
+  else
+    ChatFrame_AddMessageEventFilter("CHAT_MSG_WHISPER", epgpResponder)
+  end
+  local filters_outgoing = ChatFrame_GetMessageEventFilters("CHAT_MSG_WHISPER_INFORM")
+  if filters_outgoing and #(filters_outgoing) > 0 then
+    for index, filterFunc in next, filters_outgoing do
+      if ( filterFunc == epgpResponder ) then
+        return
+      end
+    end
+    tinsert(filters_outgoing,1,epgpResponder)
+  else
+    ChatFrame_AddMessageEventFilter("CHAT_MSG_WHISPER_INFORM", epgpResponder)
   end
 end
 
@@ -1501,7 +1927,7 @@ function bepgp:debugPrint(msg,onlyWhenDebug)
 end
 
 function bepgp:simpleSay(msg)
-  local perms = self:getSpeakPermissions()
+  local perms = self:getGuildPermissions()
   if perms[self.db.profile.announce] then
     SendChatMessage(out_chat:format(msg), self.db.profile.announce)
   else
@@ -1510,7 +1936,7 @@ function bepgp:simpleSay(msg)
 end
 
 function bepgp:adminSay(msg)
-  local perms = self:getSpeakPermissions()
+  local perms = self:getGuildPermissions()
   if perms.OFFICER then
     SendChatMessage(out_chat:format(msg),"OFFICER")
   end
@@ -1645,11 +2071,19 @@ function bepgp:make_escable(object,operation)
   end
 end
 
-function bepgp:OpenRosterActions(obj)
-  if not self._ddoptions then
-    self:ddoptions()
+function bepgp:OpenAdminActions(obj)
+  local is_admin = self:admin()
+  if is_admin then
+    if not self._dda_options then
+      self:ddoptions()
+    end
+    self._ddmenu = LDD:OpenAce3Menu(self._dda_options)
+  else
+    if not self._ddm_options then
+      self:ddoptions()
+    end
+    self._ddmenu = LDD:OpenAce3Menu(self._ddm_options)
   end
-  self._ddmenu = LDD:OpenAce3Menu(self._ddoptions)
   local scale, x, y = UIParent:GetEffectiveScale(), GetCursorPosition()
   local half_width, half_height = GetScreenWidth()*scale/2, GetScreenHeight()*scale/2
   local prefix,postfix,anchor
@@ -1721,7 +2155,24 @@ end
 
 function bepgp:inRaid(name)
   local rid = UnitInRaid(name)
-  return IsInRaid() and rid and (rid >= 0)
+  local inraid = IsInRaid() and rid and (rid >= 0)
+  if inraid then
+    local groupcache = self.db.char.groupcache
+    if not groupcache[name] then
+      groupcache[name] = {}
+      local member, rank, subgroup, level, lclass, eclass, zone, online, isDead, role, isML = GetRaidRosterInfo(rid)
+      member = Ambiguate(member,"short")
+      if member and (member == name) and (member ~= UNKNOWNOBJECT) then
+        local _,_,hexColor = self:getClassData(lclass)
+        local colortab = RAID_CLASS_COLORS[eclass]
+        groupcache[member]["level"] = level
+        groupcache[member]["class"] = lclass
+        groupcache[member]["hex"] = hexColor
+        groupcache[member]["color"] = colortab
+      end
+    end
+  end
+  return inraid
 end
 
 function bepgp:GroupStatus()
@@ -1796,6 +2247,26 @@ function bepgp:RegisterPriceSystem(name, priceFunc)
   price_systems[name]=priceFunc
 end
 
+function bepgp:getRaidID()
+  if self.db.char.wincountmanual then
+    return "RID:MANUAL"
+  end
+  local inInstance, instanceType = IsInInstance()
+  local instanceMapName, instanceName, instanceID, instanceReset
+  if inInstance and instanceType=="raid" then
+    instanceMapName = GetRealZoneText()
+    local savedInstances = GetNumSavedInstances()
+    if savedInstances > 0 then
+      for i=1,savedInstances do
+        instanceName, instanceID, instanceReset = GetSavedInstanceInfo(i)
+        if instanceName:lower() == instanceMapName:lower() then
+          return string.format("%s:%s",instanceName,instanceID)
+        end
+      end
+    end
+  end
+end
+
 -------------------------------------------
 --// UTILITY
 -------------------------------------------
@@ -1805,8 +2276,10 @@ end
 
 function bepgp:table_count(t)
   local count = 0
-  for k,v in pairs(t) do
-    count = count+1
+  if type(t) == "table" then
+    for k,v in pairs(t) do
+      count = count+1
+    end
   end
   return count
 end
@@ -1854,6 +2327,27 @@ function bepgp:getItemData(itemLink) -- itemcolor, itemstring, itemname, itemid
   end
 end
 
+--/print tostring(BastionEPGP:itemBinding("item:19727"))
+-- item:19865,item:19724,item:19872,item:19727,item:19708,item:19802,item:22637
+function bepgp:itemBinding(itemString)
+  G:SetHyperlink(itemString)
+  if G:Find(item_bind_patterns.CRAFT,2,4,nil,true) then
+  else
+    if G:Find(item_bind_patterns.BOP,2,4,nil,true) then
+      return bepgp.VARS.bop
+    elseif G:Find(item_bind_patterns.QUEST,2,4,nil,true) then
+      return bepgp.VARS.bop
+    elseif G:Find(item_bind_patterns.BOE,2,4,nil,true) then
+      return bepgp.VARS.boe
+    elseif G:Find(item_bind_patterns.BOU,2,4,nil,true) then
+      return bepgp.VARS.boe
+    else
+      return bepgp.VARS.nobind
+    end
+  end
+  return
+end
+
 function bepgp:getItemQualityData(quality) -- id, name, qualityColor
   -- WARNING: itemlink parsed color does NOT match the one returned by the ITEM_QUALITY_COLORS table
   local id, hex = tonumber(quality), type(quality) == "string"
@@ -1882,22 +2376,24 @@ function bepgp:verifyGuildMember(name,silent)
   return
 end
 
-local speakPermissions = {}
-function bepgp:getSpeakPermissions()
+local speakPermissions,readPermissions = {},{}
+function bepgp:getGuildPermissions()
   table.wipe(speakPermissions)
+  table.wipe(readPermissions)
   for i=1,GetNumGuildMembers(true) do
     local name, _, rankIndex = GetGuildRosterInfo(i)
     name = Ambiguate(name,"short") --:gsub("(\-.+)","")
     if name == self._playerName then
       speakPermissions.OFFICER = C_GuildInfo.GuildControlGetRankFlags(rankIndex+1)[4]
+      readPermissions.OFFICER = C_GuildInfo.GuildControlGetRankFlags(rankIndex+1)[11]
       break
     end
   end
   speakPermissions.GUILD = C_GuildInfo.CanSpeakInGuildChat()
   local groupstatus = self:GroupStatus()
-  speakPermissions.PARTY = groupstatus == "PARTY" or groupstatus == "RAID"
+  speakPermissions.PARTY = (groupstatus == "PARTY") or (groupstatus == "RAID")
   speakPermissions.RAID = groupstatus == "RAID"
-  return speakPermissions
+  return speakPermissions,readPermissions
 end
 
 function bepgp:testMain()
@@ -2026,6 +2522,33 @@ function bepgp:buildClassMemberTable(roster,epgp)
     end
   end
   return c
+end
+
+function bepgp:groupCache(member,update)
+  local groupcache = self.db.char.groupcache
+  if groupcache[member] and (not update) then
+    return groupcache[member]
+  else
+    if self:GroupStatus()=="RAID" then
+      groupcache[member] = groupcache[member] or {}
+      for i=1,GetNumGroupMembers() do
+        local name, rank, subgroup, level, lclass, eclass, zone, online, isDead, role, isML = GetRaidRosterInfo(i)
+        name = Ambiguate(name,"short")
+        if name and (name == member) and (name ~= UNKNOWNOBJECT) then
+          local _,_,hexColor = self:getClassData(lclass)
+          local colortab = RAID_CLASS_COLORS[eclass]
+          groupcache[member]["level"] = level
+          groupcache[member]["class"] = lclass
+          groupcache[member]["hex"] = hexColor
+          groupcache[member]["color"] = colortab
+          break
+        end
+      end
+      if self:table_count(groupcache[member]) > 0 then
+        return groupcache[member]
+      end
+    end
+  end
 end
 
 function bepgp:award_raid_ep(ep) -- awards ep to raid members in zone

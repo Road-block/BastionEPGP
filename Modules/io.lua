@@ -12,6 +12,7 @@ function bepgp_io:OnEnable()
   self._ioloot = Dump:New(L["Export Loot"],500,320)
   self._iologs = Dump:New(L["Export Logs"],450,320)
   self._iobrowser = Dump:New(L["Export Favorites"],520,290)
+  self._ioreserves = Dump:New(L["Export Reserves"],450,300)
   local bastionexport,_,_,_,reason = GetAddOnInfo("BastionEPGP_Export")
   if not (reason == "ADDON_MISSING" or reason == "ADDON_DISABLED") then
     local loaded, finished = IsAddOnLoaded("BastionEPGP_Export")
@@ -128,6 +129,46 @@ function bepgp_io:Browser(favorites)
   end
   self._iobrowser:Display()
   self:export("Favorites", temp_data, ";")
+end
+
+local function sort_reserves(a,b)
+  return tonumber(a.cols[4].value) > tonumber(b.cols[4].value)
+end
+function bepgp_io:Reserves(reserves)
+  local keys
+  self._ioreserves:Clear()
+  local char_count = 8
+  local num_reserves = #(reserves)
+  local locked = bepgp.db.char.reserves.locked
+  if num_reserves > 0 then
+    self._ioreserves:AddLine("```")
+    table.sort(reserves,sort_reserves)
+  end
+  for i,data in ipairs(reserves) do
+    local link, player, lock, id = data.cols[1].value, data.cols[2].value, data.cols[3].value, data.cols[4].value
+    local _,_,itemname = bepgp:getItemData(link)
+    local line = string.format("%s - %s",itemname,player)
+    char_count = char_count + line:len()
+    if char_count > 2000 then
+      self._ioreserves:AddLine("```")
+      self._ioreserves:AddLine("```")
+      i = i - 1
+      char_count = 8
+    else
+      self._ioreserves:AddLine(line)
+    end
+  end
+  if num_reserves > 0 then
+    self._ioreserves:AddLine("```")
+    local line
+    if locked then
+      line = string.format("%s:%s",L["Locked"],locked)
+    else
+      line = L["Unlocked"]
+    end
+    self._ioreserves:AddLine(line)
+    self._ioreserves:Display()
+  end
 end
 
 function bepgp_io:export(context,data,keys,sep)

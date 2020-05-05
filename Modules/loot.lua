@@ -16,14 +16,6 @@ local colorHidden = {r=0.0, g=0.0, b=0.0, a=0.0}
 local colorHighlight = {r=0, g=0, b=0, a=.9}
 local nop = function() end
 
-local item_bind_patterns = {
-  CRAFT = "("..USE_COLON..")",
-  BOP = "("..ITEM_BIND_ON_PICKUP..")",
-  QUEST = "("..ITEM_BIND_QUEST..")",
-  BOU = "("..ITEM_BIND_ON_EQUIP..")",
-  BOE = "("..ITEM_BIND_ON_USE..")",
-  BOUND = "("..ITEM_SOULBOUND..")"
-}
 local loot_indices = {
   time=1,
   player=2,
@@ -52,7 +44,7 @@ local assign_options = {
   name = L["BastionEPGP options"],
   desc = L["BastionEPGP options"],
   handler = bepgp_loot,
-  args = { 
+  args = {
     ["bankde"] = {
       type = "execute",
       name = L["Bank or D/E"],
@@ -73,7 +65,7 @@ local assign_options = {
         C_Timer.After(0.2, menu_close)
       end,
     }
-  }  
+  }
 }
 local manual_assign = function(rowFrame, cellFrame, data, cols, row, realrow, column, table, button, ...)
   if not realrow then return false end
@@ -105,7 +97,7 @@ function bepgp_loot:OnEnable()
   container:EnableResize(false)
   container:SetLayout("Flow")
   container:Hide()
-  self._container = container  
+  self._container = container
   local headers = {
     {["name"]=C:Orange(L["Time"]),["width"]=100,["comparesort"]=st_sorter_numeric,["sort"]=ST.SORT_DSC}, -- server time
     {["name"]=C:Orange(L["Item"]),["width"]=150,["comparesort"]=st_sorter_numeric}, -- item name
@@ -122,7 +114,7 @@ function bepgp_loot:OnEnable()
   self._loot_table.frame:SetPoint("BOTTOMRIGHT",self._container.frame,"BOTTOMRIGHT", -10, 10)
   container:SetCallback("OnShow", function() bepgp_loot._loot_table:Show() end)
   container:SetCallback("OnClose", function() bepgp_loot._loot_table:Hide() end)
-  
+
   local clear = GUI:Create("Button")
   clear:SetAutoWidth(true)
   clear:SetText(L["Clear"])
@@ -181,7 +173,7 @@ function bepgp_loot:Refresh()
       {["value"]=i,} -- 7
     }})
   end
-  self._loot_table:SetData(data)  
+  self._loot_table:SetData(data)
   if self._loot_table and self._loot_table.showing then
     self._loot_table:SortData()
   end
@@ -193,26 +185,8 @@ function bepgp_loot:Clear()
   bepgp:Print(L["Loot info cleared"])
 end
 
-function bepgp_loot:itemBinding(itemString)
-  G:SetHyperlink(itemString)
-  if G:Find(item_bind_patterns.CRAFT,2,4,nil,true) then
-  else
-    if G:Find(item_bind_patterns.BOP,2,4,nil,true) then
-      return bepgp.VARS.bop
-    elseif G:Find(item_bind_patterns.QUEST,2,4,nil,true) then
-      return bepgp.VARS.bop
-    elseif G:Find(item_bind_patterns.BOE,2,4,nil,true) then
-      return bepgp.VARS.boe
-    elseif G:Find(item_bind_patterns.BOU,2,4,nil,true) then
-      return bepgp.VARS.boe
-    else
-      return bepgp.VARS.nobind
-    end
-  end
-  return
-end
-
 function bepgp_loot:GiveMasterLoot(slot, index)
+  if bepgp.db.char.mode ~= "epgp" then return end
   if LootSlotHasItem(slot) then
     local icon, itemname, quantity, currencyID, quality, locked, isQuestItem, questId, isActive = GetLootSlotInfo(slot)
     if quantity == 1 and quality >= LE_ITEM_QUALITY_RARE then -- not a stack and rare or higher
@@ -229,6 +203,7 @@ end
 -- /run BastionEPGP:GetModule("BastionEPGP_loot"):captureLoot("You receive loot: \124cffa335ee\124Hitem:16960::::::::60:::::\124h[Waistband of Wrath]\124h\124r.")
 -- /run BastionEPGP:GetModule("BastionEPGP_loot"):captureLoot("You receive loot: \124cffa335ee\124Hitem:16857::::::::60:::::\124h[Lawbringer Bracers]\124h\124r.")
 function bepgp_loot:captureLoot(message)
+  if bepgp.db.char.mode ~= "epgp" then return end
   if not self:raidLootAdmin() then return end
   local who,what,amount,player,itemLink
   who,what,amount = DF.Deformat(message,LOOT_ITEM_MULTIPLE)
@@ -264,14 +239,14 @@ function bepgp_loot:processLootCallback(player,itemLink,source,itemColor,itemStr
   if dupe then
     return
   end
-  local bind = self:itemBinding(itemString)
+  local bind = bepgp:itemBinding(itemString)
   if not (bind) then return end
   local price = bepgp:GetPrice(itemString, bepgp.db.profile.progress)
   if (not (price)) or (price == 0) then
     return
   end
   local class,_
-  if player == bepgp._playerName then 
+  if player == bepgp._playerName then
     class = UnitClass("player") -- localized
   else
     _, class = bepgp:verifyGuildMember(player,true) -- localized
@@ -322,7 +297,7 @@ function bepgp_loot:tradeLootCallback(tradeTarget,itemColor,itemString,itemName,
   if not (price) or price == 0 then
     return
   end
-  local bind = self:itemBinding(itemString)
+  local bind = bepgp:itemBinding(itemString)
   if (not bind) or (bind ~= bepgp.VARS.boe) then return end
   local _, class = bepgp:verifyGuildMember(tradeTarget,true)
   if not class then return end
@@ -356,7 +331,7 @@ function bepgp_loot:tradeLoot()
         item:ContinueOnItemLoad(function()
           bepgp_loot:tradeLootCallback(tradeTarget,itemColor,itemString,itemName,itemID,itemLink)
         end)
-      end       
+      end
     end
   end
   self:tradeReset()
@@ -387,12 +362,12 @@ function bepgp_loot:tradeItemAccept()
         if (itemLink) then
           self._itemLink = itemLink
           self:RegisterEvent("TRADE_REQUEST_CANCEL","tradeReset")
-          self:RegisterEvent("TRADE_CLOSED","awaitTradeLoot")        
-          return  
+          self:RegisterEvent("TRADE_CLOSED","awaitTradeLoot")
+          return
         end
       end
       self._itemLink = nil
-    end    
+    end
   end
 end
 function bepgp_loot:awaitTradeLoot() -- TRADE_CLOSED
@@ -400,7 +375,7 @@ function bepgp_loot:awaitTradeLoot() -- TRADE_CLOSED
 end
 function bepgp_loot:tradeReset() -- TRADE_REQUEST_CANCEL
   self._tradeTarget = nil
-  self._itemLink = nil  
+  self._itemLink = nil
   if self._awaitTradeTimer then
     self:CancelTimer(self._awaitTradeTimer)
     self._awaitTradeTimer = nil
@@ -410,6 +385,7 @@ function bepgp_loot:tradeReset() -- TRADE_REQUEST_CANCEL
 end
 
 function bepgp_loot:bidCall(frame, button, context) -- context is one of "masterloot", "lootframe", "container"
+  if bepgp.db.char.mode ~= "epgp" then return end
   if not IsAltKeyDown() then return end
   if not self:raidLootAdmin() then return end
   if not context then return end
@@ -442,13 +418,13 @@ function bepgp_loot:bidCall(frame, button, context) -- context is one of "master
         bagID, slotID = frame:GetParent():GetID(), frame:GetID()
         if bagID and slotID then
           itemLink = GetContainerItemLink(bagID, slotID)
-        end        
+        end
       end
     elseif (frame.bagID and frame.slotID) then -- cargBags_Nivaya
       bagID, slotID = frame.bagID, frame.slotID
       if bagID and slotID then
         itemLink = GetContainerItemLink(bagID, slotID)
-      end      
+      end
     end
   end
   if not itemLink then return end
@@ -485,7 +461,9 @@ function bepgp_loot:hookBagAddons()
       break
     end
   end
-  bepgp:debugPrint(L["Bag hooks initialized"])
+  if bepgp:admin() then
+    bepgp:debugPrint(L["Bag hooks initialized"])
+  end
 end
 
 function bepgp_loot:hookContainerButton(itemButton)
@@ -588,26 +566,32 @@ end
 
 function bepgp_loot:clickHandlerMasterLoot()
   MasterLooterFrame.Item:EnableMouse(true)
-  MasterLooterFrame.Item:SetScript("OnMouseUp", function(self,button)
+  MasterLooterFrame.Item:HookScript("OnMouseUp", function(self,button)
     local frame = self
     frame.slot = LootFrame.selectedSlot
     if frame.slot then
       bepgp_loot:bidCall(frame, button, "masterloot")
     end
   end)
-  MasterLooterFrame.Item:SetScript("OnEnter", function(self)
-    local slot = LootFrame.selectedSlot
-    if slot then
-      GameTooltip:SetOwner(self,"ANCHOR_TOP")
-      GameTooltip:SetLootItem(slot)
-      GameTooltip:Show()
-    end
-  end)
-  MasterLooterFrame.Item:SetScript("OnLeave", function(self)
-    if GameTooltip:IsOwned(self) then
-      GameTooltip_Hide()
-    end
-  end)
+  local onenter = MasterLooterFrame.Item:GetScript("OnEnter")
+  if type(onenter)~="function" then
+    MasterLooterFrame.Item:SetScript("OnEnter", function(self)
+      local slot = LootFrame.selectedSlot
+      if slot then
+        GameTooltip:SetOwner(self,"ANCHOR_TOP")
+        GameTooltip:SetLootItem(slot)
+        GameTooltip:Show()
+      end
+    end)
+  end
+  local onleave = MasterLooterFrame.Item:GetScript("OnLeave")
+  if type(onleave)~="function" then
+    MasterLooterFrame.Item:SetScript("OnLeave", function(self)
+      if GameTooltip:IsOwned(self) then
+        GameTooltip_Hide()
+      end
+    end)
+  end
 end
 
 function bepgp_loot:clickHandlerLoot()

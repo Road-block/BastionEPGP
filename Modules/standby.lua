@@ -51,8 +51,8 @@ function bepgp_standby:injectOptions()
       end,
       disabled = function() return not bepgp.db.profile.main end
     }
-    if not bepgp._ddoptions then bepgp._ddoptions = bepgp:ddoptions() end
-    bepgp._ddoptions.args["ep_standby"] = {
+    if not bepgp._dda_options then bepgp._dda_options = bepgp:ddoptions() end
+    bepgp._dda_options.args["ep_standby"] = {
       type = "execute",
       name = L["+EPs to Standby"],
       desc = L["Award EPs to all active Standby."],
@@ -61,12 +61,12 @@ function bepgp_standby:injectOptions()
         LD:Spawn(addonName.."DialogGroupPoints", {"ep", C:Green(L["Effort Points"]), L["Standby"]})
       end,
     }
-    bepgp._ddoptions.args["afkcheck_standby"] = {
+    bepgp._dda_options.args["afkcheck_standby"] = {
       type = "execute",
       name = L["AFK Check Standby"],
       desc = L["AFK Check Standby List"],
       order = 30,
-      func = function(info) bepgp_standby:sendStandbyCheck() end
+      func = function(info) bepgp_standby:sendStandbyCheck() end,
     }
     self:standbyToggle(not not bepgp.db.char.standby)
   else
@@ -133,7 +133,7 @@ function bepgp_standby:captureStandbyChat(event, text, sender, _, _, _, _, _, ch
   -- call incoming, should we respond?
   local query = string.find(text,L["^{BEPGP}Type"])
   if query and not self._runningcheck then
-    if not bepgp:inRaid(sender_name) then
+    if not (bepgp:inRaid(sender_name)) then
       LD:Spawn(addonName.."DialogStandbyCheck", bepgp.VARS.timeout)
     end
     return
@@ -143,10 +143,10 @@ function bepgp_standby:captureStandbyChat(event, text, sender, _, _, _, _, _, ch
   local r,_,rdy,main = string.find(text,standbyanswer)
   if (r) and (self._runningcheck) then
     if (rdy) then
-      if bepgp:inRaid(sender_name) then return end -- sender is in our raid, whatever name they sent can't be standby
+      if (bepgp:inRaid(sender_name)) then return end -- sender is in our raid, whatever name they sent can't be standby
       if main and main ~= "" then -- we got a `+Mainname` message
         main = bepgp:camelCase(main)
-        if bepgp:inRaid(main) then return end -- the character they're trying to add to standby is in our raid
+        if (bepgp:inRaid(main)) then return end -- the character they're trying to add to standby is in our raid
         local main_name, main_class, main_rank, main_officernote = bepgp:verifyGuildMember(main,true)
         if main_name and sender_name ~= main_name then
           local checked_main = bepgp:parseAlt(sender_name, sender_officernote)

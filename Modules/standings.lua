@@ -61,7 +61,7 @@ local function st_sorter_numeric(st,rowa,rowb,col)
         end
       else
         return tonumber(cella) > tonumber(cellb)
-      end      
+      end
     else
       if sort == ST.SORT_DSC then
         return classa < classb
@@ -102,9 +102,27 @@ function bepgp_standings:OnEnable()
   }
   self._standings_table = ST:CreateST(headers,15,nil,colorHighlight,container.frame) -- cols, numRows, rowHeight, highlight, parent
   self._standings_table.frame:SetPoint("BOTTOMRIGHT",self._container.frame,"BOTTOMRIGHT", -10, 10)
-  container:SetCallback("OnShow", function() bepgp_standings._standings_table:Show() end)
-  container:SetCallback("OnClose", function() bepgp_standings._standings_table:Hide() end)
-  
+  container:SetCallback("OnShow", function()
+    bepgp_standings._standings_table:Show()
+    local _,perms = bepgp:getGuildPermissions()
+    if perms.OFFICER then
+      bepgp_standings._widgetoverlaylabel.frame:Hide()
+    else
+      bepgp_standings._widgetoverlaylabel.frame:Show()
+    end
+  end)
+  container:SetCallback("OnClose", function()
+    bepgp_standings._standings_table:Hide()
+    bepgp_standings._widgetoverlaylabel.frame:Hide()
+  end)
+
+  local overlay = GUI:Create("Label")
+  overlay:SetWidth(250)
+  overlay:SetText(L.STANDINGS_OVERLAY)
+  overlay.frame:SetParent(self._standings_table.frame)
+  overlay.frame:SetPoint("TOPLEFT",self._standings_table.frame,"TOPLEFT",5,-5)
+  self._widgetoverlaylabel = overlay
+
   local export = GUI:Create("Button")
   export:SetAutoWidth(true)
   export:SetText(L["Export"])
@@ -168,7 +186,7 @@ function bepgp_standings:Refresh()
       }})
     end
   end
-  self._standings_table:SetData(data)  
+  self._standings_table:SetData(data)
   if self._standings_table and self._standings_table.showing then
     self._standings_table:SortData()
   end
@@ -261,11 +279,11 @@ function sepgp_standings:getRolesClass(roster)
         else
           table.insert(roster,{player[1],player[2],role,player[4],player[5],player[col]})
         end
-      end      
+      end
     end
   end
   return roster
-end 
+end
 
 function sepgp_standings:OnEnable()
   if not T:IsRegistered("sepgp_standings") then
@@ -283,7 +301,7 @@ function sepgp_standings:OnEnable()
           "tooltipText", L["Only show members in raid."],
           "checked", sepgp_raidonly,
           "func", function() sepgp_standings:ToggleRaidOnly() end
-        )      
+        )
         D:AddLine(
           "text", L["Group by class"],
           "tooltipText", L["Group members by class."],
@@ -349,16 +367,16 @@ function sepgp_standings:setHideScript()
           end
         end)
       break
-    end    
+    end
     i = i+1
     tablet = getglobal(string.format("Tablet20DetachedFrame%d",i))
-  end  
+  end
 end
 
 function sepgp_standings:Top()
   if T:IsRegistered("sepgp_standings") and (T.registry.sepgp_standings.tooltip) then
     T.registry.sepgp_standings.tooltip.scroll=0
-  end  
+  end
 end
 
 function sepgp_standings:Toggle(forceShow)
@@ -375,7 +393,7 @@ function sepgp_standings:Toggle(forceShow)
     else
       T:Attach("sepgp_standings") -- hide
     end
-  end  
+  end
 end
 
 function sepgp_standings:ToggleGroupBy(setting)
@@ -426,14 +444,14 @@ function sepgp_standings:BuildStandingsTable()
   local r = { }
   if (sepgp_raidonly) and GetNumRaidMembers() > 0 then
     for i = 1, GetNumRaidMembers(true) do
-      local name, rank, subgroup, level, class, fileName, zone, online, isDead = GetRaidRosterInfo(i) 
+      local name, rank, subgroup, level, class, fileName, zone, online, isDead = GetRaidRosterInfo(i)
       r[name] = true
     end
   end
   bepgp.alts = {}
   for i = 1, GetNumGuildMembers(1) do
     local name, _, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
-    local ep = (bepgp:get_ep_v3(name,officernote) or 0) 
+    local ep = (bepgp:get_ep_v3(name,officernote) or 0)
     local gp = (bepgp:get_gp_v3(name,officernote) or bepgp.VARS.basegp)
     local main, main_class, main_rank = bepgp:parseAlt(name,officernote)
     if (main) then
@@ -473,7 +491,7 @@ function sepgp_standings:BuildStandingsTable()
     table.sort(t, function(a,b)
     if (a[3] ~= b[3]) then return a[3] > b[3]
       else return pr_sorter_standings(a,b) end
-    end)   
+    end)
   else
     table.sort(t, pr_sorter_standings)
   end
@@ -520,7 +538,7 @@ function sepgp_standings:OnTooltipUpdate()
             "text2", "",
             "text3", "",
             "text4", ""
-          )          
+          )
         end
       end
     end
@@ -533,7 +551,7 @@ function sepgp_standings:OnTooltipUpdate()
       text2 = string.format("%.4g", ep)
       text4 = string.format("%.4g", pr)
     end
-    local text3 = string.format("%.4g", gp)    
+    local text3 = string.format("%.4g", gp)
     if ((bepgp._playerName) and bepgp._playerName == name) or ((sepgp_main) and sepgp_main == name) then
       text = string.format("(*)%s",text)
       local pr_decay = bepgp:capcalc(ep,gp)

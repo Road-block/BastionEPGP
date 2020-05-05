@@ -251,7 +251,7 @@ function bepgp_bids:SetItemRef(link, text, button, chatFrame)
     else
       bid = nil
     end
-    if not bepgp:inRaid(masterlooter) then
+    if not (bepgp:inRaid(masterlooter)) then
       masterlooter = nil
     end
     if (bid and masterlooter) then
@@ -343,6 +343,7 @@ local lootBid = {
   ["os"] = {"(%-)",".+(%-).*",".*(%-).+",".*(%-).*",L["(os)"],L["(greed)"]}
 }
 function bepgp_bids:captureBid(event, text, sender)
+  if bepgp.db.char.mode ~= "epgp" then return end
   if not (running_bid) then return end
   if not (bepgp:raidLeader() or bepgp:lootMaster()) then return end
   if not bepgp_bids.bid_item.itemstring then return end
@@ -350,11 +351,11 @@ function bepgp_bids:captureBid(event, text, sender)
   local mskw_found,oskw_found
   local lowtext = string.lower(text)
   for _,f in ipairs(lootBid.ms) do
-    mskw_found = string.find(text,f)
+    mskw_found = string.find(lowtext,f)
     if (mskw_found) then break end
   end
   for _,f in ipairs(lootBid.os) do
-    oskw_found = string.find(text,f)
+    oskw_found = string.find(lowtext,f)
     if (oskw_found) then break end
   end
   if (mskw_found) or (oskw_found) then
