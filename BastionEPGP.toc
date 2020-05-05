@@ -1,9 +1,9 @@
 ## Interface: 11304
 ## Author: Roadblock
 ## Title: BastionEPGP
-## Notes: In-game EPGP guild helper, supports standby, main/alt shared pool, minEP, offpecGP. Pluggable price list.
-## Version: 1.3.5
-## X-Alpha: 2.0.0
+## Notes: In-game EPGP loot helper, supports standby, main/alt shared pool, minEP, offpecGP. Pluggable price list. Alternative +roll mode.
+## Version: 2.0.0
+## X-Alpha:
 ## X-Website: https://github.com/Road-block/BastionEPGP
 ## OptionalDeps: Ace3, BastionEPGP_Prices, MizusRaidTracker
 ## SavedVariables: BastionEPGPDB

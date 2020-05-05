@@ -348,5 +348,7 @@ You can whisper |cffffd200!PR|r to any higher rank guild member to get back EPGP
   L["BastionEPGP wincount"] = "BastionEPGP wincount" -- needs translation
   L["RaidID %s"] = "RaidID %s" -- needs translation
   L["Announce"] = "Announce" -- needs translation
+  L["Alt Click"] = "Alt Click" -- needs translation
+  L["Call for Rolls"] = "Call for Rolls" -- needs translation
 
   bepgp.L = L

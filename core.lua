@@ -1502,24 +1502,34 @@ end
 function bepgp:AddTipInfo(tooltip,...)
   local name, link = tooltip:GetItem()
   if name and link then
+    local mode_epgp = bepgp.db.char.mode == "epgp"
+    local mode_plusroll = bepgp.db.char.mode == "plusroll"
     local price = self:GetPrice(link, self.db.profile.progress)
-    if not price then return end
-    local item = Item:CreateFromItemLink(link)
-    local itemid = item:GetItemID()
-    local off_price = math.floor(price*self.db.profile.discount)
-    local ep,gp = (self:get_ep(self._playerName) or 0), (self:get_gp(self._playerName) or bepgp.VARS.basegp)
-    local pr,new_pr,new_pr_off = ep/gp, ep/(gp+price), ep/(gp+off_price)
-    local pr_delta = new_pr - pr
-    local pr_delta_off = new_pr_off - pr
-    local textRight2 = string.format(L["pr:|cffff0000%.02f|r(%.02f) pr_os:|cffff0000%.02f|r(%.02f)"],pr_delta,new_pr,pr_delta_off,new_pr_off)
-    local off_price = price*self.db.profile.discount
-    local textRight = string.format(L["gp:|cff32cd32%d|r gp_os:|cff20b2aa%d|r"],price,off_price)
-    tooltip:AddDoubleLine(label, textRight)
-    tooltip:AddDoubleLine(" ", textRight2)
-    if self:GroupStatus()=="RAID" and self:lootMaster() and self:admin() then
-      local owner = tooltip:GetOwner()
-      if owner and owner._bepgpclicks then
-        tooltip:AddDoubleLine(C:Yellow(L["Alt Click/RClick/MClick"]), C:Orange(L["Call for: MS/OS/Both"]))
+    local roll_admin = self:GroupStatus()=="RAID" and self:lootMaster()
+    local is_admin = self:admin()
+    local owner = tooltip:GetOwner()
+    if price then
+      local item = Item:CreateFromItemLink(link)
+      local itemid = item:GetItemID()
+      local off_price = math.floor(price*self.db.profile.discount)
+      local ep,gp = (self:get_ep(self._playerName) or 0), (self:get_gp(self._playerName) or bepgp.VARS.basegp)
+      local pr,new_pr,new_pr_off = ep/gp, ep/(gp+price), ep/(gp+off_price)
+      local pr_delta = new_pr - pr
+      local pr_delta_off = new_pr_off - pr
+      local textRight2 = string.format(L["pr:|cffff0000%.02f|r(%.02f) pr_os:|cffff0000%.02f|r(%.02f)"],pr_delta,new_pr,pr_delta_off,new_pr_off)
+      local off_price = price*self.db.profile.discount
+      local textRight = string.format(L["gp:|cff32cd32%d|r gp_os:|cff20b2aa%d|r"],price,off_price)
+      tooltip:AddDoubleLine(label, textRight)
+      tooltip:AddDoubleLine(" ", textRight2)
+      if roll_admin and is_admin and mode_epgp then
+        if owner and owner._bepgpclicks then
+          tooltip:AddDoubleLine(C:Yellow(L["Alt Click/RClick/MClick"]), C:Orange(L["Call for: MS/OS/Both"]))
+        end
+      end
+    end
+    if roll_admin and mode_plusroll then
+      if owner and owner._bepgprollclicks then
+        tooltip:AddDoubleLine(C:Yellow(L["Alt Click"]), C:Orange(L["Call for Rolls"]))
       end
     end
     local favorite = self.db.char.favorites[itemid]
