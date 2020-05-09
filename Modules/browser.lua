@@ -239,7 +239,7 @@ function bepgp_browser:OnEnable()
 
   local help = GUI:Create("Label")
   help:SetWidth(150)
-  help:SetText("\n\n"..string.format("%s%s",questionblue,L["Right-click a row to add or remove a Favorite"]))
+  help:SetText("\n\n"..string.format("%s%s",questionblue,L["Right-click a row to add or remove a Favorite."]))
   help:SetColor(1,1,0)
   help:SetJustifyV("TOP")
   help:SetJustifyH("CENTER")

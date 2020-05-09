@@ -270,7 +270,7 @@ if not L then return end
   L["Filter by Tier"] = "Filter by Tier" -- needs translation
   L["Remove Favorite"] = "Remove Favorite" -- needs translation
   L["Modifier Preview"] = "Modifier Preview" -- needs translation
-  L["Right-click a row to add or remove a Favorite"] = "Right-click a row to add or remove a Favorite" -- needs translation
+  L["Right-click a row to add or remove a Favorite."] = "Right-click a row to add or remove a Favorite." -- needs translation
   L["Show Favorites Table."] = "Show Favorites Table." -- needs translation
   L["|cffff7f00Shift+Alt+Click|r to toggle Favorites."] = "|cffff7f00Shift+Alt+Click|r to toggle Favorites." -- needs translation
   L["|cffff7f00Alt+Click|r to toggle Favorites."] = "|cffff7f00Alt+Click|r to toggle Favorites." -- needs translation
@@ -312,10 +312,10 @@ if not L then return end
   L["(res)"] = "(res)" -- needs translation (pattern - don't remove parentheses)
   L["(reserve)"] = "(reserve)" -- needs translation (pattern - don't remove parentheses)
   L["Capturing Rolls for 2min."] = "Capturing Rolls for 2min." -- needs translation
-  L["|cffFF3333|Hbepgproll:1:$ML|h[Mainspec/NEED]|h|r"] = "|cffFF3333|Hbepgproll:1:$ML|h[Mainspec/NEED]|h|r" -- needs translation (only the `Mainspec/NEED` phrase)
-  L["|cff009900|Hbepgproll:2:$ML|h[Offspec/GREED]|h|r"] = "|cff009900|Hbepgproll:2:$ML|h[Offspec/GREED]|h|r" -- needs translation (only the `Offspec/GREED` phrase)
+  L["|cffFF3333|Hbepgproll:1:$ML|h[Reserve/Mainspec]|h|r"] = "|cffFF3333|Hbepgproll:1:$ML|h[Reserve/Mainspec]|h|r" -- needs translation (only the `Mainspec/NEED` phrase)
+  L["|cff009900|Hbepgproll:2:$ML|h[Offspec/Sidegrade]|h|r"] = "|cff009900|Hbepgproll:2:$ML|h[Offspec/Sidegrade]|h|r" -- needs translation (only the `Offspec/GREED` phrase)
   L["Roll Mainspec/Reserve"] = "Roll Mainspec/Reserve" -- needs translation
-  L["Roll Offspec/Greed"] = "Roll Offspec/Greed" -- needs translation
+  L["Roll Offspec/Sidegrade"] = "Roll Offspec/Sidegrade" -- needs translation
   L["Clearing old Rolls"] = "Clearing old Rolls" -- needs translation
   L["Reserve"] = "Reserve" -- needs translation
   L["Reserves"] = "Reserves" -- needs translation
@@ -350,5 +350,10 @@ You can whisper |cffffd200!PR|r to any higher rank guild member to get back EPGP
   L["Announce"] = "Announce" -- needs translation
   L["Alt Click"] = "Alt Click" -- needs translation
   L["Call for Rolls"] = "Call for Rolls" -- needs translation
+  L["Skip Autoroll Items"] = "Skip Autoroll Items" -- needs translation
+  L["Skip Autoroll Items from Wincount Prompts."] = "Skip Autoroll Items from Wincount Prompts." -- needs translation
+  L["Logs"] = "Logs" -- needs translation
+  L["Redo Assignment"] = "Redo Assignment" -- needs translation
+  L["Right-click a row to redo assignment tag in case of error."] = "Right-click a row to redo assignment tag in case of error." -- needs translation
 
   bepgp.L = L

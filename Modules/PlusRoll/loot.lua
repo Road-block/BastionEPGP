@@ -3,7 +3,6 @@ local moduleName = addonName.."_plusroll_loot"
 local bepgp_plusroll_loot = bepgp:NewModule(moduleName,"AceEvent-3.0","AceHook-3.0","AceTimer-3.0")
 local ST = LibStub("ScrollingTable")
 local LD = LibStub("LibDialog-1.0")
-local LDD = LibStub("LibDropdown-1.0")
 local C = LibStub("LibCrayon-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local GUI = LibStub("AceGUI-3.0")
@@ -20,6 +19,8 @@ local function st_sorter_numeric(st,rowa,rowb,col)
   local cellb = st.data[rowb].cols[2].value
   return tonumber(cella) > tonumber(cellb)
 end
+local autoroll, autoroll_data
+local plusroll_logs
 
 local loot_indices = {
   time=1,
@@ -28,8 +29,9 @@ local loot_indices = {
   item=4,
   item_id=5,
   bind=6,
-  action=7,
+  log=7,
 }
+
 local itemCache = {}
 local item_interact = function(rowFrame, cellFrame, data, cols, row, realrow, column, table, button, ...)
   if not realrow then return false end
@@ -124,6 +126,17 @@ function bepgp_plusroll_loot:OnEnable()
   self._container._clear = clear
   container:AddChild(clear)
 
+  local logs = GUI:Create("Button")
+  logs:SetWidth(100)
+  logs:SetText(L["Logs"])
+  logs:SetCallback("OnClick",function()
+    if plusroll_logs then
+      plusroll_logs:Toggle()
+    end
+  end)
+  self._container._logs = logs
+  container:AddChild(logs)
+
   bepgp:make_escable(container,"add")
 
   LD:Register(addonName.."DialogItemPlusPoints", bepgp:templateCache("DialogItemPlusPoints"))
@@ -133,6 +146,10 @@ function bepgp_plusroll_loot:OnEnable()
   -- bid call handlers
   self:SecureHook("LootFrame_Update","clickHandlerLoot")
   self:clickHandlerMasterLoot()
+
+  autoroll = bepgp:GetModule(addonName.."_autoroll")
+  autoroll_data = autoroll and autoroll:ItemsHash()
+  plusroll_logs = bepgp:GetModule(addonName.."_plusroll_logs")
 end
 
 function bepgp_plusroll_loot:Toggle(show)
@@ -219,6 +236,25 @@ function bepgp_plusroll_loot:addWincount(name,item)
   self:Refresh()
 end
 
+function bepgp_plusroll_loot:removeWincount(name,item)
+  local wincount = bepgp.db.char.wincount
+  local raidident = bepgp:getRaidID()
+  local wins = wincount[raidident] and wincount[raidident][name]
+  if wins then
+    local count = #(wins)
+    for i=count,1,-1 do
+      if wins[i]==item then
+        wins[i]=nil
+        break
+      end
+    end
+    if #(wins)==0 then
+      wincount[raidident][name]=nil
+    end
+  end
+  self:Refresh()
+end
+
 function bepgp_plusroll_loot:getWincount(name)
   local wincount = bepgp.db.char.wincount
   local raidident = bepgp:getRaidID()
@@ -246,7 +282,7 @@ function bepgp_plusroll_loot:announceWincount(name, row)
       out = string.format("%s: %s (%s)",out,count,items)
       SendChatMessage(out,channel)
     else
-      out = self:getWincount(name)
+      out = self:getWincount(channel)
       SendChatMessage(out,"WHISPER",nil,channel)
     end
   end
@@ -296,6 +332,8 @@ function bepgp_plusroll_loot:processLootCallback(player,itemLink,source,itemColo
     return
   end
   local bind = bepgp:itemBinding(itemString)
+  local skiptokens = bepgp.db.char.wincounttoken
+  local is_token = autoroll_data and autoroll_data[itemID]
   if not (bind) then return end
   local _,cached,class,hex
   if player == bepgp._playerName then
@@ -312,7 +350,9 @@ function bepgp_plusroll_loot:processLootCallback(player,itemLink,source,itemColo
   local player_color = C:Colorize(hex,player)
   local epoch, timestamp = bepgp:getServerTime()
   local data = {[loot_indices.time]=timestamp,[loot_indices.player]=player,[loot_indices.player_c]=player_color,[loot_indices.item]=itemLink,[loot_indices.item_id]=itemID,[loot_indices.bind]=bind,loot_indices=loot_indices}
-  LD:Spawn(addonName.."DialogItemPlusPoints", data)
+  if not (skiptokens and is_token) then
+    LD:Spawn(addonName.."DialogItemPlusPoints", data)
+  end
 end
 
 function bepgp_plusroll_loot:processLoot(player,itemLink,source)

@@ -268,7 +268,7 @@ Results will print here when done.]]
   L["Filter by Tier"] = true
   L["Remove Favorite"] = true
   L["Modifier Preview"] = true
-  L["Right-click a row to add or remove a Favorite"] = true
+  L["Right-click a row to add or remove a Favorite."] = true
   L["Show Favorites Table."] = true
   L["|cffff7f00Shift+Alt+Click|r to toggle Favorites."] = true
   L["|cffff7f00Alt+Click|r to toggle Favorites."] = true
@@ -310,10 +310,10 @@ Results will print here when done.]]
   L["(res)"] = true
   L["(reserve)"] = true
   L["Capturing Rolls for 2min."] = true
-  L["|cffFF3333|Hbepgproll:1:$ML|h[Mainspec/NEED]|h|r"] = true
-  L["|cff009900|Hbepgproll:2:$ML|h[Offspec/GREED]|h|r"] = true
+  L["|cffFF3333|Hbepgproll:1:$ML|h[Reserve/Mainspec]|h|r"] = true
+  L["|cff009900|Hbepgproll:2:$ML|h[Offspec/Sidegrade]|h|r"] = true
   L["Roll Mainspec/Reserve"] = true
-  L["Roll Offspec/Greed"] = true
+  L["Roll Offspec/Sidegrade"] = true
   L["Clearing old Rolls"] = true
   L["Reserve"] = true
   L["Reserves"] = true
@@ -348,5 +348,10 @@ You can whisper |cffffd200!PR|r to any higher rank guild member to get back EPGP
   L["Announce"] = true
   L["Alt Click"] = true
   L["Call for Rolls"] = true
+  L["Skip Autoroll Items"] = true
+  L["Skip Autoroll Items from Wincount Prompts."] = true
+  L["Logs"] = true
+  L["Redo Assignment"] = true
+  L["Right-click a row to redo assignment tag in case of error."] = true
 
 bepgp.L = L

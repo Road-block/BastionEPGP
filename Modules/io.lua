@@ -141,7 +141,7 @@ function bepgp_io:Reserves(reserves)
   local num_reserves = #(reserves)
   local locked = bepgp.db.char.reserves.locked
   if num_reserves > 0 then
-    self._ioreserves:AddLine("```")
+    self._ioreserves:AddLine("```css")
     table.sort(reserves,sort_reserves)
   end
   for i,data in ipairs(reserves) do
@@ -151,7 +151,7 @@ function bepgp_io:Reserves(reserves)
     char_count = char_count + line:len()
     if char_count > 2000 then
       self._ioreserves:AddLine("```")
-      self._ioreserves:AddLine("```")
+      self._ioreserves:AddLine("```css")
       i = i - 1
       char_count = 8
     else

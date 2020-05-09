@@ -90,6 +90,21 @@ function bepgp_autoroll:getAction(itemID)
   end
 end
 
+local flat_data = {}
+function bepgp_autoroll:ItemsHash()
+  table.wipe(flat_data)
+  for option,data in pairs(autoroll) do
+    for item,_ in pairs(data) do
+      flat_data[item] = true
+    end
+  end
+  if bepgp:table_count(flat_data) > 0 then
+    return flat_data
+  else
+    return
+  end
+end
+
 local actions = {
   [0] = {L["passed"],""},
   [1] = {L["rolled"],_G.NEED},

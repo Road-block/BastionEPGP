@@ -15,23 +15,23 @@ local colorUnknown = {r=.75, g=.75, b=.75, a=.9}
 bepgp_plusroll_bids.bids_res,bepgp_plusroll_bids.bids_main,bepgp_plusroll_bids.bids_off,bepgp_plusroll_bids.bid_item = {},{},{},{}
 local bids_blacklist = {}
 local bidlink = {
-  ["ms"]=L["|cffFF3333|Hbepgproll:1:$ML|h[Mainspec/NEED]|h|r"],
-  ["os"]=L["|cff009900|Hbepgproll:2:$ML|h[Offspec/GREED]|h|r"]
+  ["ms"]=L["|cffFF3333|Hbepgproll:1:$ML|h[Reserve/Mainspec]|h|r"],
+  ["os"]=L["|cff009900|Hbepgproll:2:$ML|h[Offspec/Sidegrade]|h|r"]
 }
 local out = "|cff9664c8"..addonName..":|r %s"
 bepgp_plusroll_bids.running_bid = false
 local reserves, plusroll_loot
 
 local roll_sorter_bids = function(a,b)
-  -- name, color, roll, wincount
+  -- name, color, roll, wincount, pr
   if a[4] and b[4] and (a[4] ~= b[4]) then
-    return tonumber(a[4]) < tonumber(b[4])
+    return a[4] < b[4]
+  elseif a[3] and b[3] and (a[3] ~= b[3]) then
+    return a[3] > b[3]
+  elseif a[5] and b[5] and (a[5] ~= b[5]) then
+    return a[5] > b[5]
   else
-    if a[3] ~= b[3] then
-      return tonumber(a[3]) > tonumber(b[3])
-    else
-      return a[1] < b[1]
-    end
+    return a[1]<b[1]
   end
 end
 
@@ -131,17 +131,17 @@ function bepgp_plusroll_bids:Refresh()
       frame:SetCell(line,1,C:Red(L["Reserves"]),nil,"LEFT",5)
       line = frame:AddHeader()
       frame:SetCell(line,1,C:Orange(L["Name"]),nil,"LEFT",3)
-      frame:SetCell(line,4,C:Orange(ROLL),nil,"CENTER")
+      frame:SetCell(line,4,C:Orange(ROLL),nil,"RIGHT")
       frame:SetCell(line,5," ",nil,"RIGHT")
       line = frame:AddSeparator(1)
       for i,data in ipairs(self.bids_res) do
-        local name, color, roll, wincount = unpack(data)
+        local name, color, roll, wincount, pr = unpack(data)
         local r,g,b = color.r, color.g, color.b
         line = frame:AddLine()
         frame:SetCell(line,1,name,nil,"LEFT",3)
         frame:SetCellTextColor(line,1,r,g,b)
-        frame:SetCell(line,4,roll,nil,"CENTER")
-        frame:SetCell(line,5,wincount,nil,"RIGHT")
+        frame:SetCell(line,4,roll,nil,"RIGHT")
+        frame:SetCell(line,5,"",nil,"RIGHT")
         frame:SetLineScript(line, "OnMouseUp", bepgp_plusroll_bids.announceWinner, {name, roll, "res", wincount})
       end
     end
@@ -150,18 +150,20 @@ function bepgp_plusroll_bids:Refresh()
       line = frame:AddHeader()
       frame:SetCell(line,1,C:Gold(L["Mainspec Rolls"]),nil,"LEFT",5)
       line = frame:AddHeader()
-      frame:SetCell(line,1,C:Orange(L["Name"]),nil,"LEFT",3)
-      frame:SetCell(line,4,C:Orange(ROLL),nil,"CENTER")
-      frame:SetCell(line,5,C:Orange(L["Wincount"]),nil,"RIGHT")
+      frame:SetCell(line,1,C:Orange(L["Name"]),nil,"LEFT",2)
+      frame:SetCell(line,3,C:Orange(ROLL),nil,"RIGHT")
+      frame:SetCell(line,4,C:Orange(L["Wincount"]),nil,"RIGHT")
+      frame:SetCell(line,5,C:Orange(L["pr"]),nil,"RIGHT")
       line = frame:AddSeparator(1)
       for i,data in ipairs(self.bids_main) do
-        local name, color, roll, wincount = unpack(data)
+        local name, color, roll, wincount, pr = unpack(data)
         local r,g,b = color.r, color.g, color.b
         line = frame:AddLine()
-        frame:SetCell(line,1,name,nil,"LEFT",3)
+        frame:SetCell(line,1,name,nil,"LEFT",2)
         frame:SetCellTextColor(line,1,r,g,b)
-        frame:SetCell(line,4,roll,nil,"CENTER")
-        frame:SetCell(line,5,wincount,nil,"RIGHT")
+        frame:SetCell(line,3,roll,nil,"RIGHT")
+        frame:SetCell(line,4,wincount,nil,"CENTER")
+        frame:SetCell(line,5,pr,nil,"RIGHT")
         frame:SetLineScript(line, "OnMouseUp", bepgp_plusroll_bids.announceWinner, {name, roll, "ms", wincount})
       end
     end
@@ -171,17 +173,17 @@ function bepgp_plusroll_bids:Refresh()
       frame:SetCell(line,1,C:Silver(L["Offspec Rolls"]),nil,"LEFT",5)
       line = frame:AddHeader()
       frame:SetCell(line,1,C:Orange(L["Name"]),nil,"LEFT",3)
-      frame:SetCell(line,4,C:Orange(ROLL),nil,"CENTER")
-      frame:SetCell(line,5,C:Orange(L["Wincount"]),nil,"RIGHT")
+      frame:SetCell(line,4,C:Orange(ROLL),nil,"RIGHT")
+      frame:SetCell(line,5,C:Orange(L["pr"]),nil,"RIGHT")
       line = frame:AddSeparator(1)
       for i,data in ipairs(self.bids_off) do
-        local name, color, roll, wincount = unpack(data)
+        local name, color, roll, wincount, pr = unpack(data)
         local r,g,b = color.r, color.g, color.b
         line = frame:AddLine()
         frame:SetCell(line,1,name,nil,"LEFT",3)
         frame:SetCellTextColor(line,1,r,g,b)
-        frame:SetCell(line,4,roll,nil,"CENTER")
-        frame:SetCell(line,5,wincount,nil,"RIGHT")
+        frame:SetCell(line,4,roll,nil,"RIGHT")
+        frame:SetCell(line,5,pr,nil,"RIGHT")
         frame:SetLineScript(line, "OnMouseUp", bepgp_plusroll_bids.announceWinner, {name, roll, "os", wincount})
       end
     end
@@ -192,7 +194,7 @@ end
 function bepgp_plusroll_bids:Toggle(anchor)
   if not T:IsAcquired(addonName.."rollsTablet") then
     self.qtip = T:Acquire(addonName.."rollsTablet") -- Name, roll, wincount, reserve
-    self.qtip:SetColumnLayout(5, "LEFT", "CENTER", "CENTER", "CENTER", "RIGHT")
+    self.qtip:SetColumnLayout(5, "LEFT", "CENTER", "RIGHT", "RIGHT", "RIGHT")
     return
   end
   if self.qtip:IsShown() then
@@ -307,19 +309,31 @@ function bepgp_plusroll_bids:captureRoll(event, text)
     if bids_blacklist[who] == nil then
       local cached = bepgp:groupCache(who)
       local color = cached and cached.color or colorUnknown
+      local _,perms = bepgp:getGuildPermissions()
+      local pr
+      if perms.OFFICER then
+        local g_name, _, _, g_officernote = bepgp:verifyGuildMember(who,true)
+        if g_name then
+          local ep = bepgp:get_ep(g_name,g_officernote)
+          local gp = bepgp:get_gp(g_name,g_officernote)
+          if ep and gp then
+            pr = string.format("%.03f",ep/gp)
+          end
+        end
+      end
       if (msroll) then
         bids_blacklist[who] = true
         reserves = reserves or bepgp:GetModule(addonName.."_plusroll_reserves")
         if reserves and (reserves:IsReservedExact(who, bepgp_plusroll_bids.bid_item.itemid)) then
-          table.insert(bepgp_plusroll_bids.bids_res,{who,color,msroll})
+          table.insert(bepgp_plusroll_bids.bids_res,{who,color,msroll,nil,pr})
         else
           plusroll_loot = plusroll_loot or bepgp:GetModule(addonName.."_plusroll_loot")
           local wincount = plusroll_loot and plusroll_loot:getWincount(who) or 0
-          table.insert(bepgp_plusroll_bids.bids_main,{who,color,msroll,wincount})
+          table.insert(bepgp_plusroll_bids.bids_main,{who,color,msroll,wincount,pr})
         end
       elseif (osroll) then
         bids_blacklist[who] = true
-        table.insert(bepgp_plusroll_bids.bids_off,{who,color,osroll})
+        table.insert(bepgp_plusroll_bids.bids_off,{who,color,osroll,nil,pr})
       end
       self:updateBids()
       self:Refresh()
