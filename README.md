@@ -1,5 +1,6 @@
 # BastionEPGP
-In-game EPGP guild helper, supports standby, main/alt shared pools, minEP, offpecGP. Fixed price list with progress multiplier.
+In-game EPGP guild helper, supports standby, main/alt shared pools, minEP, offpecGP. Fixed price list with progress multiplier.  
+v2.x and onwards also offers a plusroll mode (toggle-able from minimap right-click menu or `/bepgp mode` chat command)
 
 ## Installing
 * from master (alpha/beta)

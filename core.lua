@@ -1668,7 +1668,7 @@ local function epgpResponder(frame, event, text, sender, ...)
   if event == "CHAT_MSG_WHISPER" then
     local epgp, _, name = text:match("^[%c%s]*(![pP][rR])([%c%s%p]*)([%w]*)")
     local sender_stripped = Ambiguate(sender,"short")
-    local guild_name, _, _, guild_officernote = bepgp:verifyGuildMember(sender_stripped,true)
+    local guild_name, _, _, guild_officernote = bepgp:verifyGuildMember(sender_stripped,true,true) -- ignore level req
     if epgp and guild_name then
       local _,perms = bepgp:getGuildPermissions()
       if perms.OFFICER then
@@ -2487,11 +2487,11 @@ function bepgp:getItemQualityData(quality) -- id, name, qualityColor
 end
 
 -- local fullName, rank, rankIndex, level, class, zone, note, officernote, online, isAway, classFileName, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(index)
-function bepgp:verifyGuildMember(name,silent)
+function bepgp:verifyGuildMember(name,silent,levelignore)
   for i=1,GetNumGuildMembers(true) do
     local g_name, g_rank, g_rankIndex, g_level, g_class, g_zone, g_note, g_officernote, g_online, g_status, g_eclass, _, _, g_mobile, g_sor, _, g_GUID = GetGuildRosterInfo(i)
     g_name = Ambiguate(g_name,"short") --:gsub("(\-.+)","")
-    if (string.lower(name) == string.lower(g_name)) and (tonumber(g_level) >= bepgp.VARS.minlevel) then
+    if (string.lower(name) == string.lower(g_name)) and ((tonumber(g_level) >= bepgp.VARS.minlevel) or levelignore) then
       return g_name, g_class, g_rank, g_officernote
     end
   end

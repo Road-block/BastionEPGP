@@ -20,6 +20,7 @@ local bidlink = {
 }
 local out = "|cff9664c8"..addonName..":|r %s"
 bepgp_plusroll_bids.running_bid = false
+bepgp_plusroll_bids.paused = 0
 local reserves, plusroll_loot
 
 local roll_sorter_bids = function(a,b)
@@ -89,6 +90,10 @@ function bepgp_plusroll_bids:updateBids()
   table.sort(self.bids_off, roll_sorter_bids)
 end
 
+local pauseTex = {
+  [0] = "|TInterface\\COMMON\\Indicator-Green:18|t",
+  [1] = "|TInterface\\COMMON\\Indicator-Red:18|t",
+}
 function bepgp_plusroll_bids:Refresh()
   local frame = self.qtip
   if not frame then return end
@@ -98,9 +103,29 @@ function bepgp_plusroll_bids:Refresh()
   local minep = bepgp.db.profile.minep
   local line
   line = frame:AddHeader()
-  frame:SetCell(line,1,L["BastionEPGP bids [roll]"],nil,"CENTER",4)
+  frame._header = line
+  frame:SetCell(line,1,L["BastionEPGP bids [roll]"],nil,"CENTER",3)
+  frame:SetCell(line,4,pauseTex[bepgp_plusroll_bids.paused],nil,"RIGHT")
   frame:SetCell(line,5,"|TInterface\\Buttons\\UI-Panel-MinimizeButton-Up:16:16:2:-2:32:32:8:24:8:24|t",nil,"RIGHT")
-  frame:SetCellScript(line,5,"OnMouseUp", function() frame:Hide() end)
+  frame:SetCellScript(line,4,"OnMouseUp", function()
+    if bepgp_plusroll_bids.paused == 0 then
+      bepgp_plusroll_bids.paused = 1
+      if bepgp_plusroll_bids._rollTimer then
+        bepgp_plusroll_bids:CancelTimer(bepgp_plusroll_bids._rollTimer)
+        bepgp_plusroll_bids._rollTimer = nil
+      end
+    else
+      bepgp_plusroll_bids.paused = 0
+      if not bepgp_plusroll_bids._rollTimer then
+        bepgp_plusroll_bids._rollTimer = bepgp_plusroll_bids:ScheduleTimer("clearRolls",120)
+        bepgp:debugPrint(L["Capturing Rolls for 2min."])
+      end
+    end
+    frame:SetCell(frame._header,4,pauseTex[bepgp_plusroll_bids.paused],nil,"RIGHT")
+  end)
+  frame:SetCellScript(line,5,"OnMouseUp", function()
+    frame:Hide()
+  end)
   frame:SetCellScript(line,1,"OnMouseDown", function() frame:StartMoving() end)
   frame:SetCellScript(line,1,"OnMouseUp", function() frame:StopMovingOrSizing() end)
 
@@ -343,9 +368,9 @@ function bepgp_plusroll_bids:captureRoll(event, text)
 end
 
 function bepgp_plusroll_bids:clearRolls(reset)
-  if reset~=nil then
+  if reset~=nil then -- new roll capture
     bepgp:debugPrint(L["Clearing old Rolls"])
-  else
+  else -- old roll capture timer expired
     self.qtip:Hide()
   end
   table.wipe(bepgp_plusroll_bids.bid_item) -- = {}
@@ -358,6 +383,7 @@ function bepgp_plusroll_bids:clearRolls(reset)
     self._rollTimer = nil
   end
   bepgp_plusroll_bids.running_bid = false
+  bepgp_plusroll_bids.paused = 0
   self:updateBids()
   self:Refresh()
 end
