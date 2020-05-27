@@ -355,5 +355,9 @@ You can whisper |cffffd200!PR|r to any higher rank guild member to get back EPGP
   L["Logs"] = "Logs" -- needs translation
   L["Redo Assignment"] = "Redo Assignment" -- needs translation
   L["Right-click a row to redo assignment tag in case of error."] = "Right-click a row to redo assignment tag in case of error." -- needs translation
+  L["Bench"] = "Bench" -- needs translation
+  L["Suggest"] = "Suggest" -- needs translation
+  L["Signups"] = "Signups" -- needs translation
+  L["Suggest a bench breakdown"] = "Suggest a bench breakdown" -- needs translation
 
   bepgp.L = L

@@ -353,5 +353,9 @@ You can whisper |cffffd200!PR|r to any higher rank guild member to get back EPGP
   L["Logs"] = true
   L["Redo Assignment"] = true
   L["Right-click a row to redo assignment tag in case of error."] = true
+  L["Bench"] = true
+  L["Suggest"] = true
+  L["Signups"] = true
+  L["Suggest a bench breakdown"] = true
 
 bepgp.L = L
