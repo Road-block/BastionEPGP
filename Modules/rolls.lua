@@ -1,6 +1,6 @@
 local addonName, bepgp = ...
 local moduleName = addonName.."_rolls"
-local bepgp_rolls = bepgp:NewModule(moduleName, "AceEvent-3.0", "AceHook-3.0")
+local bepgp_rolls = bepgp:NewModule(moduleName, "AceEvent-3.0", "AceTimer-3.0", "AceBucket-3.0", "AceHook-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 bepgp_rolls.special_recipients = {}
@@ -9,7 +9,7 @@ bepgp_rolls.eligible_recipients = {}
 function bepgp_rolls:ToggleMenus(flag)
   if flag then
     local frame_name = moduleName.."ExtraFrame"
-    self._extraFrame = CreateFrame("Frame",frame_name, UIParent)
+    self._extraFrame = self._extraFrame or CreateFrame("Frame",frame_name, UIParent)
     self._extraFrame:SetWidth(150)
     self._extraFrame:SetHeight(40)
     self._extraFrame:SetFrameStrata("DIALOG")
@@ -32,8 +32,12 @@ function bepgp_rolls:ToggleMenus(flag)
     self._extraFrame.btnDisenchanter:SetScript("OnEnter",bepgp_rolls.StopMenuTimer)
     self._extraFrame.btnDisenchanter:SetScript("OnLeave",bepgp_rolls.StartMenuTimer)
     self._extraFrame:Hide()
-    self:SecureHookScript(DropDownList1,"OnShow","ExtraShow")
-    self:SecureHookScript(DropDownList1,"OnHide","ExtraHide")
+    if not self:IsHooked(DropDownList1, "OnShow") then
+      self:SecureHookScript(DropDownList1,"OnShow","ExtraShow")
+    end
+    if not self:IsHooked(DropDownList1, "OnHide") then
+      self:SecureHookScript(DropDownList1,"OnHide","ExtraHide")
+    end
   else
     self:Unhook(DropDownList1,"OnShow")
     self:Unhook(DropDownList1,"OnHide")
@@ -106,7 +110,7 @@ function bepgp_rolls:positionMasterLootAdditions()
   else
     self._randomFrame:Hide()
   end
-  
+
   local anchor, point, x, y = self._randomFrame, "BOTTOMLEFT", 0, -5
   if not self._randomFrame:IsShown() then
     anchor, point, x, y = parent, "TOPRIGHT", 5,-5
@@ -195,27 +199,40 @@ function bepgp_rolls:CoreInit()
 end
 
 function bepgp_rolls:CheckStatus()
-  if bepgp:admin() then
-    self:SecureHook("MasterLooterFrame_UpdatePlayers")
-    self:ToggleMenus(true)
-    -- create our special buttons
-    self._playerFrame = CreateFrame("BUTTON", nil, MasterLooterFrame, "MasterLooterPlayerTemplate")
-    self._playerFrame:Hide()
-    self._bankerFrame = CreateFrame("BUTTON", nil, MasterLooterFrame, "MasterLooterPlayerTemplate")
-    self._bankerFrame:Hide()
-    self._disenchanterFrame = CreateFrame("BUTTON", nil, MasterLooterFrame, "MasterLooterPlayerTemplate")
-    self._disenchanterFrame:Hide()
-    self._randomFrame = CreateFrame("BUTTON", nil, MasterLooterFrame, "MasterLooterPlayerTemplate")
-    self._playerFrame.Bg:SetColorTexture(0, 0, 0, .75)
-    self._bankerFrame.Bg:SetColorTexture(0, 0, 0, .75)
-    self._disenchanterFrame.Bg:SetColorTexture(0, 0, 0, .75)
-    self._randomFrame.Bg:SetColorTexture(0, 0, 0, .75)
-    self._randomFrame:Hide()
-    self._initDone = true
-  end  
+  if bepgp:admin() or bepgp:lootMaster() then
+    if InCombatLockdown() then
+      self:RegisterEvent("PLAYER_REGEN_ENABLED")
+    else
+      if not self:IsHooked("MasterLooterFrame_UpdatePlayers") then
+        self:SecureHook("MasterLooterFrame_UpdatePlayers")
+      end
+      self:ToggleMenus(true)
+      -- create our special buttons
+      self._playerFrame = self._playerFrame or CreateFrame("BUTTON", nil, MasterLooterFrame, "MasterLooterPlayerTemplate")
+      self._playerFrame:Hide()
+      self._bankerFrame = self._bankerFrame or CreateFrame("BUTTON", nil, MasterLooterFrame, "MasterLooterPlayerTemplate")
+      self._bankerFrame:Hide()
+      self._disenchanterFrame = self._disenchanterFrame or CreateFrame("BUTTON", nil, MasterLooterFrame, "MasterLooterPlayerTemplate")
+      self._disenchanterFrame:Hide()
+      self._randomFrame = self._randomFrame or CreateFrame("BUTTON", nil, MasterLooterFrame, "MasterLooterPlayerTemplate")
+      self._randomFrame:Hide()
+      self._playerFrame.Bg:SetColorTexture(0, 0, 0, .75)
+      self._bankerFrame.Bg:SetColorTexture(0, 0, 0, .75)
+      self._disenchanterFrame.Bg:SetColorTexture(0, 0, 0, .75)
+      self._randomFrame.Bg:SetColorTexture(0, 0, 0, .75)
+      self._initDone = true
+    end
+  end
+end
+
+function bepgp_rolls:PLAYER_REGEN_ENABLED()
+  self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+  self:CheckStatus()
 end
 
 function bepgp_rolls:OnEnable()
   self:RegisterMessage(addonName.."_INIT_DONE","CoreInit")
+  self:RegisterEvent("PARTY_LEADER_CHANGED","CheckStatus")
+  self:RegisterBucketEvent("GROUP_ROSTER_UPDATE",1.0,"CheckStatus")
   self:CheckStatus()
 end
