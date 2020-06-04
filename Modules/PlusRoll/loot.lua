@@ -146,6 +146,7 @@ function bepgp_plusroll_loot:OnEnable()
   -- bid call handlers
   self:SecureHook("LootFrame_Update","clickHandlerLoot")
   self:clickHandlerMasterLoot()
+  self._lootTimer = self:ScheduleTimer("hookLootAddons",20)
 
   autoroll = bepgp:GetModule(addonName.."_autoroll")
   autoroll_data = autoroll and autoroll:ItemsHash()
@@ -381,7 +382,7 @@ function bepgp_plusroll_loot:bidCall(frame, button, context) -- context is one o
   local itemLink,slot,hasItem,bagID,slotID
   if context == "lootframe" or context == "masterloot" then
     slot = frame.slot
-    if not slot and LootSlotHasItem(slot) then return end
+    if not (slot and LootSlotHasItem(slot)) then return end
     itemLink = GetLootSlotLink(slot)
   end
   if not itemLink then return end
@@ -391,6 +392,7 @@ end
 
 function bepgp_plusroll_loot:clickHandlerMasterLoot()
   MasterLooterFrame.Item:EnableMouse(true)
+  MasterLooterFrame.Item._bepgprollclicks = true
   MasterLooterFrame.Item:HookScript("OnMouseUp", function(self,button)
     local frame = self
     frame.slot = LootFrame.selectedSlot
@@ -416,6 +418,35 @@ function bepgp_plusroll_loot:clickHandlerMasterLoot()
         GameTooltip_Hide()
       end
     end)
+  end
+end
+
+function bepgp_plusroll_loot:clickHandlerLootElvUI()
+  if ElvLootFrame and ElvLootFrame.slots then
+    for id,button in pairs(ElvLootFrame.slots) do
+      if button and not button._bepgprollclicks then
+        if not self:IsHooked(button,"OnClick") then
+          button.slot = button:GetID()
+          self:HookScript(button,"OnClick", function(frame, button) bepgp_plusroll_loot:bidCall(frame, button, "lootframe") end)
+        end
+        button._bepgprollclicks = true
+      end
+    end
+  end
+end
+
+function bepgp_plusroll_loot:hookLootAddons()
+  if IsAddOnLoaded("ElvUI") then
+    local E = ElvUI and ElvUI[1]
+    local elvloot = E and E.private.general.loot or false
+    if elvloot then
+      local M = E:GetModule("Misc")
+      if M and M.LOOT_OPENED then
+        if not self:IsHooked(M,"LOOT_OPENED") then
+          self:SecureHook(M,"LOOT_OPENED","clickHandlerLootElvUI")
+        end
+      end
+    end
   end
 end
 

@@ -2,7 +2,7 @@
 ## Author: Roadblock
 ## Title: BastionEPGP
 ## Notes: In-game EPGP loot helper, supports standby, main/alt shared pool, minEP, offpecGP. Pluggable price list. Alternative +roll mode.
-## Version: 2.2.1
+## Version: 2.2.2
 ## X-Alpha: 
 ## X-Website: https://github.com/Road-block/BastionEPGP
 ## OptionalDeps: Ace3, BastionEPGP_Prices, MizusRaidTracker

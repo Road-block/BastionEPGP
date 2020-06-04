@@ -144,11 +144,11 @@ function bepgp_loot:OnEnable()
   self:RegisterEvent("TRADE_REQUEST","tradeName") -- another is trading
   self:SecureHookScript(TradeFrameTradeButton, "OnClick", "tradeItemAccept")
   -- bid call handlers
-  --self:RegisterEvent("LOOT_OPENED","clickHandlerLoot")
   self:SecureHook("LootFrame_Update","clickHandlerLoot")
   self:clickHandlerMasterLoot()
   self:SecureHook("ToggleBag","clickHandlerBags") -- default bags
   self._bagsTimer = self:ScheduleTimer("hookBagAddons",30)
+  self._lootTimer = self:ScheduleTimer("hookLootAddons",20)
 end
 
 function bepgp_loot:Toggle()
@@ -392,7 +392,7 @@ function bepgp_loot:bidCall(frame, button, context) -- context is one of "master
   local itemLink,slot,hasItem,bagID,slotID
   if context == "lootframe" or context == "masterloot" then
     slot = frame.slot
-    if not slot and LootSlotHasItem(slot) then return end
+    if not (slot and LootSlotHasItem(slot)) then return end
     itemLink = GetLootSlotLink(slot)
   elseif context == "container" then
     hasItem = frame.hasItem -- default bags, Bagnon, Combuctor, Baggins, AdiBags, tdBag2, Tukui, ElvUI
@@ -566,6 +566,7 @@ end
 
 function bepgp_loot:clickHandlerMasterLoot()
   MasterLooterFrame.Item:EnableMouse(true)
+  MasterLooterFrame.Item._bepgpclicks = true
   MasterLooterFrame.Item:HookScript("OnMouseUp", function(self,button)
     local frame = self
     frame.slot = LootFrame.selectedSlot
@@ -591,6 +592,35 @@ function bepgp_loot:clickHandlerMasterLoot()
         GameTooltip_Hide()
       end
     end)
+  end
+end
+
+function bepgp_loot:clickHandlerLootElvUI()
+  if ElvLootFrame and ElvLootFrame.slots then
+    for id,button in pairs(ElvLootFrame.slots) do
+      if button and not button._bepgpclicks then
+        if not self:IsHooked(button,"OnClick") then
+          button.slot = button:GetID()
+          self:HookScript(button,"OnClick", function(frame, button) bepgp_loot:bidCall(frame, button, "lootframe") end)
+        end
+        button._bepgpclicks = true
+      end
+    end
+  end
+end
+
+function bepgp_loot:hookLootAddons()
+  if IsAddOnLoaded("ElvUI") then
+    local E = ElvUI and ElvUI[1]
+    local elvloot = E and E.private.general.loot or false
+    if elvloot then
+      local M = E:GetModule("Misc")
+      if M and M.LOOT_OPENED then
+        if not self:IsHooked(M,"LOOT_OPENED") then
+          self:SecureHook(M,"LOOT_OPENED","clickHandlerLootElvUI")
+        end
+      end
+    end
   end
 end
 
