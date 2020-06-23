@@ -160,7 +160,7 @@ function bepgp_plusroll_bids:Refresh()
       frame:SetCell(line,5," ",nil,"RIGHT")
       line = frame:AddSeparator(1)
       for i,data in ipairs(self.bids_res) do
-        local name, color, roll, wincount, pr = unpack(data)
+        local name, color, roll, wincount, pr, rank = unpack(data)
         local r,g,b = color.r, color.g, color.b
         line = frame:AddLine()
         frame:SetCell(line,1,name,nil,"LEFT",3)
@@ -181,7 +181,7 @@ function bepgp_plusroll_bids:Refresh()
       frame:SetCell(line,5,C:Orange(L["pr"]),nil,"RIGHT")
       line = frame:AddSeparator(1)
       for i,data in ipairs(self.bids_main) do
-        local name, color, roll, wincount, pr = unpack(data)
+        local name, color, roll, wincount, pr, rank = unpack(data)
         local r,g,b = color.r, color.g, color.b
         line = frame:AddLine()
         frame:SetCell(line,1,name,nil,"LEFT",2)
@@ -202,7 +202,7 @@ function bepgp_plusroll_bids:Refresh()
       frame:SetCell(line,5,C:Orange(L["pr"]),nil,"RIGHT")
       line = frame:AddSeparator(1)
       for i,data in ipairs(self.bids_off) do
-        local name, color, roll, wincount, pr = unpack(data)
+        local name, color, roll, wincount, pr, rank = unpack(data)
         local r,g,b = color.r, color.g, color.b
         line = frame:AddLine()
         frame:SetCell(line,1,name,nil,"LEFT",3)
@@ -335,14 +335,15 @@ function bepgp_plusroll_bids:captureRoll(event, text)
       local cached = bepgp:groupCache(who)
       local color = cached and cached.color or colorUnknown
       local _,perms = bepgp:getGuildPermissions()
-      local pr
+      local pr,rank
       if perms.OFFICER then
-        local g_name, _, _, g_officernote = bepgp:verifyGuildMember(who,true)
+        local g_name, _, g_rank, g_officernote = bepgp:verifyGuildMember(who,true)
         if g_name then
           local ep = bepgp:get_ep(g_name,g_officernote)
           local gp = bepgp:get_gp(g_name,g_officernote)
           if ep and gp then
             pr = string.format("%.03f",ep/gp)
+            rank = g_rank
           end
         end
       end
@@ -350,15 +351,15 @@ function bepgp_plusroll_bids:captureRoll(event, text)
         bids_blacklist[who] = true
         reserves = reserves or bepgp:GetModule(addonName.."_plusroll_reserves")
         if reserves and (reserves:IsReservedExact(who, bepgp_plusroll_bids.bid_item.itemid)) then
-          table.insert(bepgp_plusroll_bids.bids_res,{who,color,msroll,nil,pr})
+          table.insert(bepgp_plusroll_bids.bids_res,{who,color,msroll,nil,pr,rank})
         else
           plusroll_loot = plusroll_loot or bepgp:GetModule(addonName.."_plusroll_loot")
           local wincount = plusroll_loot and plusroll_loot:getWincount(who) or 0
-          table.insert(bepgp_plusroll_bids.bids_main,{who,color,msroll,wincount,pr})
+          table.insert(bepgp_plusroll_bids.bids_main,{who,color,msroll,wincount,pr,rank})
         end
       elseif (osroll) then
         bids_blacklist[who] = true
-        table.insert(bepgp_plusroll_bids.bids_off,{who,color,osroll,nil,pr})
+        table.insert(bepgp_plusroll_bids.bids_off,{who,color,osroll,nil,pr,rank})
       end
       self:updateBids()
       self:Refresh()

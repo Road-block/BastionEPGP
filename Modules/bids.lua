@@ -81,8 +81,8 @@ function bepgp_bids:OnEnable()
   self:SecureHook("SetItemRef")
   self:RawHook(ItemRefTooltip,"SetHyperlink",true)
 
-  self.qtip = T:Acquire(addonName.."bidsTablet") -- Name, ep, gp, pr, Main
-  self.qtip:SetColumnLayout(5, "LEFT", "CENTER", "CENTER", "CENTER", "RIGHT")
+  self.qtip = T:Acquire(addonName.."bidsTablet") -- Name, ep, gp, pr, rank, Main
+  self.qtip:SetColumnLayout(6, "LEFT", "CENTER", "CENTER", "CENTER", "RIGHT", "RIGHT")
   self.qtip:ClearAllPoints()
   self.qtip:SetClampedToScreen(true)
   self.qtip:SetClampRectInsets(-100,100,50,-50)
@@ -123,10 +123,10 @@ function bepgp_bids:Refresh()
   local minep = bepgp.db.profile.minep
   local line
   line = frame:AddHeader()
-  frame:SetCell(line,1,L["BastionEPGP bids"],nil,"CENTER",4)
+  frame:SetCell(line,1,L["BastionEPGP bids"],nil,"CENTER",5)
   --frame:SetCell(line,5,C:Red("[x]"),nil,"RIGHT")
-  frame:SetCell(line,5,"|TInterface\\Buttons\\UI-Panel-MinimizeButton-Up:16:16:2:-2:32:32:8:24:8:24|t",nil,"RIGHT")
-  frame:SetCellScript(line,5,"OnMouseUp", function() frame:Hide() end)
+  frame:SetCell(line,6,"|TInterface\\Buttons\\UI-Panel-MinimizeButton-Up:16:16:2:-2:32:32:8:24:8:24|t",nil,"RIGHT")
+  frame:SetCellScript(line,6,"OnMouseUp", function() frame:Hide() end)
   frame:SetCellScript(line,1,"OnMouseDown", function() frame:StartMoving() end)
   frame:SetCellScript(line,1,"OnMouseUp", function() frame:StopMovingOrSizing() end)
 
@@ -137,6 +137,7 @@ function bepgp_bids:Refresh()
     frame:SetCell(line,3,C:Orange(L["Mainspec GP"]),nil,"RIGHT")
     frame:SetCell(line,4,C:Orange(L["Offspec GP"]),nil,"RIGHT")
     frame:SetCell(line,5,"",nil,"RIGHT")
+    frame:SetCell(line,6,"",nil,"RIGHT")
     line = frame:AddSeparator(2)
     line = frame:AddLine()
     frame:SetCell(line,1,self.bid_item.itemlink,nil,"LEFT",2)
@@ -144,20 +145,22 @@ function bepgp_bids:Refresh()
     frame:SetCell(line,4,C:Colorize(color_osgp,self.bid_item.off_price),nil,"RIGHT")
     frame:SetCell(line,5,"|TInterface\\Icons\\spell_holy_removecurse:18|t",nil,"RIGHT")
     frame:SetCellScript(line,5,"OnMouseUp", bepgp_bids.announcedisench, bepgp_bids.bid_item.itemlink)
+    frame:SetCell(line,6,"",nil,"RIGHT")
 
     if #(self.bids_main) > 0 then
       line = frame:AddLine(" ")
       line = frame:AddHeader()
-      frame:SetCell(line,1,C:Gold(L["Mainspec Bids"]),nil,"LEFT",5)
+      frame:SetCell(line,1,C:Gold(L["Mainspec Bids"]),nil,"LEFT",6)
       line = frame:AddHeader()
       frame:SetCell(line,1,C:Orange(L["Name"]),nil,"LEFT")
       frame:SetCell(line,2,C:Orange(L["ep"]),nil,"CENTER")
       frame:SetCell(line,3,C:Orange(L["gp"]),nil,"CENTER")
-      frame:SetCell(line,4,C:Orange(L["pr"]),nil,"RIGHT")
-      frame:SetCell(line,5,C:Orange(L["Main"]),nil,"RIGHT")
+      frame:SetCell(line,4,C:Orange(L["pr"]),nil,"CENTER")
+      frame:SetCell(line,5,C:Orange(_G.RANK),nil,"RIGHT")
+      frame:SetCell(line,6,C:Orange(L["Main"]),nil,"RIGHT")
       line = frame:AddSeparator(1)
       for i,data in ipairs(self.bids_main) do
-        local name, class, ep, gp, pr, main = unpack(data)
+        local name, class, ep, gp, pr, rank, main = unpack(data)
         local eclass,_,hexclass = bepgp:getClassData(class)
         local r,g,b = RAID_CLASS_COLORS[eclass].r, RAID_CLASS_COLORS[eclass].g, RAID_CLASS_COLORS[eclass].b
         --local name_c = C:Colorize(hexclass,name)
@@ -169,14 +172,15 @@ function bepgp_bids:Refresh()
           text2 = string.format("%.4g", ep)
           text4 = string.format("%.4g", pr)
         end
-        local text3, text5 = string.format("%.4g", gp), (main or "")
+        local text3, text6 = string.format("%.4g", gp), (main or "")
         line = frame:AddLine()
         frame:SetCell(line,1,name,nil,"LEFT")
         frame:SetCellTextColor(line,1,r,g,b)
         frame:SetCell(line,2,text2,nil,"CENTER")
         frame:SetCell(line,3,text3,nil,"CENTER")
-        frame:SetCell(line,4,text4,nil,"RIGHT")
-        frame:SetCell(line,5,text5,nil,"RIGHT")
+        frame:SetCell(line,4,text4,nil,"CENTER")
+        frame:SetCell(line,5,rank,nil,"RIGHT")
+        frame:SetCell(line,6,text6,nil,"RIGHT")
         frame:SetLineScript(line, "OnMouseUp", bepgp_bids.announceWinner, {name, pr, "ms"})
       end
     end
@@ -188,11 +192,12 @@ function bepgp_bids:Refresh()
       frame:SetCell(line,1,C:Orange(L["Name"]),nil,"LEFT")
       frame:SetCell(line,2,C:Orange(L["ep"]),nil,"CENTER")
       frame:SetCell(line,3,C:Orange(L["gp"]),nil,"CENTER")
-      frame:SetCell(line,4,C:Orange(L["pr"]),nil,"RIGHT")
-      frame:SetCell(line,5,C:Orange(L["Main"]),nil,"RIGHT")
+      frame:SetCell(line,4,C:Orange(L["pr"]),nil,"CENTER")
+      frame:SetCell(line,5,C:Orange(_G.RANK),nil,"RIGHT")
+      frame:SetCell(line,6,C:Orange(L["Main"]),nil,"RIGHT")
       line = frame:AddSeparator(1)
       for i,data in ipairs(self.bids_off) do
-        local name, class, ep, gp, pr, main = unpack(data)
+        local name, class, ep, gp, pr, rank, main = unpack(data)
         local eclass,_,hexclass = bepgp:getClassData(class)
         local r,g,b = RAID_CLASS_COLORS[eclass].r, RAID_CLASS_COLORS[eclass].g, RAID_CLASS_COLORS[eclass].b
         --local name_c = C:Colorize(hexclass,name)
@@ -204,14 +209,15 @@ function bepgp_bids:Refresh()
           text2 = string.format("%.4g", ep)
           text4 = string.format("%.4g", pr)
         end
-        local text3, text5 = string.format("%.4g", gp), (main or "")
+        local text3, text6 = string.format("%.4g", gp), (main or "")
         line = frame:AddLine()
         frame:SetCell(line,1,name,nil,"LEFT")
         frame:SetCellTextColor(line,1,r,g,b)
         frame:SetCell(line,2,text2,nil,"CENTER")
         frame:SetCell(line,3,text3,nil,"CENTER")
-        frame:SetCell(line,4,text4,nil,"RIGHT")
-        frame:SetCell(line,5,text5,nil,"RIGHT")
+        frame:SetCell(line,4,text4,nil,"CENTER")
+        frame:SetCell(line,5,rank,nil,"RIGHT")
+        frame:SetCell(line,6,text6,nil,"RIGHT")
         frame:SetLineScript(line,"OnMouseUp", bepgp_bids.announceWinner, {name, pr, "os"})
       end
     end
@@ -221,8 +227,8 @@ end
 
 function bepgp_bids:Toggle(anchor)
   if not T:IsAcquired(addonName.."bidsTablet") then
-    self.qtip = T:Acquire(addonName.."bidsTablet") -- Name, ep, gp, pr, Main
-    self.qtip:SetColumnLayout(5, "LEFT", "CENTER", "CENTER", "CENTER", "RIGHT")
+    self.qtip = T:Acquire(addonName.."bidsTablet") -- Name, ep, gp, pr, rank, Main
+    self.qtip:SetColumnLayout(6, "LEFT", "CENTER", "CENTER", "CENTER", "RIGHT", "RIGHT")
     return
   end
   if self.qtip:IsShown() then
@@ -362,7 +368,7 @@ function bepgp_bids:captureBid(event, text, sender)
     if bepgp:inRaid(sender) then
       if bids_blacklist[sender] == nil then
         for i = 1, GetNumGuildMembers(true) do
-          local name, _, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
+          local name, rank, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
           name = Ambiguate(name,"short") --:gsub("(\-.+)","")
           if name == sender then
             local ep = (bepgp:get_ep(name,officernote) or 0)
@@ -371,24 +377,24 @@ function bepgp_bids:captureBid(event, text, sender)
             if (bepgp.db.profile.altspool) then
               local main, main_class, main_rank, main_offnote = bepgp:parseAlt(name,officernote)
               if (main) then
-                ep = (self:get_ep(main,main_offnote) or 0)
-                gp = (self:get_gp(main,main_offnote) or bepgp.VARS.basegp)
+                ep = (bepgp:get_ep(main,main_offnote) or 0)
+                gp = (bepgp:get_gp(main,main_offnote) or bepgp.VARS.basegp)
                 main_name = main
               end
             end
             if (mskw_found) then
               bids_blacklist[sender] = true
               if (bepgp.db.profile.altspool) and (main_name) then
-                table.insert(bepgp_bids.bids_main,{name,class,ep,gp,ep/gp,main_name})
+                table.insert(bepgp_bids.bids_main,{name,class,ep,gp,ep/gp,rank,main_name})
               else
-                table.insert(bepgp_bids.bids_main,{name,class,ep,gp,ep/gp})
+                table.insert(bepgp_bids.bids_main,{name,class,ep,gp,ep/gp,rank})
               end
             elseif (oskw_found) then
               bids_blacklist[sender] = true
               if (bepgp.db.profile.altspool) and (main_name) then
-                table.insert(bepgp_bids.bids_off,{name,class,ep,gp,ep/gp,main_name})
+                table.insert(bepgp_bids.bids_off,{name,class,ep,gp,ep/gp,rank,main_name})
               else
-                table.insert(bepgp_bids.bids_off,{name,class,ep,gp,ep/gp})
+                table.insert(bepgp_bids.bids_off,{name,class,ep,gp,ep/gp,rank})
               end
             end
             self:updateBids()

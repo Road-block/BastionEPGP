@@ -449,6 +449,12 @@ function bepgp:options()
       hidden = function() return not (bepgp:admin()) end,
       func = function() bepgp:decay_epgp() end
     }
+    self._options.args["set_decay_header"] = {
+      type = "header",
+      name = string.format(L["Weekly Decay: %s%%"],(1-(bepgp.db.profile.decay or bepgp.VARS.decay))*100),
+      order = 105,
+      hidden = function() return bepgp:admin() end,
+    }
     self._options.args["set_decay"] = {
       type = "range",
       name = L["Set Decay %"],
@@ -2258,6 +2264,7 @@ function bepgp:GUILD_ROSTER_UPDATE()
   end
   if not self._initdone then return end
   local members = self:buildRosterTable()
+  self:guildCache()
 end
 
 function bepgp:admin()
@@ -2491,7 +2498,8 @@ function bepgp:verifyGuildMember(name,silent,levelignore)
   for i=1,GetNumGuildMembers(true) do
     local g_name, g_rank, g_rankIndex, g_level, g_class, g_zone, g_note, g_officernote, g_online, g_status, g_eclass, _, _, g_mobile, g_sor, _, g_GUID = GetGuildRosterInfo(i)
     g_name = Ambiguate(g_name,"short") --:gsub("(\-.+)","")
-    if (string.lower(name) == string.lower(g_name)) and ((tonumber(g_level) >= bepgp.VARS.minlevel) or levelignore) then
+    local level = tonumber(g_level)
+    if (string.lower(name) == string.lower(g_name)) and ((level >= bepgp.VARS.minlevel) or (levelignore and level > 0)) then
       return g_name, g_class, g_rank, g_officernote
     end
   end
@@ -2568,6 +2576,35 @@ function bepgp:parseAlt(name,officernote)
   return nil
 end
 
+function bepgp:guildCache()
+  table.wipe(self.db.profile.guildcache)
+  table.wipe(self.db.profile.alts)
+  for i = 1, GetNumGuildMembers(true) do
+    local member_name,rank,_,level,class,_,note,officernote,_,_ = GetGuildRosterInfo(i)
+    member_name = Ambiguate(member_name,"short") --:gsub("(\-.+)","")
+    if member_name and level and (member_name ~= UNKNOWNOBJECT) and (level > 0) then
+      self.db.profile.guildcache[member_name] = {level,rank,class,(officernote or "")}
+    end
+  end
+  for name,data in pairs(self.db.profile.guildcache) do
+    local class,officernote = data[3], data[4]
+    local main, main_class, main_rank = self:parseAlt(name,officernote)
+    if (main) then
+      data[5]=main
+      if ((self._playerName) and (name == self._playerName)) then
+        if (not self.db.profile.main) or (self.db.profile.main and self.db.profile.main ~= main) then
+          self.db.profile.main = main
+          self:Print(string.format(L["Your main has been set to %s"],self.db.profile.main))
+        end
+      end
+      main = C:Colorize(hexClassColor[main_class], main)
+      self.db.profile.alts[main] = self.db.profile.alts[main] or {}
+      self.db.profile.alts[main][name] = class
+    end
+  end
+  return self.db.profile.guildcache, self.db.profile.alts
+end
+
 function bepgp:buildRosterTable()
   local g, r = { }, { }
   local numGuildMembers = GetNumGuildMembers(true)
@@ -2580,28 +2617,11 @@ function bepgp:buildRosterTable()
       end
     end
   end
-  table.wipe(self.db.profile.alts)
-  table.wipe(self.db.profile.guildcache)
   for i = 1, numGuildMembers do
-    local member_name,_,_,level,class,_,note,officernote,_,_ = GetGuildRosterInfo(i)
+    local member_name,rank,_,level,class,_,note,officernote,_,_ = GetGuildRosterInfo(i)
     member_name = Ambiguate(member_name,"short") --:gsub("(\-.+)","")
-    if member_name and level and (member_name ~= UNKNOWNOBJECT) and (level > 0) then
-      self.db.profile.guildcache[member_name] = level
-    end
-    local main, main_class, main_rank = self:parseAlt(member_name,officernote)
     local level = tonumber(level)
     local is_raid_level = level and level >= bepgp.VARS.minlevel
-    if (main) then
-      if ((self._playerName) and (member_name == self._playerName)) then
-        if (not self.db.profile.main) or (self.db.profile.main and self.db.profile.main ~= main) then
-          self.db.profile.main = main
-          self:Print(string.format(L["Your main has been set to %s"],self.db.profile.main))
-        end
-      end
-      main = C:Colorize(hexClassColor[main_class], main)
-      self.db.profile.alts[main] = self.db.profile.alts[main] or {}
-      self.db.profile.alts[main][member_name] = class
-    end
     if (self.db.char.raidonly) and next(r) then
       if r[member_name] and is_raid_level then
         table.insert(g,{["name"]=member_name,["class"]=class,["onote"]=officernote})
@@ -2678,14 +2698,20 @@ end
 
 function bepgp:award_raid_ep(ep) -- awards ep to raid members in zone
   if IsInRaid() and GetNumGroupMembers()>0 then
+    local guildcache = self:guildCache()
     for i = 1, GetNumGroupMembers() do
       local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(i)
       if level == 0 or (not online) then
-        level = self.db.profile.guildcache[name] or 0
+        level = (guildcache[name] and guildcache[name][1]) or 0
         self:debugPrint(string.format(L["%s is offline. Getting info from guild cache."],name))
       end
       if level >= bepgp.VARS.minlevel then
-        self:givename_ep(name,ep)
+        local main = guildcache[name] and guildcache[name][4] or false
+        if main and self:inRaid(main) then
+          self:debugPrint(string.format(L["Skipping %s. Main %q is also in the raid."]),name,main)
+        else
+          self:givename_ep(name,ep)
+        end
       end
     end
     self:simpleSay(string.format(L["Giving %d ep to all raidmembers"],ep))
@@ -2704,6 +2730,7 @@ function bepgp:award_standby_ep(ep) -- awards ep to reserve list
   local standby = self:GetModule(addonName.."_standby")
   if standby then
     if #(standby.roster) > 0 then
+      self:guildCache()
       for i, standby in ipairs(standby.roster) do
         local name, class, rank, alt = unpack(standby)
         self:givename_ep(name, ep)
@@ -2904,7 +2931,7 @@ function bepgp:capcalc(ep,gp,gain)
   local ep_decayed = self:num_round(ep*self.db.profile.decay)
   local gp_decayed = math.max(bepgp.VARS.basegp,self:num_round(gp*self.db.profile.decay))
   local pr_decay = tonumber(string.format("%.03f",pr))-tonumber(string.format("%.03f",ep_decayed/gp_decayed))
-  if (pr_decay < 0.5) then
+  if (pr_decay < 0.1) then
     pr_decay = 0
   else
     pr_decay = -tonumber(string.format("%.02f",pr_decay))

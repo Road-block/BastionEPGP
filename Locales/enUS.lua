@@ -357,5 +357,8 @@ You can whisper |cffffd200!PR|r to any higher rank guild member to get back EPGP
   L["Suggest"] = true
   L["Signups"] = true
   L["Suggest a bench breakdown"] = true
+  L["Weekly Decay: %s%%"] = true
+  L["Skipping %s. Main %q is also in the raid."] = true
+  L["Import Standings"] = true
 
 bepgp.L = L

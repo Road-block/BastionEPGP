@@ -359,5 +359,8 @@ You can whisper |cffffd200!PR|r to any higher rank guild member to get back EPGP
   L["Suggest"] = "Suggest" -- needs translation
   L["Signups"] = "Signups" -- needs translation
   L["Suggest a bench breakdown"] = "Suggest a bench breakdown" -- needs translation
+  L["Weekly Decay: %s%%"] = "Weekly Decay: %s%%" -- needs translation (not the patterns)
+  L["Skipping %s. Main %q is also in the raid."] = "Skipping %s. Main %q is also in the raid." -- needs translation
+  L["Import Standings"] = "Import Standings" -- needs translation
 
   bepgp.L = L
