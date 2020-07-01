@@ -24,7 +24,7 @@ bepgp_plusroll_bids.paused = 0
 local reserves, plusroll_loot
 
 local roll_sorter_bids = function(a,b)
-  -- name, color, roll, wincount, pr
+  -- name, color, roll, wincount, pr, rank
   if a[4] and b[4] and (a[4] ~= b[4]) then
     return a[4] < b[4]
   elseif a[3] and b[3] and (a[3] ~= b[3]) then
@@ -44,7 +44,7 @@ function bepgp_plusroll_bids:OnEnable()
   self:SecureHook("SetItemRef")
   self:RawHook(ItemRefTooltip,"SetHyperlink",true)
 
-  self.qtip = T:Acquire(addonName.."rollsTablet") -- Name, roll, wincount, reserve
+  self.qtip = T:Acquire(addonName.."rollsTablet") -- Name, roll, wincount, reserve, pr, rank
   self.qtip:SetColumnLayout(5, "LEFT", "CENTER", "CENTER", "CENTER", "RIGHT")
   self.qtip:ClearAllPoints()
   self.qtip:SetClampedToScreen(true)
@@ -84,7 +84,7 @@ function bepgp_plusroll_bids:showReserves()
 end
 
 function bepgp_plusroll_bids:updateBids()
-  -- {name,class,ep,gp,ep/gp[,main]}
+  -- {name,color,msroll,wincount[,pr][,rank]}
   table.sort(self.bids_res, roll_sorter_bids)
   table.sort(self.bids_main, roll_sorter_bids)
   table.sort(self.bids_off, roll_sorter_bids)
@@ -157,7 +157,7 @@ function bepgp_plusroll_bids:Refresh()
       line = frame:AddHeader()
       frame:SetCell(line,1,C:Orange(L["Name"]),nil,"LEFT",3)
       frame:SetCell(line,4,C:Orange(ROLL),nil,"RIGHT")
-      frame:SetCell(line,5," ",nil,"RIGHT")
+      frame:SetCell(line,5,C:Orange(_G.RANK),nil,"RIGHT")
       line = frame:AddSeparator(1)
       for i,data in ipairs(self.bids_res) do
         local name, color, roll, wincount, pr, rank = unpack(data)
@@ -166,7 +166,7 @@ function bepgp_plusroll_bids:Refresh()
         frame:SetCell(line,1,name,nil,"LEFT",3)
         frame:SetCellTextColor(line,1,r,g,b)
         frame:SetCell(line,4,roll,nil,"RIGHT")
-        frame:SetCell(line,5,"",nil,"RIGHT")
+        frame:SetCell(line,5,rank,nil,"RIGHT")
         frame:SetLineScript(line, "OnMouseUp", bepgp_plusroll_bids.announceWinner, {name, roll, "res", wincount})
       end
     end
@@ -175,20 +175,22 @@ function bepgp_plusroll_bids:Refresh()
       line = frame:AddHeader()
       frame:SetCell(line,1,C:Gold(L["Mainspec Rolls"]),nil,"LEFT",5)
       line = frame:AddHeader()
-      frame:SetCell(line,1,C:Orange(L["Name"]),nil,"LEFT",2)
-      frame:SetCell(line,3,C:Orange(ROLL),nil,"RIGHT")
-      frame:SetCell(line,4,C:Orange(L["Wincount"]),nil,"RIGHT")
-      frame:SetCell(line,5,C:Orange(L["pr"]),nil,"RIGHT")
+      frame:SetCell(line,1,C:Orange(L["Name"]),nil,"LEFT")
+      frame:SetCell(line,2,C:Orange(ROLL),nil,"RIGHT")
+      frame:SetCell(line,3,C:Orange(L["Wincount"]),nil,"RIGHT")
+      frame:SetCell(line,4,C:Orange(L["pr"]),nil,"RIGHT")
+      frame:SetCell(line,5,C:Orange(_G.RANK),nil,"RIGHT")
       line = frame:AddSeparator(1)
       for i,data in ipairs(self.bids_main) do
         local name, color, roll, wincount, pr, rank = unpack(data)
         local r,g,b = color.r, color.g, color.b
         line = frame:AddLine()
-        frame:SetCell(line,1,name,nil,"LEFT",2)
+        frame:SetCell(line,1,name,nil,"LEFT")
         frame:SetCellTextColor(line,1,r,g,b)
-        frame:SetCell(line,3,roll,nil,"RIGHT")
-        frame:SetCell(line,4,wincount,nil,"CENTER")
-        frame:SetCell(line,5,pr,nil,"RIGHT")
+        frame:SetCell(line,2,roll,nil,"RIGHT")
+        frame:SetCell(line,3,wincount,nil,"CENTER")
+        frame:SetCell(line,4,pr,nil,"RIGHT")
+        frame:SetCell(line,5,rank,nil,"RIGHT")
         frame:SetLineScript(line, "OnMouseUp", bepgp_plusroll_bids.announceWinner, {name, roll, "ms", wincount})
       end
     end
@@ -197,18 +199,20 @@ function bepgp_plusroll_bids:Refresh()
       line = frame:AddHeader()
       frame:SetCell(line,1,C:Silver(L["Offspec Rolls"]),nil,"LEFT",5)
       line = frame:AddHeader()
-      frame:SetCell(line,1,C:Orange(L["Name"]),nil,"LEFT",3)
-      frame:SetCell(line,4,C:Orange(ROLL),nil,"RIGHT")
-      frame:SetCell(line,5,C:Orange(L["pr"]),nil,"RIGHT")
+      frame:SetCell(line,1,C:Orange(L["Name"]),nil,"LEFT",2)
+      frame:SetCell(line,3,C:Orange(ROLL),nil,"RIGHT")
+      frame:SetCell(line,4,C:Orange(L["pr"]),nil,"RIGHT")
+      frame:SetCell(line,5,C:Orange(_G.RANK),nil,"RIGHT")
       line = frame:AddSeparator(1)
       for i,data in ipairs(self.bids_off) do
         local name, color, roll, wincount, pr, rank = unpack(data)
         local r,g,b = color.r, color.g, color.b
         line = frame:AddLine()
-        frame:SetCell(line,1,name,nil,"LEFT",3)
+        frame:SetCell(line,1,name,nil,"LEFT",2)
         frame:SetCellTextColor(line,1,r,g,b)
-        frame:SetCell(line,4,roll,nil,"RIGHT")
-        frame:SetCell(line,5,pr,nil,"RIGHT")
+        frame:SetCell(line,3,roll,nil,"RIGHT")
+        frame:SetCell(line,4,pr,nil,"RIGHT")
+        frame:SetCell(line,5,rank,nil,"RIGHT")
         frame:SetLineScript(line, "OnMouseUp", bepgp_plusroll_bids.announceWinner, {name, roll, "os", wincount})
       end
     end
@@ -218,7 +222,7 @@ end
 
 function bepgp_plusroll_bids:Toggle(anchor)
   if not T:IsAcquired(addonName.."rollsTablet") then
-    self.qtip = T:Acquire(addonName.."rollsTablet") -- Name, roll, wincount, reserve
+    self.qtip = T:Acquire(addonName.."rollsTablet") -- Name, roll, wincount, reserve, rank
     self.qtip:SetColumnLayout(5, "LEFT", "CENTER", "RIGHT", "RIGHT", "RIGHT")
     return
   end

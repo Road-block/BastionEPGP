@@ -109,7 +109,7 @@ function bepgp_bids:announcedisench(data)
 end
 
 function bepgp_bids:updateBids()
-  -- {name,class,ep,gp,ep/gp[,main]}
+  -- {name,class,ep,gp,ep/gp,rank[,main]}
   table.sort(self.bids_main, pr_sorter_bids)
   table.sort(self.bids_off, pr_sorter_bids)
 end

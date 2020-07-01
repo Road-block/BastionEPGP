@@ -13,6 +13,7 @@ function bepgp_io:OnEnable()
   self._iologs = Dump:New(L["Export Logs"],450,320)
   self._iobrowser = Dump:New(L["Export Favorites"],520,290)
   self._ioreserves = Dump:New(L["Export Reserves"],450,300)
+  self._ioroster = Dump:New(L["Export Roster"],250,320)
   local bastionexport,_,_,_,reason = GetAddOnInfo("BastionEPGP_Export")
   if not (reason == "ADDON_MISSING" or reason == "ADDON_DISABLED") then
     local loaded, finished = IsAddOnLoaded("BastionEPGP_Export")
@@ -172,6 +173,25 @@ function bepgp_io:Reserves(reserves)
     end
     self._ioreserves:AddLine(line)
     self._ioreserves:Display()
+  end
+end
+
+local sorted_roster = {}
+function bepgp_io:Roster(roster)
+  table.wipe(sorted_roster)
+  self._ioroster:Clear()
+  for k,v in pairs(roster) do
+    table.insert(sorted_roster,{k,v.rank,v.main})
+  end
+  table.sort(sorted_roster, function(a,b)
+    return a[1] < b[1]
+  end)
+  if #(sorted_roster) > 0 then
+    self._ioroster:AddLine(string.format("**%s,%s,%s**",L["Name"],L["Rank"],L["Main"]))
+    for _,member in ipairs(sorted_roster) do
+      self._ioroster:AddLine(string.format("%s,%s,%s",member[1],member[2],member[3]))
+    end
+    self._ioroster:Display()
   end
 end
 

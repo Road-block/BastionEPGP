@@ -666,6 +666,18 @@ function bepgp:ddoptions()
       order = 50,
       args = { },
     }
+    self._dda_options.args["roster"] = {
+      type = "execute",
+      name = L["Export Roster"],
+      desc = L["Export Roster"],
+      order = 55,
+      func = function(info)
+        local roster = bepgp:GetModule(addonName.."_roster")
+        if roster then
+          roster:Toggle()
+        end
+      end,
+    }
   end
   if not self._ddm_options then
     self._ddm_options = {
@@ -689,6 +701,23 @@ function bepgp:ddoptions()
           bepgp.db.char.mode = "epgp"
           bepgp:SetMode("epgp")
         end
+      end,
+    }
+    self._ddm_options.args["roster"] = {
+      type = "execute",
+      name = L["Export Roster"],
+      desc = L["Export Roster"],
+      order = 10,
+      func = function(info)
+        local roster = bepgp:GetModule(addonName.."_roster")
+        if roster then
+          roster:Toggle()
+        end
+      end,
+      disabled = function(info)
+        local wrong_mode = (bepgp.db.char.mode ~= "plusroll")
+        local not_ml = not (bepgp:lootMaster())
+        return (wrong_mode or not_ml)
       end,
     }
   end

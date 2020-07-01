@@ -362,5 +362,7 @@ You can whisper |cffffd200!PR|r to any higher rank guild member to get back EPGP
   L["Weekly Decay: %s%%"] = "Weekly Decay: %s%%" -- needs translation (not the patterns)
   L["Skipping %s. Main %q is also in the raid."] = "Skipping %s. Main %q is also in the raid." -- needs translation
   L["Import Standings"] = "Import Standings" -- needs translation
+  L["BastionEPGP raid roster"] = "BastionEPGP raid roster" -- needs translation
+  L["Export Roster"] = "Export Roster" -- needs translation
 
   bepgp.L = L

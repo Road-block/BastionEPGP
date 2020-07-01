@@ -360,5 +360,7 @@ You can whisper |cffffd200!PR|r to any higher rank guild member to get back EPGP
   L["Weekly Decay: %s%%"] = true
   L["Skipping %s. Main %q is also in the raid."] = true
   L["Import Standings"] = true
+  L["BastionEPGP raid roster"] = true
+  L["Export Roster"] = true
 
 bepgp.L = L
