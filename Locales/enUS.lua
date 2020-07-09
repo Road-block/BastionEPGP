@@ -362,5 +362,7 @@ You can whisper |cffffd200!PR|r to any higher rank guild member to get back EPGP
   L["Import Standings"] = true
   L["BastionEPGP raid roster"] = true
   L["Export Roster"] = true
+  L["Hide Rolls"] = true
+  L["Hide other player rolls from the chatframe"] = true
 
 bepgp.L = L

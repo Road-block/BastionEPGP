@@ -347,8 +347,8 @@ function bepgp_plusroll_bids:captureRoll(event, text)
           local gp = bepgp:get_gp(g_name,g_officernote)
           if ep and gp then
             pr = string.format("%.03f",ep/gp)
-            rank = g_rank
           end
+          rank = g_rank
         end
       end
       if (msroll) then

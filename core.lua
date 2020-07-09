@@ -132,6 +132,7 @@ local defaults = {
     plusroll_logs = {},
     wincountmanual = true,
     wincounttoken = true,
+    rollfilter = false,
     groupcache = {},
   },
 }
@@ -577,33 +578,11 @@ function bepgp:options()
       sorting = {"epgp", "plusroll"},
       order = 140,
     }
-    self._options.args["wincounttoken"] = {
-      type = "toggle",
-      name = L["Skip Autoroll Items"],
-      desc = L["Skip Autoroll Items from Wincount Prompts."],
-      order = 142,
-      get = function() return not not bepgp.db.char.wincounttoken end,
-      set = function(info, val)
-        bepgp.db.char.wincounttoken = not bepgp.db.char.wincounttoken
-      end,
-      hidden = function() return bepgp.db.char.mode ~= "plusroll" end,
-    }
-    self._options.args["wincountopt"] = {
-      type = "toggle",
-      name = L["Manual Wincount"],
-      desc = L["Manually reset Wincount at end of raid."],
-      order = 145,
-      get = function() return not not bepgp.db.char.wincountmanual end,
-      set = function(info, val)
-        bepgp.db.char.wincountmanual = not bepgp.db.char.wincountmanual
-      end,
-      hidden = function() return bepgp.db.char.mode ~= "plusroll" end,
-    }
     self._options.args["wincountclear"] = {
       type = "execute",
       name = L["Clear Wincount"],
       desc = L["Clear Wincount"],
-      order = 150,
+      order = 145,
       func = function()
         local plusroll_loot = bepgp:GetModule(addonName.."_plusroll_loot")
         if plusroll_loot then
@@ -613,6 +592,39 @@ function bepgp:options()
       hidden = function()
         return (bepgp.db.char.mode ~= "plusroll") or (not bepgp.db.char.wincountmanual)
       end,
+    }
+    self._options.args["wincountopt"] = {
+      type = "toggle",
+      name = L["Manual Wincount"],
+      desc = L["Manually reset Wincount at end of raid."],
+      order = 150,
+      get = function() return not not bepgp.db.char.wincountmanual end,
+      set = function(info, val)
+        bepgp.db.char.wincountmanual = not bepgp.db.char.wincountmanual
+      end,
+      hidden = function() return bepgp.db.char.mode ~= "plusroll" end,
+    }
+    self._options.args["wincounttoken"] = {
+      type = "toggle",
+      name = L["Skip Autoroll Items"],
+      desc = L["Skip Autoroll Items from Wincount Prompts."],
+      order = 155,
+      get = function() return not not bepgp.db.char.wincounttoken end,
+      set = function(info, val)
+        bepgp.db.char.wincounttoken = not bepgp.db.char.wincounttoken
+      end,
+      hidden = function() return bepgp.db.char.mode ~= "plusroll" end,
+    }
+    self._options.args["rollfilter"] = {
+      type = "toggle",
+      name = L["Hide Rolls"],
+      desc = L["Hide other player rolls from the chatframe"],
+      order = 160,
+      get = function() return not not bepgp.db.char.rollfilter end,
+      set = function(info, val)
+        bepgp.db.char.rollfilter = not bepgp.db.char.rollfilter
+      end,
+      hidden = function() return bepgp.db.char.mode ~= "plusroll" end,
     }
   end
   return self._options
@@ -1562,6 +1574,11 @@ function bepgp:SetMode(mode)
   self:Print(string.format(L["Mode set to %s."],modes[mode]))
   LDBO.icon = icons[mode]
   LDBO.text = string.format("%s [%s]",label,modes[mode])
+  if mode == "epgp" then
+    self.db.char.rollfilter = false
+  elseif mode == "plusroll" then
+    self.db.char.rollfilter = true
+  end
 end
 
 function bepgp:guildInfoSettings()
@@ -1623,6 +1640,8 @@ function bepgp:deferredInit(guildname)
     bepgp:SetPriceSystem()
     -- register whisper responder
     self:setupResponder()
+    -- set roll filter
+    self:setupRollFilter()
 
     self._initdone = true
     self:SendMessage(addonName.."_INIT_DONE")
@@ -1788,6 +1807,29 @@ function bepgp:setupResponder()
   else
     ChatFrame_AddMessageEventFilter("CHAT_MSG_WHISPER_INFORM", epgpResponder)
   end
+end
+
+local function rollfilter(frame, event, text, sender, ...)
+  local wrong_mode = bepgp.db.char.mode ~= "plusroll"
+  local filter_off = not bepgp.db.char.rollfilter
+  local not_raid = not IsInRaid()
+  if wrong_mode or filter_off or not_raid then
+    return false, text, sender, ...
+  end
+  local who, roll, low, high = DF.Deformat(text, RANDOM_ROLL_RESULT)
+  if who then
+    who = Ambiguate(who,"short")
+    if who == bepgp._playerName then
+      return false, text, sender, ...
+    else
+      return true
+    end
+  end
+  return false, text, sender, ...
+end
+
+function bepgp:setupRollFilter()
+  ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", rollfilter)
 end
 
 function bepgp:guildBranding()
