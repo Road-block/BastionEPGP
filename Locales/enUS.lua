@@ -361,8 +361,11 @@ You can whisper |cffffd200!PR|r to any higher rank guild member to get back EPGP
   L["Skipping %s. Main %q is also in the raid."] = true
   L["Import Standings"] = true
   L["BastionEPGP raid roster"] = true
-  L["Export Roster"] = true
+  L["Export Raid Roster"] = true
   L["Hide Rolls"] = true
   L["Hide other player rolls from the chatframe"] = true
+  L["%s is %s and %s is an Alt of %s. Skipping %s."] = true
+  L["Skip Stackable Items"] = true
+  L["Skip Stackable Items from Wincount Prompts."] = true
 
 bepgp.L = L

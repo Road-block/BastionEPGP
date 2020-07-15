@@ -234,6 +234,8 @@ function bepgp_loot:processLootDupe(player,itemName,source)
 end
 
 function bepgp_loot:processLootCallback(player,itemLink,source,itemColor,itemString,itemName,itemID)
+  local iName, iLink, iRarity, iLevel, iMinLevel, iType, iSubType, iStackCount, iEquipLoc, iTexture,
+    iSellPrice, iClassID, iSubClassID, bindType, expacID, iSetID, isCraft = GetItemInfo(itemID)
   itemCache[itemID] = true
   local dupe, player_item, now = self:processLootDupe(player,itemName,source)
   if dupe then

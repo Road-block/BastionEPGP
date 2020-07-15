@@ -13,7 +13,7 @@ function bepgp_io:OnEnable()
   self._iologs = Dump:New(L["Export Logs"],450,320)
   self._iobrowser = Dump:New(L["Export Favorites"],520,290)
   self._ioreserves = Dump:New(L["Export Reserves"],450,300)
-  self._ioroster = Dump:New(L["Export Roster"],250,320)
+  self._ioroster = Dump:New(L["Export Raid Roster"],250,320)
   local bastionexport,_,_,_,reason = GetAddOnInfo("BastionEPGP_Export")
   if not (reason == "ADDON_MISSING" or reason == "ADDON_DISABLED") then
     local loaded, finished = IsAddOnLoaded("BastionEPGP_Export")

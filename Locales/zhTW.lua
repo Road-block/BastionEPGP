@@ -363,8 +363,11 @@ You can whisper |cffffd200!PR|r to any higher rank guild member to get back EPGP
   L["Skipping %s. Main %q is also in the raid."] = "Skipping %s. Main %q is also in the raid." -- needs translation
   L["Import Standings"] = "Import Standings" -- needs translation
   L["BastionEPGP raid roster"] = "BastionEPGP raid roster" -- needs translation
-  L["Export Roster"] = "Export Roster" -- needs translation
+  L["Export Raid Roster"] = "Export Raid Roster" -- needs translation
   L["Hide Rolls"] = "Hide Rolls" -- needs translation
   L["Hide other player rolls from the chatframe"] = "Hide other player rolls from the chatframe" -- needs translation
+  L["%s is %s and %s is an Alt of %s. Skipping %s."] = "%s is %s and %s is an Alt of %s. Skipping %s." -- needs translation
+    L["Skip Stackable Items"] = "Skip Stackable Items" -- needs translation
+  L["Skip Stackable Items from Wincount Prompts."] = "Skip Stackable Items from Wincount Prompts." -- needs translation
 
   bepgp.L = L

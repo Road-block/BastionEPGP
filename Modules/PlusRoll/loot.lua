@@ -327,15 +327,21 @@ function bepgp_plusroll_loot:processLootDupe(player,itemName,source)
 end
 
 function bepgp_plusroll_loot:processLootCallback(player,itemLink,source,itemColor,itemString,itemName,itemID)
+  local iName, iLink, iRarity, iLevel, iMinLevel, iType, iSubType, iStackCount, iEquipLoc, iTexture,
+    iSellPrice, iClassID, iSubClassID, bindType, expacID, iSetID, isCraft = GetItemInfo(itemID)
   itemCache[itemID] = true
   local dupe, player_item, now = self:processLootDupe(player,itemName,source)
   if dupe then
     return
   end
   local bind = bepgp:itemBinding(itemString)
+  if not (bind) then return end
   local skiptokens = bepgp.db.char.wincounttoken
   local is_token = autoroll_data and autoroll_data[itemID]
-  if not (bind) then return end
+  if skiptokens and is_token then return end
+  local skipstacks = bepgp.db.char.wincountstack
+  local is_stackable = iStackCount and (iStackCount > 1) or false
+  if skipstacks and is_stackable then return end
   local _,cached,class,hex
   if player == bepgp._playerName then
     class = UnitClass("player") -- localized
@@ -351,9 +357,7 @@ function bepgp_plusroll_loot:processLootCallback(player,itemLink,source,itemColo
   local player_color = C:Colorize(hex,player)
   local epoch, timestamp = bepgp:getServerTime()
   local data = {[loot_indices.time]=timestamp,[loot_indices.player]=player,[loot_indices.player_c]=player_color,[loot_indices.item]=itemLink,[loot_indices.item_id]=itemID,[loot_indices.bind]=bind,loot_indices=loot_indices}
-  if not (skiptokens and is_token) then
-    LD:Spawn(addonName.."DialogItemPlusPoints", data)
-  end
+  LD:Spawn(addonName.."DialogItemPlusPoints", data)
 end
 
 function bepgp_plusroll_loot:processLoot(player,itemLink,source)

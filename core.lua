@@ -132,6 +132,7 @@ local defaults = {
     plusroll_logs = {},
     wincountmanual = true,
     wincounttoken = true,
+    wincountstack = true,
     rollfilter = false,
     groupcache = {},
   },
@@ -615,6 +616,17 @@ function bepgp:options()
       end,
       hidden = function() return bepgp.db.char.mode ~= "plusroll" end,
     }
+    self._options.args["wincountstack"] = {
+      type = "toggle",
+      name = L["Skip Stackable Items"],
+      desc = L["Skip Stackable Items from Wincount Prompts."],
+      order = 157,
+      get = function() return not not bepgp.db.char.wincountstack end,
+      set = function(info,val)
+        bepgp.db.char.wincountstack = not bepgp.db.char.wincountstack
+      end,
+      hidden = function() return bepgp.db.char.mode ~= "plusroll" end,
+    }
     self._options.args["rollfilter"] = {
       type = "toggle",
       name = L["Hide Rolls"],
@@ -680,8 +692,8 @@ function bepgp:ddoptions()
     }
     self._dda_options.args["roster"] = {
       type = "execute",
-      name = L["Export Roster"],
-      desc = L["Export Roster"],
+      name = L["Export Raid Roster"],
+      desc = L["Export Raid Roster"],
       order = 55,
       func = function(info)
         local roster = bepgp:GetModule(addonName.."_roster")
@@ -717,8 +729,8 @@ function bepgp:ddoptions()
     }
     self._ddm_options.args["roster"] = {
       type = "execute",
-      name = L["Export Roster"],
-      desc = L["Export Roster"],
+      name = L["Export Raid Roster"],
+      desc = L["Export Raid Roster"],
       order = 10,
       func = function(info)
         local roster = bepgp:GetModule(addonName.."_roster")
@@ -2693,13 +2705,14 @@ function bepgp:buildRosterTable()
     member_name = Ambiguate(member_name,"short") --:gsub("(\-.+)","")
     local level = tonumber(level)
     local is_raid_level = level and level >= bepgp.VARS.minlevel
+    local main, main_class, main_rank = self:parseAlt(member_name,officernote)
     if (self.db.char.raidonly) and next(r) then
       if r[member_name] and is_raid_level then
-        table.insert(g,{["name"]=member_name,["class"]=class,["onote"]=officernote})
+        table.insert(g,{["name"]=member_name,["class"]=class,["onote"]=officernote,["alt"]=(not not main)})
       end
     else
       if is_raid_level then
-        table.insert(g,{["name"]=member_name,["class"]=class,["onote"]=officernote})
+        table.insert(g,{["name"]=member_name,["class"]=class,["onote"]=officernote,["alt"]=(not not main)})
       end
     end
   end
@@ -2717,23 +2730,58 @@ function bepgp:buildClassMemberTable(roster,epgp)
   end
   local c = { }
   for i,member in ipairs(roster) do
-    local class,name = member.class, member.name
-    if (class) and (c[class] == nil) then
+    local class,name,is_alt = member.class, member.name, member.alt
+    if (class) and (not is_alt) and (c[class] == nil) then
       c[class] = { }
       c[class].type = "group"
       c[class].name = C:Colorize(hexClassColor[class],class)
       c[class].desc = class .. " members"
+      c[class].order = 1
       c[class].args = { }
     end
-    if (name) and (c[class].args[name] == nil) then
-      c[class].args[name] = { }
-      c[class].args[name].type = "execute"
-      c[class].args[name].name = name
-      c[class].args[name].desc = string.format(desc,name)
-      --c[class].args[name].usage = usage
-      c[class].args[name].func = function(info)
-        local what = epgp == "ep" and C:Green(L["Effort Points"]) or C:Red(L["Gear Points"])
-        LD:Spawn(addonName.."DialogMemberPoints", {epgp, what, name})
+    if is_alt and (c["ALTS"] == nil) then
+      c["ALTS"] = { }
+      c["ALTS"].type = "group"
+      c["ALTS"].name = C:Silver(L["Alts"])
+      c["ALTS"].desc = L["Alts"]
+      c["ALTS"].order = 9
+      c["ALTS"].args = { }
+    end
+    local key
+    if name and class then
+      key = is_alt and "ALTS" or class
+    end
+    if (key) then
+      if key == "ALTS" then
+        local initial = name:sub(1,1)
+        if c[key].args[initial] == nil then
+          c[key].args[initial] = { }
+          c[key].args[initial].type = "group"
+          c[key].args[initial].name = initial
+          c[key].args[initial].desc = initial
+          c[key].args[initial].args = { }
+        end
+        if c[key].args[initial].args[name] == nil then
+          c[key].args[initial].args[name] = { }
+          c[key].args[initial].args[name].type = "execute"
+          c[key].args[initial].args[name].name = name
+          c[key].args[initial].args[name].desc = string.format(desc,name)
+          c[key].args[initial].args[name].func = function(info)
+            local what = epgp == "ep" and C:Green(L["Effort Points"]) or C:Red(L["Gear Points"])
+            LD:Spawn(addonName.."DialogMemberPoints", {epgp, what, name})
+          end
+        end
+      else
+        if (c[key].args[name] == nil) then
+          c[key].args[name] = { }
+          c[key].args[name].type = "execute"
+          c[key].args[name].name = name
+          c[key].args[name].desc = string.format(desc,name)
+          c[key].args[name].func = function(info)
+            local what = epgp == "ep" and C:Green(L["Effort Points"]) or C:Red(L["Gear Points"])
+            LD:Spawn(addonName.."DialogMemberPoints", {epgp, what, name})
+          end
+        end
       end
     end
   end
@@ -2777,7 +2825,7 @@ function bepgp:award_raid_ep(ep) -- awards ep to raid members in zone
         self:debugPrint(string.format(L["%s is offline. Getting info from guild cache."],name))
       end
       if level >= bepgp.VARS.minlevel then
-        local main = guildcache[name] and guildcache[name][4] or false
+        local main = guildcache[name] and guildcache[name][5] or false
         if main and self:inRaid(main) then
           self:debugPrint(string.format(L["Skipping %s. Main %q is also in the raid."]),name,main)
         else
@@ -2919,13 +2967,18 @@ end
 function bepgp:givename_ep(getname,ep,single) -- awards ep to a single character
   if not (self:admin()) then return end
   local postfix, alt = ""
-  if self.db.profile.altspool then
-    local main = self:parseAlt(getname)
-    if (main) then
+  local guildcache = self.db.profile.guildcache
+  local main = guildcache[getname] and guildcache[getname][5] or false
+  if (main) then
+    if self.db.profile.altspool then
       alt = getname
       getname = main
       ep = self:num_round(ep * self.db.profile.altpercent)
       postfix = string.format(L[", %s\'s Main."],alt)
+    else
+      local msg = string.format(L["%s is %s and %s is an Alt of %s. Skipping %s."],L["Enable Alts"],_G.OFF,getname,main,string.upper(L["ep"]))
+      self:debugPrint(msg)
+      return
     end
   end
   local newep = ep + (self:get_ep(getname) or 0)
@@ -2955,12 +3008,17 @@ end
 function bepgp:givename_gp(getname,gp) -- assigns gp to a single character
   if not (self:admin()) then return end
   local postfix, alt = ""
-  if self.db.profile.altspool then
-    local main = self:parseAlt(getname)
-    if (main) then
+  local guildcache = self.db.profile.guildcache
+  local main = guildcache[getname] and guildcache[getname][5] or false
+  if (main) then
+    if self.db.profile.altspool then
       alt = getname
       getname = main
       postfix = string.format(L[", %s\'s Main."],alt)
+    else
+      local msg = string.format(L["%s is %s and %s is an Alt of %s. Skipping %s."],L["Enable Alts"],_G.OFF,getname,main,string.upper(L["gp"]))
+      self:debugPrint(msg)
+      return
     end
   end
   local oldgp = (self:get_gp(getname) or bepgp.VARS.basegp)
