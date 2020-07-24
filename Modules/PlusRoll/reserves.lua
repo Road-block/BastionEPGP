@@ -243,7 +243,7 @@ function bepgp_plusroll_reserves:captureRes(event, text, sender)
   sender = Ambiguate(sender,"short")
   if not bepgp:inRaid(sender) then return end -- DEBUG
   if not (string.find(text, "|Hitem:", 1, true)) then return end
-  local linkstriptext, count = string.gsub(text,"|c%x+|H[eimt:%d]+|h%[[%w%s',%-]+%]|h|r"," ; ")
+  local linkstriptext, count = string.gsub(text,"|c%x+|H[eimt:%d]+|h%[.-%]|h|r"," ; ")
   if count > 1 then return end
   local reskw_found
   local lowtext = string.lower(linkstriptext)
@@ -253,7 +253,7 @@ function bepgp_plusroll_reserves:captureRes(event, text, sender)
   end
   if (reskw_found) then
     local _, itemLink, itemColor, itemString, itemName, itemID
-    _,_,itemLink = string.find(text,"(|c%x+|H[eimt:%d]+|h%[[%w%s',%-]+%]|h|r)")
+    _,_,itemLink = string.find(text,"(|c%x+|H[eimt:%d]+|h%[.-%]|h|r)")
     if (itemLink) and (itemLink ~= "") then
       itemColor, itemString, itemName, itemID = bepgp:getItemData(itemLink)
     end
