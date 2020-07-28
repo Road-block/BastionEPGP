@@ -365,6 +365,8 @@ function bepgp_plusroll_reserves:Refresh()
   self._reserves_table:SetData(data)
   if self._reserves_table and self._reserves_table.showing then
     self._reserves_table:SortData()
+    local count = bepgp:table_count(data)
+    self._container:SetTitle(string.format("%s (%s)",L["BastionEPGP reserves"],count))
   end
 end
 

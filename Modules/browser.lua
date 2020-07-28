@@ -320,6 +320,12 @@ function bepgp_browser:Refresh()
   self._browser_table:SetData(subdata)
   if self._browser_table and self._browser_table.showing then
     self._browser_table:SortData()
+    if slotvalue == "_FAV" then
+      local count = bepgp:table_count(subdata)
+      self._container:SetTitle(string.format("%s (%s)",L["BastionEPGP browser"],count))
+    else
+      self._container:SetTitle(L["BastionEPGP browser"])
+    end
   end
 end
 

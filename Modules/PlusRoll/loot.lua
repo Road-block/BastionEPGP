@@ -334,8 +334,8 @@ function bepgp_plusroll_loot:processLootCallback(player,itemLink,source,itemColo
   if dupe then
     return
   end
-  local bind = bepgp:itemBinding(itemString)
-  if not (bind) then return end
+  --[[local bind = bepgp:itemBinding(itemString) -- let recipes register for plusroll mode
+  if not (bind) then return end]]
   local skiptokens = bepgp.db.char.wincounttoken
   local is_token = autoroll_data and autoroll_data[itemID]
   if skiptokens and is_token then return end
