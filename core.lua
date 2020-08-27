@@ -33,6 +33,8 @@ bepgp.VARS = {
   osgp = L["Offspec GP"],
   bankde = L["Bank-D/E"],
   unassigned = C:Red(L["Unassigned"]),
+  autoloot = {[21229] = "Insignia",
+              [21230] = "Artifact"},
 }
 bepgp._playerName = GetUnitName("player")
 
@@ -1572,6 +1574,10 @@ function bepgp:OnEnable() -- 2. PLAYER_LOGIN
     self._bucketGuildRoster = self:RegisterBucketEvent("GUILD_ROSTER_UPDATE",3.0)
   end
   self:SetMode(self.db.char.mode)
+  if self:table_count(self.VARS.autoloot) > 0 then
+    bepgp:RegisterEvent("LOOT_READY", "autoLoot")
+    bepgp:RegisterEvent("LOOT_OPENED", "autoLoot")
+  end
 end
 
 function bepgp:OnDisable() -- ADHOC
@@ -1586,11 +1592,6 @@ function bepgp:SetMode(mode)
   self:Print(string.format(L["Mode set to %s."],modes[mode]))
   LDBO.icon = icons[mode]
   LDBO.text = string.format("%s [%s]",label,modes[mode])
-  if mode == "epgp" then
-    self.db.char.rollfilter = false
-  elseif mode == "plusroll" then
-    self.db.char.rollfilter = true
-  end
 end
 
 function bepgp:guildInfoSettings()
@@ -1716,6 +1717,25 @@ function bepgp:AddTipInfo(tooltip,...)
     local favorite = self.db.char.favorites[itemid]
     if favorite then
       tooltip:AddLine(self._favmap[favorite])
+    end
+  end
+end
+
+function bepgp:autoLoot(event,auto)
+  local numLoot = GetNumLootItems()
+  if numLoot == 0 then return end
+  if auto or (GetCVarBool("autoLootDefault") ~= IsModifiedClick("AUTOLOOTTOGGLE")) then
+    return
+  end
+  for slot = numLoot,1,-1 do
+    if LootSlotHasItem(slot) then
+      local itemLink = GetLootSlotLink(slot)
+      if (itemLink) then
+        local _,_,_,itemID = self:getItemData(itemLink)
+        if bepgp.VARS.autoloot[itemID] then
+          LootSlot(slot)
+        end        
+      end
     end
   end
 end

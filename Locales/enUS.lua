@@ -367,5 +367,8 @@ You can whisper |cffffd200!PR|r to any higher rank guild member to get back EPGP
   L["%s is %s and %s is an Alt of %s. Skipping %s."] = true
   L["Skip Stackable Items"] = true
   L["Skip Stackable Items from Wincount Prompts."] = true
+  L["res"] = true
+  L["reserve"] = true
+  L["%s Reserves:"] = true
 
 bepgp.L = L

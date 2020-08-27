@@ -236,12 +236,14 @@ end
 
 local lootRes = {
   ["res"] = {L["(res)"],L["(reserve)"]},
+  ["resq"] = {L["res"],L["reserve"]},
 }
 function bepgp_plusroll_reserves:captureRes(event, text, sender)
   if bepgp.db.char.mode ~= "plusroll" then return end
   if not (bepgp:lootMaster()) then return end -- DEBUG
   sender = Ambiguate(sender,"short")
   if not bepgp:inRaid(sender) then return end -- DEBUG
+  self:resReply(text,sender)
   if not (string.find(text, "|Hitem:", 1, true)) then return end
   local linkstriptext, count = string.gsub(text,"|c%x+|H[eimt:%d]+|h%[.-%]|h|r"," ; ")
   if count > 1 then return end
@@ -261,6 +263,40 @@ function bepgp_plusroll_reserves:captureRes(event, text, sender)
       self:AddReserve(sender,itemID)
     end
   end
+end
+
+function bepgp_plusroll_reserves:resReply(text,sender)
+  local res_query
+  for _,f in ipairs(lootRes.resq) do
+    res_query = (string.lower(text) == f)
+    if res_query then break end
+  end
+  if res_query then
+    local found = players[sender]
+    if found then
+      local item = found[1]
+      if item then
+        local num_reserves, players = self:IsReserved(item)
+        local names = ""
+        if num_reserves > 0 then
+          local msg = L["%s Reserves:"]
+          local _, link = GetItemInfo(item)
+          msg = string.format(msg,link)
+          local first = true       
+          for player in pairs(players) do
+            if player == sender then
+              names = names .. (first and ("<"..player..">") or (",<"..player..">"))
+            else
+              names = names .. (first and player or (","..player))
+            end
+            first = false
+          end
+          msg = msg .. names
+          SendChatMessage(string.format("%s:%s",addonName,msg),"WHISPER",nil,sender)
+        end
+      end
+    end
+  end  
 end
 
 --/run BastionEPGP:GetModule("BastionEPGP_plusroll_reserves"):AddReserve("Jumpshot",19915)
