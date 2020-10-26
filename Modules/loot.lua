@@ -601,6 +601,8 @@ function bepgp_loot:clickHandlerLootElvUI()
   if ElvLootFrame and ElvLootFrame.slots then
     for id,button in pairs(ElvLootFrame.slots) do
       if button and not button._bepgpclicks then
+        button:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
+        button.RegisterForClicks = nop
         if not self:IsHooked(button,"OnClick") then
           button.slot = button:GetID()
           self:HookScript(button,"OnClick", function(frame, button) bepgp_loot:bidCall(frame, button, "lootframe") end)
