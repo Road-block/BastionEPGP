@@ -89,6 +89,39 @@ local manual_assign = function(rowFrame, cellFrame, data, cols, row, realrow, co
   return false
 end
 
+local ScanningTooltip = CreateFrame( "GameTooltip", "ScanningTooltip", nil, "GameTooltipTemplate" );
+ScanningTooltip:SetOwner( WorldFrame, "ANCHOR_NONE" );
+ScanningTooltip:AddFontStrings(
+  ScanningTooltip:CreateFontString( "$parentTextLeft1", nil, "GameTooltipText" ),
+  ScanningTooltip:CreateFontString( "$parentTextRight1", nil, "GameTooltipText" ) );
+
+local function check_helper(...)
+  local tradableString = BIND_TRADE_TIME_REMAINING:gsub('%%s', '(.+)');
+  for i = 1, select("#", ...) do
+      local region = select(i, ...)
+      if region and region:GetObjectType() == "FontString" then
+        local text = region:GetText() -- string or nil
+        if text and text:match(tradableString) then
+            return true;
+        end
+      end
+  end
+  return false;
+end
+
+local function checkBossLootTradeable(itemLink)
+  ScanningTooltip:ClearLines()
+  for bag = 0,4 do
+      for slot = 1,GetContainerNumSlots(bag) do
+        local bagItemLink = GetContainerItemLink(bag,slot);
+        if (bagItemLink ~= nil and bagItemLink == itemLink) then
+            ScanningTooltip:SetBagItem(bag, slot)
+        end
+      end
+  end
+  return check_helper(ScanningTooltip:GetRegions())
+end
+
 function bepgp_loot:OnEnable()
   local container = GUI:Create("Window")
   container:SetTitle(L["BastionEPGP loot info"])
@@ -300,7 +333,9 @@ function bepgp_loot:tradeLootCallback(tradeTarget,itemColor,itemString,itemName,
     return
   end
   local bind = bepgp:itemBinding(itemString)
-  if (not bind) or (bind ~= bepgp.VARS.boe) then return end
+  if (not bind) or (bind ~= bepgp.VARS.boe) then
+    if(not checkBossLootTradeable(itemLink)) then return end 
+  end
   local _, class = bepgp:verifyGuildMember(tradeTarget,true)
   if not class then return end
   local _,_,hexclass = bepgp:getClassData(class)
