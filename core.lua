@@ -34,7 +34,8 @@ bepgp.VARS = {
   bankde = L["Bank-D/E"],
   unassigned = C:Red(L["Unassigned"]),
   autoloot = {[21229] = "Insignia",
-              [21230] = "Artifact"},
+              [21230] = "Artifact",
+              [23055] = "Thawing"},
 }
 bepgp._playerName = GetUnitName("player")
 
@@ -395,7 +396,7 @@ function bepgp:options()
       type = "toggle",
       name = L["Hide from Minimap"],
       desc = L["Hide from Minimap"],
-      order = 85,
+      order = 84,
       get = function() return bepgp.db.profile.minimap.hide end,
       set = function(info, val)
         bepgp.db.profile.minimap.hide = val
@@ -405,6 +406,17 @@ function bepgp:options()
           LDI:Show(addonName)
         end
       end
+    }
+    self._options.args["rollfilter"] = {
+      type = "toggle",
+      name = L["Hide Rolls"],
+      desc = L["Hide other player rolls from the chatframe"],
+      order = 85,
+      get = function() return not not bepgp.db.char.rollfilter end,
+      set = function(info, val)
+        bepgp.db.char.rollfilter = not bepgp.db.char.rollfilter
+      end,
+      --hidden = function() return bepgp.db.char.mode ~= "plusroll" end,
     }
     self._options.args["admin_options_header"] = {
       type = "header",
@@ -560,11 +572,10 @@ function bepgp:options()
         return v
       end,
     }
-    self._options.args["rollplus_options_header"] = {
+    self._options.args["mode_options_header"] = {
       type = "header",
-      name = L["PlusRoll"],
+      name = L["PlusRoll"].."/"..L["EPGP"],
       order = 137,
-      hidden = function() return not (bepgp:admin()) end,
     }
     self._options.args["mode"] = {
       type = "select",
@@ -581,6 +592,19 @@ function bepgp:options()
       sorting = {"epgp", "plusroll"},
       order = 140,
     }
+    self._options.args["lootclear"] = {
+      type = "execute",
+      name = L["Clear Loot"],
+      desc = L["Clear Loot"],
+      order = 142,
+      func = function()
+        local loot = bepgp:GetModule(addonName.."_loot")
+        if loot then
+          loot:Clear()
+        end
+      end,
+      hidden = function() return (bepgp.db.char.mode ~= "epgp") or (bepgp.db.char.mode == "epgp" and not bepgp:admin()) end,
+    }
     self._options.args["wincountclear"] = {
       type = "execute",
       name = L["Clear Wincount"],
@@ -595,6 +619,19 @@ function bepgp:options()
       hidden = function()
         return (bepgp.db.char.mode ~= "plusroll") or (not bepgp.db.char.wincountmanual)
       end,
+    }
+    self._options.args["reserveclear"] = {
+      type = "execute",
+      name = L["Clear reserves"],
+      desc = L["Clear reserves"],
+      order = 146,
+      func = function()
+        local plusroll_reserves = bepgp:GetModule(addonName.."_plusroll_reserves")
+        if plusroll_reserves then
+          plusroll_reserves:Clear()
+        end
+      end,
+      hidden = function() return bepgp.db.char.mode ~= "plusroll" end,
     }
     self._options.args["wincountopt"] = {
       type = "toggle",
@@ -626,17 +663,6 @@ function bepgp:options()
       get = function() return not not bepgp.db.char.wincountstack end,
       set = function(info,val)
         bepgp.db.char.wincountstack = not bepgp.db.char.wincountstack
-      end,
-      hidden = function() return bepgp.db.char.mode ~= "plusroll" end,
-    }
-    self._options.args["rollfilter"] = {
-      type = "toggle",
-      name = L["Hide Rolls"],
-      desc = L["Hide other player rolls from the chatframe"],
-      order = 160,
-      get = function() return not not bepgp.db.char.rollfilter end,
-      set = function(info, val)
-        bepgp.db.char.rollfilter = not bepgp.db.char.rollfilter
       end,
       hidden = function() return bepgp.db.char.mode ~= "plusroll" end,
     }
@@ -1734,7 +1760,7 @@ function bepgp:autoLoot(event,auto)
         local _,_,_,itemID = self:getItemData(itemLink)
         if bepgp.VARS.autoloot[itemID] then
           LootSlot(slot)
-        end        
+        end
       end
     end
   end
@@ -2375,9 +2401,19 @@ function bepgp:admin()
 end
 
 function bepgp:lootMaster()
-  if not IsInRaid() then return end
+  if not IsInRaid() then return false end
   local method, partyidx, raididx = GetLootMethod()
-  return (method == "master") and (partyidx == 0)
+  if method == "master" then
+    if raididx and UnitIsUnit("player", "raid"..raididx) then
+      return true
+    elseif partyidx and (partyidx == 0) then
+      return true
+    else
+      return false
+    end
+  else
+    return false
+  end
 end
 
 function bepgp:raidLeader()

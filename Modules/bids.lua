@@ -262,6 +262,9 @@ function bepgp_bids:SetItemRef(link, text, button, chatFrame)
     end
     if (bid and masterlooter) then
       SendChatMessage(bid,"WHISPER",nil,masterlooter)
+      if LD:ActiveDialog(addonName.."DialogMemberBid") then
+        LD:Dismiss(addonName.."DialogMemberBid")
+      end
     end
     return false
   end

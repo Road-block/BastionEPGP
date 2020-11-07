@@ -268,6 +268,20 @@ local function populate(data,link,subtype,price,tier,favrank,id)
     {["value"]=favrank},
     {["value"]=id} -- 6
   }})
+  bepgp_browser:RefreshGUI()
+end
+
+function bepgp_browser:RefreshGUI()
+  self._browser_table:SetData(subdata)
+  if self._browser_table and self._browser_table.showing then
+    self._browser_table:SortData()
+    if slotvalue == "_FAV" then
+      local count = bepgp:table_count(subdata)
+      self._container:SetTitle(string.format("%s (%s)",L["BastionEPGP browser"],count))
+    else
+      self._container:SetTitle(L["BastionEPGP browser"])
+    end
+  end
 end
 
 function bepgp_browser:Refresh()
@@ -317,16 +331,7 @@ function bepgp_browser:Refresh()
     end
     self._container._export.frame:Hide()
   end
-  self._browser_table:SetData(subdata)
-  if self._browser_table and self._browser_table.showing then
-    self._browser_table:SortData()
-    if slotvalue == "_FAV" then
-      local count = bepgp:table_count(subdata)
-      self._container:SetTitle(string.format("%s (%s)",L["BastionEPGP browser"],count))
-    else
-      self._container:SetTitle(L["BastionEPGP browser"])
-    end
-  end
+  self:RefreshGUI()
 end
 
 function bepgp_browser:CoreInit()
@@ -368,3 +373,5 @@ function bepgp_browser:CoreInit()
     self._initDone = true
   end
 end
+
+--[[TODO: Miscellaneous and Quest items]]

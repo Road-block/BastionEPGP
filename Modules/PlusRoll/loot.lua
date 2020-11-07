@@ -172,7 +172,14 @@ local function append(realrow,link,last)
     end
   end
   if last then
-    bepgp_plusroll_loot._wincount_table:SortData()
+    bepgp_plusroll_loot:RefreshGUI()
+  end
+end
+
+function bepgp_plusroll_loot:RefreshGUI()
+  self._wincount_table:SetData(data)
+  if self._wincount_table and self._wincount_table.showing then
+    self._wincount_table:SortData()
   end
 end
 
@@ -206,10 +213,7 @@ function bepgp_plusroll_loot:Refresh()
       end
     end
   end
-  self._wincount_table:SetData(data)
-  if self._wincount_table and self._wincount_table.showing then
-    self._wincount_table:SortData()
-  end
+  self:RefreshGUI()
 end
 
 function bepgp_plusroll_loot:GiveMasterLoot(slot, index)

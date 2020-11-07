@@ -20,7 +20,7 @@ if not L then return end
   L["Action"] = "行為"
   -- loot
   L["BastionEPGP loot info"] = "BastionEPGP 拾取資訊"
-  L["Clear Loot."] = "清除拾取"
+  L["Clear Loot"] = "清除拾取"
   L["Item"] = "物品"
   L["Binds"] = "競拍"
   L["Looter"] = "拾取人"
@@ -372,5 +372,10 @@ You can whisper |cffffd200!PR|r to any higher rank guild member to get back EPGP
   L["res"] = "res" -- needs translation
   L["reserve"] = "reserve" -- needs translation
   L["%s Reserves:"] = "%s Reserves:" -- needs translation
+  L["Scraps"] = "Scraps" -- needs translation
+  L["Clear reserves"] = "Clear reserves" -- needs translation
+  L["Soft reserves Cleared."] = "Soft reserves Cleared." -- needs translation
+  L["Whisper %s \`res [itemlink]\` to soft reserve."] = "Whisper %s \`res [itemlink]\` to soft reserve." -- needs translation
+  L["Call"] = "Call" -- needs translation
 
   bepgp.L = L

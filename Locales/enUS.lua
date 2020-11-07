@@ -30,7 +30,7 @@ if not L then return end
   L["Action"] = true
   -- loot
   L["BastionEPGP loot info"] = true
-  L["Clear Loot."] = true
+  L["Clear Loot"] = true
   L["Export Loot"] = true
   L["Item"] = true
   L["Binds"] = true
@@ -370,5 +370,10 @@ You can whisper |cffffd200!PR|r to any higher rank guild member to get back EPGP
   L["res"] = true
   L["reserve"] = true
   L["%s Reserves:"] = true
+  L["Scraps"] = true
+  L["Clear reserves"] = true
+  L["Soft reserves Cleared."] = true
+  L["Whisper %s \`res [itemlink]\` to soft reserve."] = true
+  L["Call"] = true
 
 bepgp.L = L

@@ -65,7 +65,14 @@ local autoroll = {
     [20879] = {["PALADIN"]=true,["HUNTER"]=true,["PRIEST"]=true,["SHAMAN"]=true,["DRUID"]=true}, --life
     [20881] = {["PALADIN"]=true,["HUNTER"]=true,["ROGUE"]=true,["SHAMAN"]=true,["DRUID"]=true}, --strife
     [20882] = {["WARRIOR"]=true,["HUNTER"]=true,["ROGUE"]=true,["DRUID"]=true}, --war
-  }
+  },
+  nx_scrap = {
+  -- wartorn scraps
+    [22373] = true, --leather
+    [22374] = true, --Chain/Mail
+    [22375] = true, --Plate
+    [22376] = true, --Cloth
+  },
 }
 
 function bepgp_autoroll:getAction(itemID)
@@ -132,6 +139,7 @@ local zg_label = string.format("%s %%s",(GetRealZoneText(309)))
 local aq20_label = string.format("%s %%s",(GetRealZoneText(509)))
 local aq40_label = string.format("%s %%s",(GetRealZoneText(531)))
 local aq_label = string.format("%s %%s",(C_Map.GetAreaInfo(3428)))
+local nx_label = string.format("%s %%s",(GetRealZoneText(533)))
 local options = {
   type = "group",
   name = L["Autoroll"],
@@ -224,6 +232,16 @@ local options = {
         }
       }
     },
+    ["nx_scrap"] = {
+      type = "select",
+      name = string.format(nx_label,L["Scraps"]),
+      desc = string.format(nx_label,L["Scraps"]),
+      order = 60,
+      get = function() return bepgp.db.char.autoroll.nx_scrap end,
+      set = function(info,val) bepgp.db.char.autoroll.nx_scrap = val end,
+      values = { [-1]=_G.TRACKER_SORT_MANUAL, [0]=_G.PASS, [1]=_G.NEED, [2]=_G.GREED },
+      sorting = {-1, 1, 2, 0}
+    },
   }
 }
 function bepgp_autoroll:injectOptions()
@@ -231,7 +249,11 @@ function bepgp_autoroll:injectOptions()
     ["zg_coin"] = 1,
     ["zg_bijou"] = 1,
     ["aq_scarab"] = 1,
+    ["nx_scrap"] = 1,
   }
+  if bepgp.db.char.autoroll.nx_scrap == nil then
+    bepgp.db.char.autoroll.nx_scrap = 1
+  end
   bepgp.db.char.autoroll.aq_20_idol = bepgp.db.char.autoroll.aq_20_idol or {
     ["class"] = 1,
     ["other"] = 2,

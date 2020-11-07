@@ -14,9 +14,10 @@ local colorHighlight = {r=0, g=0, b=0, a=.9}
 local colorLocked = {r=1, g=0, b=0, a=.9}
 local colorUnlocked = {r=0, g=1, b=0, a=.9}
 local colorUnknown = {r=.75, g=.75, b=.75, a=.9}
-local players, items
+local players, items = {},{}
 local bepgp_plusroll_bids
 local questionblue = CreateAtlasMarkup("QuestRepeatableTurnin")
+local call_icon = L["Call"].."|TInterface\\CHATFRAME\\UI-ChatIcon-ArmoryChat:16:16:0:0:16:16:0:16:0:16:255:127:0|t"
 local function st_sorter_numeric(st,rowa,rowb,col)
   local cella = st.data[rowa].cols[4].value
   local cellb = st.data[rowb].cols[4].value
@@ -190,6 +191,14 @@ function bepgp_plusroll_reserves:OnEnable()
   self._container._clear = clear
   container:AddChild(clear)
 
+  local call = GUI:Create("Button")
+  call:SetWidth(100)
+  call:SetText(call_icon)
+  call:SetCallback("OnClick",function()
+    bepgp_plusroll_reserves:Call()
+  end)
+  container:AddChild(call)
+
   local help = GUI:Create("Label")
   help:SetWidth(150)
   help:SetText("\n\n"..string.format("%s%s",questionblue,L["Right-click a row to manage player reserve."]))
@@ -232,6 +241,12 @@ function bepgp_plusroll_reserves:Clear()
   table.wipe(items)
   bepgp.db.char.reserves.locked = false
   self:Refresh()
+  bepgp:Print(L["Soft reserves Cleared."])
+end
+
+function bepgp_plusroll_reserves:Call()
+  local out = string.format(L["Whisper %s \`res [itemlink]\` to soft reserve."],bepgp._playerName)
+  bepgp:widestAudience(out)
 end
 
 local lootRes = {
@@ -243,7 +258,9 @@ function bepgp_plusroll_reserves:captureRes(event, text, sender)
   if not (bepgp:lootMaster()) then return end -- DEBUG
   sender = Ambiguate(sender,"short")
   if not bepgp:inRaid(sender) then return end -- DEBUG
-  self:resReply(text,sender)
+  if sender ~= bepgp._playerName then
+    self:resReply(text,sender)
+  end
   if not (string.find(text, "|Hitem:", 1, true)) then return end
   local linkstriptext, count = string.gsub(text,"|c%x+|H[eimt:%d]+|h%[.-%]|h|r"," ; ")
   if count > 1 then return end
@@ -282,7 +299,7 @@ function bepgp_plusroll_reserves:resReply(text,sender)
           local msg = L["%s Reserves:"]
           local _, link = GetItemInfo(item)
           msg = string.format(msg,link)
-          local first = true       
+          local first = true
           for player in pairs(players) do
             if player == sender then
               names = names .. (first and ("<"..player..">") or (",<"..player..">"))
@@ -296,7 +313,7 @@ function bepgp_plusroll_reserves:resReply(text,sender)
         end
       end
     end
-  end  
+  end
 end
 
 --/run BastionEPGP:GetModule("BastionEPGP_plusroll_reserves"):AddReserve("Jumpshot",19915)
@@ -380,6 +397,16 @@ local function populate(data,link,player,lock,id)
     {["value"]=tostring(lock),["color"]=c_lock},
     {["value"]=id} -- 4
   }})
+  bepgp_plusroll_reserves:RefreshGUI()
+end
+
+function bepgp_plusroll_reserves:RefreshGUI()
+  self._reserves_table:SetData(data)
+  if self._reserves_table and self._reserves_table.showing then
+    self._reserves_table:SortData()
+    local count = bepgp:table_count(data)
+    self._container:SetTitle(string.format("%s (%s)",L["BastionEPGP reserves"],count))
+  end
 end
 
 function bepgp_plusroll_reserves:Refresh()
@@ -398,12 +425,7 @@ function bepgp_plusroll_reserves:Refresh()
       end)
     end
   end
-  self._reserves_table:SetData(data)
-  if self._reserves_table and self._reserves_table.showing then
-    self._reserves_table:SortData()
-    local count = bepgp:table_count(data)
-    self._container:SetTitle(string.format("%s (%s)",L["BastionEPGP reserves"],count))
-  end
+  self:RefreshGUI()
 end
 
 function bepgp_plusroll_reserves:CoreInit()

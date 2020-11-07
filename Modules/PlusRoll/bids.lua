@@ -261,6 +261,9 @@ function bepgp_plusroll_bids:SetItemRef(link, text, button, chatFrame)
       elseif bid == "-" then
         RandomRoll("1", "50")
       end
+      if LD:ActiveDialog(addonName.."DialogMemberRoll") then
+        LD:Dismiss(addonName.."DialogMemberRoll")
+      end
     end
     return false
   end
