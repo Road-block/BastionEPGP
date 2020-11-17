@@ -316,6 +316,11 @@ function bepgp_plusroll_bids:captureLootCall(event, text, sender)
         self.qtip:Show()
       end
       self:bidPrint(itemLink,sender,rollkw_found)
+      if bepgp.db.char.favalert then
+        if bepgp.db.char.favorites[itemID] then
+          bepgp:Alert(string.format(L["BastionEPGP Favorite: %s"],itemLink))
+        end
+      end
     end
   end
 end

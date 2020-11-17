@@ -375,5 +375,8 @@ You can whisper |cffffd200!PR|r to any higher rank guild member to get back EPGP
   L["Soft reserves Cleared."] = true
   L["Whisper %s \`res [itemlink]\` to soft reserve."] = true
   L["Call"] = true
+  L["Favorite Alert"] = true
+  L["Alert presence of Favorite Link or Loot"] = true
+  L["BastionEPGP Favorite: %s"] = true
 
 bepgp.L = L

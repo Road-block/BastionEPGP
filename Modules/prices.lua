@@ -2,7 +2,7 @@ local addonName, bepgp = ...
 local moduleName = addonName.."_prices"
 local bepgp_prices = bepgp:NewModule(moduleName, "AceEvent-3.0")
 local ST = LibStub("ScrollingTable")
-local name_version = "BastionEPGPFixed-1.0"
+local name_version = "BastionEPGPFixed-1.1"
 local prices = {}
     -----------------
     --- Naxxramas ---
@@ -46,7 +46,7 @@ prices[22427] = {136,"T3"} --Redemption Armor
 prices[22428] = {120,"T3"} --Redemption Armor
 prices[22429] = {100,"T3"} --Redemption Armor
 prices[22430] = {92,"T3"}--Redemption Armor
-prices[22431] = {92,"T3"}--Redemption Armor  
+prices[22431] = {92,"T3"}--Redemption Armor
 prices[22436] = {148,"T3"} --Cryptstalker Armor
 prices[22437] = {136,"T3"} --Cryptstalker Armor
 prices[22438] = {120,"T3"} --Cryptstalker Armor
@@ -103,11 +103,11 @@ prices[22516] = {92,"T3"} --Vestments of Faith
 prices[22517] = {96,"T3"} --Vestments of Faith
 prices[22518] = {92,"T3"} --Vestments of Faith
 prices[22519] = {84,"T3"} --Vestments of Faith
-prices[22520] = {0,"T3"} --The Phylactery of Kel'Thuzad 
+prices[22520] = {100,"T3"} --The Phylactery of Kel'Thuzad
 prices[22691] = {200,"T3"} --Corrupted Ashbringer
 prices[22733] = {0,"T3"} --Staff Head of Atiesh
 prices[22798] = {300,"T3"} --Might of Menethil
-prices[22799] = {300,"T3"} --Soulseeker 
+prices[22799] = {300,"T3"} --Soulseeker
 prices[22800] = {160,"T3"} --Brimstone Staff
 prices[22801] = {140,"T3"} --Spire of Twilight
 prices[22802] = {200,"T3"} --Kingsfall
@@ -124,9 +124,9 @@ prices[22813] = {72,"T3"} --Claymore of Unholy Might
 prices[22815] = {88,"T3"} --Severance
 prices[22816] = {72,"T3"} --Hatchet of Sundered Bone
 prices[22818] = {92,"T3"} --The Plague Bearer
-prices[22819] = {180,"T3"} --Shield of Condemnation 
+prices[22819] = {180,"T3"} --Shield of Condemnation
 prices[22820] = {72,"T3"} --Wand of Fates
-prices[22821] = {116,"T3"} --Doomfinger 
+prices[22821] = {116,"T3"} --Doomfinger
 prices[22935] = {4,"T3"} --Touch of Frost
 prices[22936] = {72,"T3"} --Wristguards of Vengeance
 prices[22937] = {48,"T3"} --Gem of Nerubis
@@ -173,20 +173,20 @@ prices[23037] = {24,"T3"} --Ring of Spiritual Fervor
 prices[23038] = {88,"T3"} --Band of Unnatural Forces
 prices[23039] = {132,"T3"} --The Eye of Nerub
 prices[23040] = {160,"T3"} --Glyph of Deflection
-prices[23041] = {160,"T3"} --Slayer's Crest 
+prices[23041] = {160,"T3"} --Slayer's Crest
 prices[23042] = {12,"T3"} --Loatheb's Reflection
 prices[23043] = {150,"T3"} --The Face of Death
 prices[23044] = {116,"T3"} --Harbinger of Doom
-prices[23045] = {160,"T3"} --Shroud of Dominion 
+prices[23045] = {160,"T3"} --Shroud of Dominion
 prices[23046] = {160,"T3"} --The Restrained Essence of Sapphiron
 prices[23047] = {160,"T3"} --Eye of the Dead
 prices[23048] = {160,"T3"} --Sapphiron's Right Eye
-prices[23049] = {160,"T3"} --Sapphiron's Left Eye 
+prices[23049] = {160,"T3"} --Sapphiron's Left Eye
 prices[23050] = {160,"T3"} --Cloak of the Necropolis
-prices[23053] = {140,"T3"} --Stormrage's Talisman of Seething 
+prices[23053] = {140,"T3"} --Stormrage's Talisman of Seething
 prices[23054] = {200,"T3"} --"Gressil, Dawn of Ruin"
 prices[23056] = {240,"T3"} --Hammer of the Twisting Nether
-prices[23057] = {140,"T3"} --Gem of Trapped Innocents 
+prices[23057] = {140,"T3"} --Gem of Trapped Innocents
 prices[23059] = {160,"T3"} --Dreadnaught's Battlegear
 prices[23060] = {160,"T3"} --Bonescythe Armor
 prices[23061] = {160,"T3"} --Vestments of Faith
@@ -208,18 +208,18 @@ prices[23221] = {100,"T3"} --Misplaced Servo Arm
 prices[23226] = {104,"T3"} --Ghoul Skin Tunic
 prices[23237] = {60,"T3"} --Ring of Eternal Flame
 prices[23238] = {40,"T3"} --Stygian Buckler
-prices[23242] = {180,"T3"} --Claw of the Frost Wyrm 
+prices[23242] = {180,"T3"} --Claw of the Frost Wyrm
 prices[23545] = {80,"T3"} --Power of the Scourge
 prices[23547] = {80,"T3"} --Resilience of the Scourge
 prices[23548] = {80,"T3"} --Might of the Scourge
 prices[23549] = {120,"T3"} --Fortitude of the Scourge
-prices[23577] = {200,"T3"} --The Hungering Cold 
+prices[23577] = {200,"T3"} --The Hungering Cold
 prices[23663] = {48,"T3"} --Girdle of Elemental Fury
 prices[23664] = {48,"T3"} --Pauldrons of Elemental Fury
 prices[23665] = {48,"T3"} --Leggings of Elemental Fury
 prices[23666] = {48,"T3"} --Belt of the Grand Crusader
 prices[23667] = {48,"T3"} --Spaulders of the Grand Crusader
-prices[23668] = {48,"T3"} --Leggings of the Grand Crusader 
+prices[23668] = {48,"T3"} --Leggings of the Grand Crusader
 
     ---------------------------
     --- Temple of Ahn'Qiraj ---
@@ -467,7 +467,7 @@ prices[16954] = {32,"T2"} --Judgement Armor
 prices[16955] = {40,"T2"} --Judgement Armor
 prices[16956] = {32,"T2"} --Judgement Armor
 prices[16957] = {32,"T2"} --Judgement Armor
-prices[16958] = {48,"T2"} --Judgement Armor  
+prices[16958] = {48,"T2"} --Judgement Armor
 prices[16959] = {28,"T2"} --Battlegear of Wrath
 prices[16960] = {32,"T2"} --Battlegear of Wrath
 prices[16961] = {40,"T2"} --Battlegear of Wrath
@@ -621,7 +621,7 @@ prices[16849] = {12,"T1"} --Giantstalker Armor
 prices[16850] = {8,"T1"} --Giantstalker Armor
 prices[16851] = {8,"T1"} --Giantstalker Armor
 prices[16852] = {12,"T1"} --Giantstalker Armor
-prices[16853] = {16,"T1"} --Lawbringer Armor  
+prices[16853] = {16,"T1"} --Lawbringer Armor
 prices[16854] = {12,"T1"} --Lawbringer Armor
 prices[16855] = {12,"T1"} --Lawbringer Armor
 prices[16856] = {12,"T1"} --Lawbringer Armor
@@ -728,7 +728,7 @@ prices[18544] = {20,"T1.5"} --Doomhide Gauntlets
 prices[18545] = {4,"T1.5"} --Leggings of Arcane Supremacy
 prices[18546] = {24,"T1.5"} --Infernal Headcage
 prices[18547] = {4,"T1.5"} --Unmelting Ice Girdle
-prices[18665] = {0,"T1.5"} --The Eye of Shadow 
+prices[18665] = {0,"T1.5"} --The Eye of Shadow
 prices[18704] = {0,"T1.5"} --Mature Blue Dragon Sinew
 prices[18705] = {0,"T1.5"} --Mature Black Dragon Sinew
 prices[18813] = {4,"T1.5"} --Ring of Binding
@@ -782,7 +782,7 @@ prices[20644] = {4,"T1.5"} --Nightmare Engulfed Object
 --[[
 itemID, itemType, itemSubType, itemEquipLoc, icon, itemClassID, itemSubClassID = GetItemInfoInstant(itemID or "itemString" or "itemName" or "itemLink")
 itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount,
-itemEquipLoc, itemIcon, itemSellPrice, itemClassID, itemSubClassID, bindType, expacID, itemSetID, 
+itemEquipLoc, itemIcon, itemSellPrice, itemClassID, itemSubClassID, bindType, expacID, itemSetID,
 isCraftingReagent = GetItemInfo(itemID or "itemString" or "itemName" or "itemLink")
 Search for ItemMixin
 ]]
@@ -851,4 +851,3 @@ function bepgp_prices:ADDON_LOADED(event,...)
 end
 
 bepgp_prices._prices = prices
-

@@ -14,7 +14,7 @@ local GetPrice, progress, pricelist
 local favorites
 local tiervalues = { }
 local filter = {["_FAV"]=C:Yellow(L["Favorites"])}
-local locsorted = {"_FAV", "INVTYPE_HEAD", "INVTYPE_NECK", "INVTYPE_SHOULDER", "INVTYPE_CHEST", "INVTYPE_ROBE", "INVTYPE_WAIST", "INVTYPE_LEGS", "INVTYPE_FEET", "INVTYPE_WRIST", "INVTYPE_HAND", "INVTYPE_FINGER", "INVTYPE_TRINKET", "INVTYPE_CLOAK", "INVTYPE_WEAPON", "INVTYPE_SHIELD", "INVTYPE_2HWEAPON", "INVTYPE_WEAPONMAINHAND", "INVTYPE_WEAPONOFFHAND", "INVTYPE_HOLDABLE", "INVTYPE_RANGED", "INVTYPE_THROWN", "INVTYPE_RANGEDRIGHT", "INVTYPE_RELIC"}
+local locsorted = {"_FAV", "INVTYPE_HEAD", "INVTYPE_NECK", "INVTYPE_SHOULDER", "INVTYPE_CHEST", "INVTYPE_ROBE", "INVTYPE_WAIST", "INVTYPE_LEGS", "INVTYPE_FEET", "INVTYPE_WRIST", "INVTYPE_HAND", "INVTYPE_FINGER", "INVTYPE_TRINKET", "INVTYPE_CLOAK", "INVTYPE_WEAPON", "INVTYPE_SHIELD", "INVTYPE_2HWEAPON", "INVTYPE_WEAPONMAINHAND", "INVTYPE_WEAPONOFFHAND", "INVTYPE_HOLDABLE", "INVTYPE_RANGED", "INVTYPE_THROWN", "INVTYPE_RANGEDRIGHT", "INVTYPE_RELIC", "INVTYPE_NON_EQUIP"}
 local progressmap = {
   ["T3"] = {"T3","T2.5","T2","T1.5","T1"},
   ["T2.5"] = {"T2.5","T2","T1.5","T1"},
@@ -347,13 +347,20 @@ function bepgp_browser:CoreInit()
       local itemID, itemType, itemSubType, itemEquipLoc, icon, itemClassID, itemSubClassID = GetItemInfoInstant(id)
       local price = GetPrice(bepgp,id,progress)
       local tier = info[2]
+      local equipLocDesc
       if itemEquipLoc and itemEquipLoc ~= "" then
         if itemEquipLoc == "INVTYPE_ROBE" then itemEquipLoc = "INVTYPE_CHEST" end
         data[itemEquipLoc] = data[itemEquipLoc] or {}
         table.insert(data[itemEquipLoc],{id,price,tier})
-        local equipLocDesc = _G[itemEquipLoc]
+        equipLocDesc = _G[itemEquipLoc]
         if itemEquipLoc == "INVTYPE_SHIELD" then equipLocDesc = _G["SHIELDSLOT"] end
         if itemEquipLoc == "INVTYPE_RANGEDRIGHT" then equipLocDesc = _G["INVTYPE_RANGED"].."2" end
+        filter[itemEquipLoc] = equipLocDesc
+      else
+        itemEquipLoc = "INVTYPE_NON_EQUIP"
+        equipLocDesc = _G[itemEquipLoc]
+        data[itemEquipLoc] = data[itemEquipLoc] or {}
+        table.insert(data[itemEquipLoc],{id,price,tier})
         filter[itemEquipLoc] = equipLocDesc
       end
     end
@@ -373,5 +380,3 @@ function bepgp_browser:CoreInit()
     self._initDone = true
   end
 end
-
---[[TODO: Miscellaneous and Quest items]]

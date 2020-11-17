@@ -25,7 +25,7 @@ bepgp.VARS = {
   minlevel = 55,
   maxloglines = 500,
   prefix = "BEPGP_PREFIX",
-  pricesystem = "BastionEPGPFixed-1.0",
+  pricesystem = "BastionEPGPFixed-1.1",
   bop = C:Red(L["BoP"]),
   boe = C:Yellow(L["BoE"]),
   nobind = C:White(L["NoBind"]),
@@ -137,6 +137,7 @@ local defaults = {
     wincounttoken = true,
     wincountstack = true,
     rollfilter = false,
+    favalert = false,
     groupcache = {},
   },
 }
@@ -418,16 +419,26 @@ function bepgp:options()
       end,
       --hidden = function() return bepgp.db.char.mode ~= "plusroll" end,
     }
+    self._options.args["favalert"] = {
+      type = "toggle",
+      name = L["Favorite Alert"],
+      desc = L["Alert presence of Favorite Link or Loot"],
+      order = 86,
+      get = function() return not not bepgp.db.char.favalert end,
+      set = function(info, val)
+        bepgp.db.char.favalert = not bepgp.db.char.favalert
+      end,
+    }
     self._options.args["admin_options_header"] = {
       type = "header",
       name = L["Admin Options"],
-      order = 86,
+      order = 87,
       hidden = function() return (not bepgp:admin()) end,
     }
     self._options.args["progress_tier_header"] = {
       type = "header",
       name = string.format(L["Progress Setting: %s"],bepgp.db.profile.progress),
-      order = 87,
+      order = 88,
       hidden = function() return bepgp:admin() end,
     }
     self._options.args["progress_tier"] = {
@@ -1761,6 +1772,11 @@ function bepgp:autoLoot(event,auto)
         if bepgp.VARS.autoloot[itemID] then
           LootSlot(slot)
         end
+        if bepgp.db.char.favalert then
+          if bepgp.db.char.favorites[itemID] then
+            bepgp:Alert(string.format(L["BastionEPGP Favorite: %s"],itemLink))
+          end
+        end
       end
     end
   end
@@ -2202,6 +2218,17 @@ function bepgp:adminSay(msg)
   end
 end
 
+local alertCache = {}
+function bepgp:Alert(text)
+  local now = GetTime()
+  local lastAlert = alertCache[text]
+  if not lastAlert or ((now - lastAlert) > 30) then
+    PlaySound(SOUNDKIT.ALARM_CLOCK_WARNING_3)
+    UIErrorsFrame:AddMessage(text, 1.0, 1.0, 0.0, 28, 4)
+    alertCache[text] = now
+  end
+end
+
 function bepgp:my_epgp_announce(use_main)
   local ep,gp
   local main = self.db.profile.main
@@ -2508,8 +2535,17 @@ function bepgp:SetPriceSystem(context)
   if not price_systems[system] then
     self.GetPrice = price_systems[self.VARS.pricesystem]
     self.db.profile.system = self.VARS.pricesystem
+    context = "DEFAULT"
   else
     self.GetPrice = price_systems[system]
+  end
+  if not (type(self.GetPrice)=="function") then -- fallback to first available
+    for name,func in pairs(price_systems) do
+      self.db.profile.system = name
+      self.GetPrice = func
+      context = "FALLBACK"
+      break
+    end
   end
   self:debugPrint(string.format(L["Price system set to: %q %s"],self.db.profile.system,(context or "")))
 end
