@@ -37,7 +37,7 @@ local slotMap = {
 }
 local itemID = GetInventoryItemID("player",slotID)
 ]]
-
+--/run BastionEPGP:GetModule("BastionEPGP_bids"):bidPrint("\124cff0070dd\124Hitem:19915:0:0:0:0:0:0:0:0\124h[Zulian Defender]\124h\124r","Tankßoy",true,true)
 bepgp_bids.bids_main,bepgp_bids.bids_off,bepgp_bids.bid_item = {},{},{}
 local bids_blacklist = {}
 local bidlink = {
@@ -249,7 +249,8 @@ end
 
 function bepgp_bids:SetItemRef(link, text, button, chatFrame)
   if string.sub(link,1,8) == "bepgpbid" then
-    local _,_,bid,masterlooter = string.find(link,"bepgpbid:(%d+):(%w+)")
+    --local _,_,bid,masterlooter = string.find(link,"bepgpbid:(%d+):(%w+)")
+    local _,_,bid,masterlooter = string.find(link,"bepgpbid:(%d+):([%C%D%P%S]+)") -- capture names with special characters
     if bid == "1" then
       bid = "+"
     elseif bid == "2" then
