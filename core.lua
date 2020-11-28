@@ -35,7 +35,8 @@ bepgp.VARS = {
   unassigned = C:Red(L["Unassigned"]),
   autoloot = {[21229] = "Insignia",
               [21230] = "Artifact",
-              [23055] = "Thawing"},
+              [23055] = "Thawing",
+              [22708] = "Ramaladni"},
 }
 bepgp._playerName = GetUnitName("player")
 
@@ -2919,7 +2920,7 @@ function bepgp:award_raid_ep(ep) -- awards ep to raid members in zone
       if level >= bepgp.VARS.minlevel then
         local main = guildcache[name] and guildcache[name][5] or false
         if main and self:inRaid(main) then
-          self:debugPrint(string.format(L["Skipping %s. Main %q is also in the raid."]),name,main)
+          self:debugPrint(string.format(L["Skipping %s. Main %q is also in the raid."],name,main))
         else
           self:givename_ep(name,ep)
         end
