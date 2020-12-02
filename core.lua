@@ -1403,6 +1403,7 @@ function bepgp:templateCache(id)
         is_exclusive = true,
         duration = 30,
         text = L["Bid Call for %s [%ds]"],
+        width = 360,
         on_show = function(self)
           local link = self.data
           self.text:SetText(string.format(L["Bid Call for %s [%ds]"],link,self.duration))
