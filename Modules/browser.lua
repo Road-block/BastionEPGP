@@ -259,7 +259,7 @@ function bepgp_browser:Toggle()
   self:Refresh()
 end
 
-local function populate(data,link,subtype,price,tier,favrank,id)
+local function populate(data,link,subtype,price,tier,favrank,id,slotvalue)
   table.insert(data,{["cols"]={
     {["value"]=link},
     {["value"]=subtype},
@@ -268,10 +268,10 @@ local function populate(data,link,subtype,price,tier,favrank,id)
     {["value"]=favrank},
     {["value"]=id} -- 6
   }})
-  bepgp_browser:RefreshGUI()
+  bepgp_browser:RefreshGUI(slotvalue)
 end
 
-function bepgp_browser:RefreshGUI()
+function bepgp_browser:RefreshGUI(slotvalue)
   self._browser_table:SetData(subdata)
   if self._browser_table and self._browser_table.showing then
     self._browser_table:SortData()
@@ -298,13 +298,13 @@ function bepgp_browser:Refresh()
       local favrank = favmap[rank]
       local name,link,_,_,_,_,subtype = GetItemInfo(id)
       if (link) then
-        populate(subdata,link,subtype,price,tier,favrank,id)
+        populate(subdata,link,subtype,price,tier,favrank,id,slotvalue)
       else
         local item = Item:CreateFromItemID(id)
         item:ContinueOnItemLoad(function()
           local id = item:GetItemID()
           local name,link,_,_,_,_,subtype = GetItemInfo(id)
-          populate(subdata,link,subtype,price,tier,favrank,id)
+          populate(subdata,link,subtype,price,tier,favrank,id,slotvalue)
         end)
       end
     end
@@ -318,20 +318,20 @@ function bepgp_browser:Refresh()
         local favrank = rank and favmap[rank] or ""
         local name,link,_,_,_,_,subtype = GetItemInfo(id)
         if (link) then
-          populate(subdata,link,subtype,price,tier,favrank,id)
+          populate(subdata,link,subtype,price,tier,favrank,id,slotvalue)
         else
           local item = Item:CreateFromItemID(id)
           item:ContinueOnItemLoad(function()
             local id = item:GetItemID()
             local name,link,_,_,_,_,subtype = GetItemInfo(id)
-            populate(subdata,link,subtype,price,tier,favrank,id)
+            populate(subdata,link,subtype,price,tier,favrank,id,slotvalue)
           end)
         end
       end
     end
     self._container._export.frame:Hide()
   end
-  self:RefreshGUI()
+  self:RefreshGUI(slotvalue)
 end
 
 function bepgp_browser:CoreInit()

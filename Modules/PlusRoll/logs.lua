@@ -27,8 +27,7 @@ local loot_indices = { -- duplication from loot.lua here but beats coding around
   player_c=3,
   item=4,
   item_id=5,
-  bind=6,
-  log=7,
+  log=6,
 }
 local log_indices = {
   time=1,
