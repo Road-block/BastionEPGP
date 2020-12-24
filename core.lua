@@ -2707,6 +2707,7 @@ function bepgp:getGuildPermissions()
 end
 
 function bepgp:testMain()
+  if not IsInGuild() then return end
   if (not self.db.profile.main) or self.db.profile.main == "" then
     if self._playerLevel and (self._playerLevel < bepgp.VARS.minlevel) then
       return
