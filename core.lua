@@ -1459,7 +1459,7 @@ function bepgp:templateCache(id)
           {
             on_enter_pressed = function(self)
               local main = self:GetText()
-              main = bepgp:camelCase(main)
+              main = bepgp:Capitalize(main)
               local name, class = bepgp:verifyGuildMember(main)
               if name then
                 bepgp.db.profile.main = name
@@ -1481,7 +1481,7 @@ function bepgp:templateCache(id)
             text = _G.ACCEPT,
             on_click = function(self, button, down)
               local main = self.editboxes[1]:GetText()
-              main = bepgp:camelCase(main)
+              main = bepgp:Capitalize(main)
               local name, class = bepgp:verifyGuildMember(main)
               if name then
                 bepgp.db.profile.main = name
@@ -1796,14 +1796,14 @@ end
 
 local function epgpResponder(frame, event, text, sender, ...)
   if event == "CHAT_MSG_WHISPER" then
-    local epgp, _, name = text:match("^[%c%s]*(![pP][rR])([%c%s%p]*)([%w]*)")
+    local epgp, name = text:match("^[%c%s]*(![pP][rR])[%c%s%p]*([^%c%d%p%s]*)")
     local sender_stripped = Ambiguate(sender,"short")
     local guild_name, _, _, guild_officernote = bepgp:verifyGuildMember(sender_stripped,true,true) -- ignore level req
-    if epgp and guild_name then
+    if epgp and (epgp:upper()=="!PR") and guild_name then
       local _,perms = bepgp:getGuildPermissions()
       if perms.OFFICER then
         if name and strlen(name)>=2 then
-          name = bepgp:camelCase(name)
+          name = bepgp:Capitalize(name)
           local g_name, _, _, g_officernote = bepgp:verifyGuildMember(name,true)
           if g_name then
             local ep,gp
@@ -2225,7 +2225,7 @@ function bepgp:Alert(text)
   local now = GetTime()
   local lastAlert = alertCache[text]
   if not lastAlert or ((now - lastAlert) > 30) then
-    PlaySound(SOUNDKIT.ALARM_CLOCK_WARNING_3)
+    PlaySound(SOUNDKIT.ALARM_CLOCK_WARNING_3,"Master")
     UIErrorsFrame:AddMessage(text, 1.0, 1.0, 0.0, 28, 4)
     alertCache[text] = now
   end
@@ -2593,10 +2593,10 @@ function bepgp:table_count(t)
   return count
 end
 
-function bepgp:camelCase(word)
-  return string.gsub(word,"(%a)([%w_']*)",function(head,tail)
+function bepgp:Capitalize(word)
+  return (string.gsub(word,"^[%c%s]*([^%c%s%p%d])([^%c%s%p%d]*)",function(head,tail)
     return string.format("%s%s",string.upper(head),string.lower(tail))
-    end)
+    end))
 end
 
 function bepgp:getServerTime()
@@ -2732,7 +2732,7 @@ function bepgp:parseAlt(name,officernote)
   if (officernote) then
     local _,_,_,main,_ = string.find(officernote or "","(.*){([^%c%s%d{}][^%c%s%d{}][^%c%s%d{}]*)}(.*)")
     if type(main)=="string" and (string.len(main) < 13) then
-      main = self:camelCase(main)
+      main = self:Capitalize(main)
       local g_name, g_class, g_rank, g_officernote = self:verifyGuildMember(main,true)
       if (g_name) then
         return g_name, g_class, g_rank, g_officernote

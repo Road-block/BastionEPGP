@@ -145,7 +145,7 @@ function bepgp_standby:captureStandbyChat(event, text, sender, _, _, _, _, _, ch
     if (rdy) then
       if (bepgp:inRaid(sender_name)) then return end -- sender is in our raid, whatever name they sent can't be standby
       if main and main ~= "" then -- we got a `+Mainname` message
-        main = bepgp:camelCase(main)
+        main = bepgp:Capitalize(main)
         if (bepgp:inRaid(main)) then return end -- the character they're trying to add to standby is in our raid
         local main_name, main_class, main_rank, main_officernote = bepgp:verifyGuildMember(main,true)
         if main_name and sender_name ~= main_name then
