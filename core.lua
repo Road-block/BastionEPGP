@@ -2601,7 +2601,7 @@ end
 
 function bepgp:getServerTime()
   local epoch = GetServerTime()
-  local d = date("%b-%d",epoch)
+  local d = date("%Y-%m-%d",epoch)
   local t = date("%H:%M:%S",epoch)
   local timestamp = string.format("%s %s",d,t)
   return epoch, timestamp
