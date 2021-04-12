@@ -979,6 +979,14 @@ function bepgp:templateCache(id)
           end
           self.text:SetText(string.format(L["You are assigning %s %s to %s."],amount,self.data[2],self.data[3]))
         end,
+        on_update = function(self,elapsed)
+          self._elapsed = (self._elapsed or 0) + elapsed
+          if self._elapsed > 0.9 and self._elapsed < 1.0 then
+            self.delegate.on_show(self)
+            self.delegate.on_update = nil
+            self._elapsed = nil
+          end
+        end,
         editboxes = {
           {
             on_enter_pressed = function(self)
@@ -1014,7 +1022,7 @@ function bepgp:templateCache(id)
               self:SetText(tostring(amount))
               self:SetFocus()
             end,
-            text = bepgp:suggestEPAward(),
+            text = tostring(bepgp:suggestEPAward()),
           },
         },
         buttons = {
@@ -1045,6 +1053,14 @@ function bepgp:templateCache(id)
         on_show = function(self)
           local amount = bepgp:suggestEPAward()
           self.text:SetText(string.format(L["You are assigning %s %s to %s."],amount,self.data[2],self.data[3]))
+        end,
+        on_update = function(self,elapsed)
+          self._elapsed = (self._elapsed or 0) + elapsed
+          if self._elapsed > 0.9 and self._elapsed < 1.0 then
+            self.delegate.on_show(self)
+            self.delegate.on_update = nil
+            self._elapsed = nil
+          end
         end,
         editboxes = {
           {
@@ -1539,7 +1555,7 @@ function bepgp:templateCache(id)
           local data = self.data
           bepgp:Print(L["AFK Check Standby"])
         end,
-        on_update = function(self, elapsed)
+        on_update = function(self,elapsed)
           self.data = self.data - elapsed
           self.text:SetText(L["Standby AFKCheck. Are you available? |cff00ff00%0d|rsec."]:format(self.data))
         end,
@@ -2506,7 +2522,7 @@ local tier_multipliers = {
   ["T2"] =   {["T3"]=1,["T2.5"]=1,   ["T2"]=1,  ["T1.5"]=0.5, ["T1"]=0.5},
   ["T1"] =   {["T3"]=1,["T2.5"]=1,   ["T2"]=1,  ["T1.5"]=1,   ["T1"]=1}
 }
-function bepgp:suggestEPAward()
+function bepgp:suggestEPAward(debug)
   local currentTier, zoneLoc, checkTier, multiplier
   local inInstance, instanceType = IsInInstance()
   local inRaid = IsInRaid()
@@ -2515,6 +2531,13 @@ function bepgp:suggestEPAward()
     checkTier = raidZones[locZone]
     if checkTier then
       currentTier = checkTier
+    else --fallback to substring match
+      for zone,tier in pairs(raidZones) do
+        if zone:find(locZone) then
+          currentTier = tier
+          break
+        end
+      end
     end
   else
     if inRaid then
