@@ -378,5 +378,9 @@ You can whisper |cffffd200!PR|r to any higher rank guild member to get back EPGP
   L["Favorite Alert"] = true
   L["Alert presence of Favorite Link or Loot"] = true
   L["BastionEPGP Favorite: %s"] = true
+  L["4.Sunwell Plateau"] = true
+  L["3.Black Temple, Hyjal"] = true
+  L["2.Serpentshrine Cavern, The Eye"] = true
+  L["1.Karazhan, Magtheridon, Gruul, World Bosses"] = true
 
 bepgp.L = L

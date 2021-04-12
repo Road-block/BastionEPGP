@@ -14,6 +14,13 @@ local G = LibStub("LibGratuity-3.0")
 local T = LibStub("LibQTip-1.0")
 local LT = LibStub("LibTouristClassic-1.0")
 
+local _,_,_,toc = GetBuildInfo()
+if toc > 11300 and toc < 20501 then
+  bepgp._expansion = 1
+elseif toc > 20500 and toc < 30401 then
+  bepgp._expansion = 2
+end
+
 bepgp._DEBUG = false
 bepgp.VARS = {
   basegp = 100,
@@ -38,6 +45,12 @@ bepgp.VARS = {
               [23055] = "Thawing",
               [22708] = "Ramaladni"},
 }
+if bepgp._expansion == 1 then
+elseif bepgp._expansion == 2 then
+  bepgp.VARS.decay = 0.8
+  bepgp.VARS.pricesystem = "BastionEPGPFixed_bc-1.0"
+  bepgp.VARS.autoloot = {}
+end
 bepgp._playerName = GetUnitName("player")
 
 local raidStatus,lastRaidStatus
@@ -142,6 +155,10 @@ local defaults = {
     groupcache = {},
   },
 }
+if bepgp._expansion == 1 then
+elseif bepgp._expansion == 2 then
+  defaults.profile.progress = "T4"
+end
 local admincmd, membercmd =
 {type = "group", handler = bepgp, args = {
     bids = {
@@ -678,6 +695,15 @@ function bepgp:options()
       end,
       hidden = function() return bepgp.db.char.mode ~= "plusroll" end,
     }
+    if bepgp._expansion == 1 then
+    elseif bepgp._expansion == 2 then
+      self._options.args["progress_tier"].values = {
+        ["T6.5"]=L["4.Sunwell Plateau"],
+        ["T6"]=L["3.Black Temple, Hyjal"],
+        ["T5"]=L["2.Serpentshrine Cavern, The Eye"],
+        ["T4"]=L["1.Karazhan, Magtheridon, Gruul, World Bosses"]}
+      self._options.args["progress_tier"].sorting = {"T6.5", "T6", "T5", "T4"}
+    end
   end
   return self._options
 end
