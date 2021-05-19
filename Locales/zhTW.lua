@@ -10,16 +10,16 @@ if not L then return end
   L["Raid Only"] = "只顯示團隊"
   L["Only show members in raid."] = "只顯示在團隊裏的成員"
   -- bids
-  L["BastionEPGP bids"] = "BastionEPGP 競拍"
+  L["BastionLoot bids"] = "BastionLoot 競拍"
   L["Winning Mainspec Bid: %s (%.03f PR)"] = "副天賦競標獲勝: %s (%.03f PR)"
   L["Winning Offspec Bid: %s (%.03f PR)"] = "副天賦競標獲勝: %s (%.03f PR)"
   -- logs
-  L["BastionEPGP logs"] = "BastionEPGP 日誌"
+  L["BastionLoot logs"] = "BastionLoot 日誌"
   L["Clear Logs."] = "清除日誌"
   L["Time"] = "時間"
   L["Action"] = "行為"
   -- loot
-  L["BastionEPGP loot info"] = "BastionEPGP 拾取資訊"
+  L["BastionLoot loot info"] = "BastionLoot 拾取資訊"
   L["Clear Loot"] = "清除拾取"
   L["Item"] = "物品"
   L["Binds"] = "競拍"
@@ -28,7 +28,7 @@ if not L then return end
   -- migrations
   L["Updated %d members to v3 storage."] = "更新 %d 成員到v3存儲區"
   -- standby
-  L["BastionEPGP standby"] = "BastionEPGP 待命成員" -- needs update
+  L["BastionLoot standby"] = "BastionLoot 待命成員" -- needs update
   L["Countdown"] = "倒計時"
   L["Rank"] = "會階"
   L["OnAlt"] = "在小號"
@@ -38,7 +38,7 @@ if not L then return end
   L["Imported %d members."] = "導入 %d 成員."
   L["Imported %d members.\n"] = "導入 %d 成員.\n"
   L["%s\nFailed to import:"] = "%s\n未能導入:"
-  L["BastionEPGP standings"] = "BastionEPGP 名單列表"
+  L["BastionLoot standings"] = "BastionLoot 名單列表"
   L["Group by class"] = "由職業分組"
   L["Group members by class."] = "按職業分組"
   L["Export"] = "導出"
@@ -66,7 +66,7 @@ if not L then return end
   L["HEALER"] = "治療"
   L["CASTER"] = "法術"
   L["PHYS DPS"] = "物理 DPS"
-  -- BastionEPGP
+  -- BastionLoot
   L["{BEPGP}Type \"+\" if on main, or \"+<YourMainName>\" (without quotes) if on alt within %dsec."] = "{BEPGP}使用 \"+\" 如果你在大號上, 或者 \"+<YourMainName>\" (沒有引號) 如果在小號 %d秒."
   L["|cffFF3333|Hbepgpbid:1:$ML|h[Mainspec/NEED]|h|r"] = "|cffFF3333|Hbepgpbid:1:$ML|h[主天賦/需求]|h|r"
   L["|cff009900|Hbepgpbid:2:$ML|h[Offspec/GREED]|h|r"] = "|cff009900|Hbepgpbid:2:$ML|h[副天賦/貪婪]|h|r"
@@ -79,7 +79,7 @@ if not L then return end
   L["Standings"] = "排名"
   L["Show Standings Table."] = "顯示排名表."
   L["Restart"] = "重新開始"
-  L["Restart BastionEPGP if having startup problems."] = "重新開始 BastionEPGP，如果有啟動問題."
+  L["Restart BastionLoot if having startup problems."] = "重新開始 BastionLoot，如果有啟動問題."
   L["Standings"] = "排名"
   L["Show Standings Table."] = "顯示排名表."
   L["v%s Loaded."] = "v%s 加載."
@@ -128,7 +128,7 @@ if not L then return end
   L["|cffff7f00Click|r to toggle Standings."] = "|cffff7f00點擊|r 切換名單." -- needs update
   L["Account EPs to %s."] = "記賬 EP 到 %s."
   L["Account GPs to %s."] = "記賬 GP 到 %s."
-  L["BastionEPGP options"] = "BastionEPGP 設置"
+  L["BastionLoot options"] = "BastionLoot 設置"
   L["+EPs to Member"] = "+EP給成員"
   L["Account EPs for member."] = "記賬 EP 給成員."
   L["+EPs to Raid"] = "+EP給團隊"
@@ -184,7 +184,7 @@ if not L then return end
   L["GP Actions"] = "GP 操作"
   L["Remind me Later"] = "以後提醒我"
   L["Need MasterLooter to perform Bid Calls!"] = "需要拾取分配者執行競拍!"
-  L["BastionEPGP alts"] = "BastionEPGP 小號"
+  L["BastionLoot alts"] = "BastionLoot 小號"
   L["Enable Alts"] = "啟用小號"
   L["Main"] = "大號"
   L["Alt"] = "小號"
@@ -241,7 +241,7 @@ if not L then return end
   L["Select Price Scheme"] = "選擇價格方案"
   L["Select From Registered Price Systems"] = "從已有的註冊價格系統中選擇"
   L["%s is offline. Getting info from guild cache."] = "%s 離線了. 從公會緩存獲取資訊."
-  L["BastionEPGP will be saving to file in `\\WTF\\Account\\<ACCOUNT>\\SavedVariables\\BastionEPGP_Export.lua`"] = "BastionEPGP 的日誌檔會保存在 `\\WTF\\Account\\<ACCOUNT>\\SavedVariables\\BastionEPGP_Export.lua` 中"
+  L["BastionLoot will be saving to file in `\\WTF\\Account\\<ACCOUNT>\\SavedVariables\\BastionEPGP_Export.lua`"] = "BastionLoot 的日誌檔會保存在 `\\WTF\\Account\\<ACCOUNT>\\SavedVariables\\BastionEPGP_Export.lua` 中"
   L["Started Standby AFKCheck for 1min."] = "待命AFK檢查1分鐘,已開始"
   L["Standby AFKCheck finished."] = "待命AFK檢查已結束"
   L["Price system set to: %q %s"] = "價格系統設置為: %q %s"
@@ -262,7 +262,7 @@ if not L then return end
   L["Random"] = "Random" -- needs translation
   L["Banker"] = "Banker" -- needs translation
   L["Disenchanter"] = "Disenchanter" -- needs translation
-  L["BastionEPGP browser"] = "BastionEPGP browser" -- needs translation
+  L["BastionLoot browser"] = "BastionLoot browser" -- needs translation
   L["Item Type"] = "Item Type" -- needs translation
   L["Item Pool"] = "Item Pool" -- needs translation
   L["Favorites"] = "Favorites" -- needs translation
@@ -297,7 +297,7 @@ if not L then return end
   L["Mode of Operation"] = "Mode of Operation" -- needs translation
   L["Select mode of operation."] = "Select mode of operation." -- needs translation
   L["Mode set to %s."] = "Mode set to %s." -- needs translation
-  L["BastionEPGP reserves"] = "BastionEPGP reserves" -- needs translation
+  L["BastionLoot reserves"] = "BastionLoot reserves" -- needs translation
   L["Export Reserves"] = "Export Reserves" -- needs translation
   L["Locked"] = "Locked" -- needs translation
   L["Unlocked"] = "Unlocked" -- needs translation
@@ -336,7 +336,7 @@ if not L then return end
   L["Clear Wincount"] = "Clear Wincount" -- needs translation
   L["Wincount Cleared."] = "Wincount Cleared." -- needs translation
   L["|cffff7f00Shift+Click|r to toggle Reserves."] = "|cffff7f00Shift+Click|r to toggle Reserves." -- needs translation
-  L["BastionEPGP bids [roll]"] = "BastionEPGP bids [roll]" -- needs translation
+  L["BastionLoot bids [roll]"] = "BastionLoot bids [roll]" -- needs translation
   L["|cffff7f00Ctrl+Click|r to toggle Bids."] = "|cffff7f00Ctrl+Click|r to toggle Bids." -- needs translation
   L.STANDINGS_OVERLAY = [[
 Your current guild rank does not show EPGP standings.
@@ -345,7 +345,7 @@ You can whisper |cffffd200!PR|r to any higher rank guild member to get back EPGP
   L["{bepgp}%s has: %d EP %d GP %.03f PR."] = "{bepgp}%s has: %d EP %d GP |cffffff00%.03f|r|cffff7f00PR|r." -- needs translation (not the {bepgp} and patterns)
   L["{bepgp}You have: %d EP %d GP %.03f PR"] = "{bepgp}You have: %d EP %d GP %.03f PR" -- needs translation (not the {bepgp} and patterns)
   L["|cffff7f00Ctrl+Shift+Click|r to toggle Wincount."] = "|cffff7f00Ctrl+Shift+Click|r to toggle Wincount." -- needs translation
-  L["BastionEPGP wincount"] = "BastionEPGP wincount" -- needs translation
+  L["BastionLoot wincount"] = "BastionLoot wincount" -- needs translation
   L["RaidID %s"] = "RaidID %s" -- needs translation
   L["Announce"] = "Announce" -- needs translation
   L["Alt Click"] = "Alt Click" -- needs translation
@@ -362,7 +362,7 @@ You can whisper |cffffd200!PR|r to any higher rank guild member to get back EPGP
   L["Weekly Decay: %s%%"] = "Weekly Decay: %s%%" -- needs translation (not the patterns)
   L["Skipping %s. Main %q is also in the raid."] = "Skipping %s. Main %q is also in the raid." -- needs translation
   L["Import Standings"] = "Import Standings" -- needs translation
-  L["BastionEPGP raid roster"] = "BastionEPGP raid roster" -- needs translation
+  L["BastionLoot raid roster"] = "BastionLoot raid roster" -- needs translation
   L["Export Raid Roster"] = "Export Raid Roster" -- needs translation
   L["Hide Rolls"] = "Hide Rolls" -- needs translation
   L["Hide other player rolls from the chatframe"] = "Hide other player rolls from the chatframe" -- needs translation
@@ -379,6 +379,9 @@ You can whisper |cffffd200!PR|r to any higher rank guild member to get back EPGP
   L["Call"] = "Call" -- needs translation
   L["Favorite Alert"] = "Favorite Alert" -- needs translation
   L["Alert presence of Favorite Link or Loot"] = "Alert presence of Favorite Link or Loot" -- needs translation
-  L["BastionEPGP Favorite: %s"] = "BastionEPGP Favorite: %s" -- needs translation
+  L["BastionLoot Favorite: %s"] = "BastionLoot Favorite: %s" -- needs translation
+  L["All EP and GP data has been reset."] = "All EP and GP data has been reset." -- needs translation
+  L["|cffff0000Are you sure you want to wipe all EPGP data?|r"] = "|cffff0000Are you sure you want to wipe all EPGP data?|r" -- needs translation
+  L["Useful for"] = "Useful for" -- needs translation
 
   bepgp.L = L

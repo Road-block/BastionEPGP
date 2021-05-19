@@ -107,8 +107,8 @@ local options = {
       set = function(info, val)
         volatile.raid = val
       end,
-      values = { ["T3"]=L["4.Naxxramas"], ["T2.5"]=L["3.Temple of Ahn\'Qiraj"], ["T2"]=L["2.Blackwing Lair"], ["T1"]=L["1.Molten Core"]},
-      sorting = {"T1", "T2", "T2.5", "T3"},
+      values = { ["T6.5"]=L["4.Sunwell Plateau"], ["T6"]=L["3.Black Temple, Hyjal"], ["T5"]=L["2.Serpentshrine Cavern, The Eye"], ["T4"]=L["1.Karazhan, Magtheridon, Gruul, World Bosses"]},
+      sorting = {"T4", "T5", "T6", "T6.5"},
     },
     ["tank_min"] = {
       type = "input",
@@ -254,32 +254,34 @@ end
 function bepgp_bench:injectOptions()
   bepgp.db.char.benchcalc = bepgp.db.char.benchcalc or {
     raidLimits = {
-      ["T1"] = {
-        total = 40,
+      ["T4"] = {
+        total = 25,
         [_G.TANK] = 3,
-        [_G.HEALER] = 10,
+        [_G.HEALER] = 6,
       },
-      ["T2"] = {
-        total = 40,
+      ["T5"] = {
+        total = 25,
+        [_G.TANK] = 3,
+        [_G.HEALER] = 7,
+      },
+      ["T6"] = {
+        total = 25,
         [_G.TANK] = 4,
-        [_G.HEALER] = 12,
+        [_G.HEALER] = 8,
       },
-      ["T2.5"] = {
-        total = 40,
-        [_G.TANK] = 5,
-        [_G.HEALER] = 14,
-      },
-      ["T3"] = {
-        total = 40,
-        [_G.TANK] = 6,
-        [_G.HEALER] = 15,
+      ["T6.5"] = {
+        total = 25,
+        [_G.TANK] = 3,
+        [_G.HEALER] = 9,
       }
     },
   }
   bepgp._options.args.benchcalc = options
   bepgp._options.args.benchcalc.guiHidden = true
   bepgp._options.args.benchcalc.cmdHidden = true
-  ACD:AddToBlizOptions(addonName, "Bench", addonName, "benchcalc")
+  bepgp.blizzoptions.bench = ACD:AddToBlizOptions(addonName, "Bench", addonName, "benchcalc")
+  bepgp.blizzoptions.bench:SetParent(InterfaceOptionsFramePanelContainer)
+  tinsert(InterfaceOptionsFrame.categoryList, bepgp.blizzoptions.bench)
 end
 
 function bepgp_bench:delayInit()

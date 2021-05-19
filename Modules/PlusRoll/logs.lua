@@ -51,8 +51,8 @@ local menu_close = function()
 end
 local assign_options = {
   type = "group",
-  name = L["BastionEPGP options"],
-  desc = L["BastionEPGP options"],
+  name = L["BastionLoot options"],
+  desc = L["BastionLoot options"],
   handler = bepgp_plusroll_logs,
   args = {
     ["redo"] = {
@@ -99,7 +99,7 @@ end
 
 function bepgp_plusroll_logs:OnEnable()
   local container = GUI:Create("Window")
-  container:SetTitle(L["BastionEPGP logs"])
+  container:SetTitle(L["BastionLoot logs"])
   container:SetWidth(505)
   container:SetHeight(320)
   container:EnableResize(false)

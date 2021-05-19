@@ -8,7 +8,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local GUI = LibStub("AceGUI-3.0")
 local G = LibStub("LibGratuity-3.0")
 local DF = LibStub("LibDeformat-3.0")
---/run BastionEPGP:GetModule("BastionEPGP_plusroll_loot"):Toggle()
+--/run BastionLoot:GetModule("BastionEPGP_plusroll_loot"):Toggle()
 local data = { }
 local colorSilver = {r=199/255, g=199/255, b=207/255, a=1.0}
 local colorHidden = {r=0.0, g=0.0, b=0.0, a=0.0}
@@ -45,7 +45,7 @@ end
 
 function bepgp_plusroll_loot:OnEnable()
   local container = GUI:Create("Window")
-  container:SetTitle(L["BastionEPGP wincount"])
+  container:SetTitle(L["BastionLoot wincount"])
   container:SetWidth(380)
   container:SetHeight(245)
   container:EnableResize(false)
@@ -228,7 +228,7 @@ function bepgp_plusroll_loot:GiveMasterLoot(slot, index)
   end
 end
 
---/run BastionEPGP:GetModule("BastionEPGP_plusroll_loot"):addWincount("Bushido",19871)
+--/run BastionLoot:GetModule("BastionEPGP_plusroll_loot"):addWincount("Bushido",19871)
 function bepgp_plusroll_loot:addWincount(name,item)
   local wincount = bepgp.db.char.wincount
   local raidident = bepgp:getRaidID()

@@ -6,11 +6,11 @@ local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local DF = LibStub("LibDeformat-3.0")
 local T = LibStub("LibQTip-1.0")
 local LD = LibStub("LibDialog-1.0")
---/run BastionEPGP:GetModule("BastionEPGP_plusroll_bids"):Toggle()
---/run BastionEPGP:GetModule("BastionEPGP_plusroll_bids").bid_item.itemid = 19915
---/run BastionEPGP:GetModule("BastionEPGP_plusroll_bids").bid_item.itemlink = "\124cff0070dd\124Hitem:19915:0:0:0:0:0:0:0:0\124h[Zulian Defender]\124h\124r"
---/run BastionEPGP:GetModule("BastionEPGP_plusroll_bids"):clearRolls()
---/run BastionEPGP:GetModule("BastionEPGP_plusroll_bids"):bidPrint("\124cff0070dd\124Hitem:19915:0:0:0:0:0:0:0:0\124h[Zulian Defender]\124h\124r","Tankßoy",true)
+--/run BastionLoot:GetModule("BastionEPGP_plusroll_bids"):Toggle()
+--/run BastionLoot:GetModule("BastionEPGP_plusroll_bids").bid_item.itemid = 19915
+--/run BastionLoot:GetModule("BastionEPGP_plusroll_bids").bid_item.itemlink = "\124cff0070dd\124Hitem:19915:0:0:0:0:0:0:0:0\124h[Zulian Defender]\124h\124r"
+--/run BastionLoot:GetModule("BastionEPGP_plusroll_bids"):clearRolls()
+--/run BastionLoot:GetModule("BastionEPGP_plusroll_bids"):bidPrint("\124cff0070dd\124Hitem:19915:0:0:0:0:0:0:0:0\124h[Zulian Defender]\124h\124r","Tankßoy",true)
 local colorUnknown = {r=.75, g=.75, b=.75, a=.9}
 bepgp_plusroll_bids.bids_res,bepgp_plusroll_bids.bids_main,bepgp_plusroll_bids.bids_off,bepgp_plusroll_bids.bid_item = {},{},{},{}
 local bids_blacklist = {}
@@ -104,7 +104,7 @@ function bepgp_plusroll_bids:Refresh()
   local line
   line = frame:AddHeader()
   frame._header = line
-  frame:SetCell(line,1,L["BastionEPGP bids [roll]"],nil,"CENTER",3)
+  frame:SetCell(line,1,L["BastionLoot bids [roll]"],nil,"CENTER",3)
   frame:SetCell(line,4,pauseTex[bepgp_plusroll_bids.paused],nil,"RIGHT")
   frame:SetCell(line,5,"|TInterface\\Buttons\\UI-Panel-MinimizeButton-Up:16:16:2:-2:32:32:8:24:8:24|t",nil,"RIGHT")
   frame:SetCellScript(line,4,"OnMouseUp", function()
@@ -319,7 +319,7 @@ function bepgp_plusroll_bids:captureLootCall(event, text, sender)
       self:bidPrint(itemLink,sender,rollkw_found)
       if bepgp.db.char.favalert then
         if bepgp.db.char.favorites[itemID] then
-          bepgp:Alert(string.format(L["BastionEPGP Favorite: %s"],itemLink))
+          bepgp:Alert(string.format(L["BastionLoot Favorite: %s"],itemLink))
         end
       end
     end

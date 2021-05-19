@@ -12,27 +12,19 @@ local C = LibStub("LibCrayon-3.0")
 local DF = LibStub("LibDeformat-3.0")
 local G = LibStub("LibGratuity-3.0")
 local T = LibStub("LibQTip-1.0")
-local LT = LibStub("LibTouristClassic-1.0")
-
-local _,_,_,toc = GetBuildInfo()
-if toc > 11300 and toc < 20501 then
-  bepgp._expansion = 1
-elseif toc > 20500 and toc < 30401 then
-  bepgp._expansion = 2
-end
 
 bepgp._DEBUG = false
 bepgp.VARS = {
   basegp = 100,
   minep = 0,
   baseaward_ep = 100,
-  decay = 0.9,
+  decay = 0.8,
   max = 1000,
   timeout = 60,
-  minlevel = 55,
+  minlevel = 60,
   maxloglines = 500,
-  prefix = "BEPGP_PREFIX",
-  pricesystem = "BastionEPGPFixed-1.1",
+  prefix = "BASTIONLOOT_PFX",
+  pricesystem = "BastionEPGPFixed_bc-1.0",
   bop = C:Red(L["BoP"]),
   boe = C:Yellow(L["BoE"]),
   nobind = C:White(L["NoBind"]),
@@ -40,17 +32,8 @@ bepgp.VARS = {
   osgp = L["Offspec GP"],
   bankde = L["Bank-D/E"],
   unassigned = C:Red(L["Unassigned"]),
-  autoloot = {[21229] = "Insignia",
-              [21230] = "Artifact",
-              [23055] = "Thawing",
-              [22708] = "Ramaladni"},
+  autoloot = {},
 }
-if bepgp._expansion == 1 then
-elseif bepgp._expansion == 2 then
-  bepgp.VARS.decay = 0.8
-  bepgp.VARS.pricesystem = "BastionEPGPFixed_bc-1.0"
-  bepgp.VARS.autoloot = {}
-end
 bepgp._playerName = GetUnitName("player")
 
 local raidStatus,lastRaidStatus
@@ -104,6 +87,65 @@ do
     [5]=string.format("%s%s%s%s%s",star,star,star,star,star),
   }
 end
+do
+  bepgp._specmap = {
+    DRUID = {
+      Icon = CreateAtlasMarkup("classicon-druid"),
+      Balance = CreateAtlasMarkup("GarrMission_ClassIcon-Druid-Balance"),
+      FeralCombat = CreateAtlasMarkup("GarrMission_ClassIcon-Druid-Feral"),
+      FeralTank = CreateAtlasMarkup("GarrMission_ClassIcon-Druid-Guardian"),
+      Restoration = CreateAtlasMarkup("GarrMission_ClassIcon-Druid-Restoration")
+    },
+    HUNTER = {
+      Icon = CreateAtlasMarkup("classicon-hunter"),
+      BeastMastery = CreateAtlasMarkup("GarrMission_ClassIcon-Hunter-BeastMastery"),
+      Marksmanship = CreateAtlasMarkup("GarrMission_ClassIcon-Hunter-Marksmanship"),
+      Survival = CreateAtlasMarkup("GarrMission_ClassIcon-Hunter-Survival")
+    },
+    MAGE = {
+      Icon = CreateAtlasMarkup("classicon-mage"),
+      Arcane = CreateAtlasMarkup("GarrMission_ClassIcon-Mage-Arcane"),
+      Fire = CreateAtlasMarkup("GarrMission_ClassIcon-Mage-Fire"),
+      Frost = CreateAtlasMarkup("GarrMission_ClassIcon-Mage-Frost")
+    },
+    PALADIN = {
+      Icon = CreateAtlasMarkup("classicon-paladin"),
+      Holy = CreateAtlasMarkup("GarrMission_ClassIcon-Paladin-Holy"),
+      Protection = CreateAtlasMarkup("GarrMission_ClassIcon-Paladin-Protection"),
+      Retribution = CreateAtlasMarkup("GarrMission_ClassIcon-Paladin-Retribution")
+    },
+    PRIEST = {
+      Icon = CreateAtlasMarkup("classicon-priest"),
+      Discipline = CreateAtlasMarkup("GarrMission_ClassIcon-Priest-Discipline"),
+      Holy = CreateAtlasMarkup("GarrMission_ClassIcon-Priest-Holy"),
+      Shadow = CreateAtlasMarkup("GarrMission_ClassIcon-Priest-Shadow")
+    },
+    ROGUE = {
+      Icon = CreateAtlasMarkup("classicon-rogue"),
+      Assasination = CreateAtlasMarkup("GarrMission_ClassIcon-Rogue-Assassination"),
+      Combat = CreateAtlasMarkup("GarrMission_ClassIcon-Rogue-Outlaw"),
+      Subtlety = CreateAtlasMarkup("GarrMission_ClassIcon-Rogue-Subtlety")
+    },
+    SHAMAN = {
+      Icon = CreateAtlasMarkup("classicon-shaman"),
+      Elemental = CreateAtlasMarkup("GarrMission_ClassIcon-Shaman-Elemental"),
+      Enhancement = CreateAtlasMarkup("GarrMission_ClassIcon-Shaman-Enhancement"),
+      Restoration = CreateAtlasMarkup("GarrMission_ClassIcon-Shaman-Restoration")
+    },
+    WARLOCK = {
+      Icon = CreateAtlasMarkup("classicon-warlock"),
+      Affliction = CreateAtlasMarkup("GarrMission_ClassIcon-Warlock-Affliction"),
+      Demonology = CreateAtlasMarkup("GarrMission_ClassIcon-Warlock-Demonology"),
+      Destruction = CreateAtlasMarkup("GarrMission_ClassIcon-Warlock-Destruction")
+    },
+    WARRIOR = {
+      Icon = CreateAtlasMarkup("classicon-warrior"),
+      Arms = CreateAtlasMarkup("GarrMission_ClassIcon-Warrior-Arms"),
+      Fury = CreateAtlasMarkup("GarrMission_ClassIcon-Warrior-Fury"),
+      Protection = CreateAtlasMarkup("GarrMission_ClassIcon-Warrior-Protection")
+    }
+  }
+end
 local item_bind_patterns = {
   CRAFT = "("..USE_COLON..")",
   BOP = "("..ITEM_BIND_ON_PICKUP..")",
@@ -119,8 +161,8 @@ local defaults = {
     decay = bepgp.VARS.decay,
     minep = bepgp.VARS.minep,
     system = bepgp.VARS.pricesystem,
-    progress = "T1",
-    discount = 0.25,
+    progress = "T4",
+    discount = 0.1,
     altspool = false,
     altpercent = 1.0,
     main = false,
@@ -155,10 +197,6 @@ local defaults = {
     groupcache = {},
   },
 }
-if bepgp._expansion == 1 then
-elseif bepgp._expansion == 2 then
-  defaults.profile.progress = "T4"
-end
 local admincmd, membercmd =
 {type = "group", handler = bepgp, args = {
     bids = {
@@ -257,7 +295,7 @@ local admincmd, membercmd =
     restart = {
       type = "execute",
       name = L["Restart"],
-      desc = L["Restart BastionEPGP if having startup problems."],
+      desc = L["Restart BastionLoot if having startup problems."],
       func = function()
         bepgp:OnEnable()
         bepgp:Print(L["Restarted"])
@@ -326,7 +364,7 @@ local admincmd, membercmd =
     restart = {
       type = "execute",
       name = L["Restart"],
-      desc = L["Restart BastionEPGP if having startup problems."],
+      desc = L["Restart BastionLoot if having startup problems."],
       func = function()
         bepgp:OnEnable()
         bepgp:Print(L["Restarted"])
@@ -347,7 +385,7 @@ function bepgp:options()
     self._options = {
       type = "group",
       name = "",
-      desc = L["BastionEPGP options"],
+      desc = L["BastionLoot options"],
       handler = bepgp,
       args = { }
     }
@@ -473,8 +511,12 @@ function bepgp:options()
           bepgp:shareSettings(true)
         end
       end,
-      values = { ["T3"]=L["4.Naxxramas"], ["T2.5"]=L["3.Temple of Ahn\'Qiraj"], ["T2"]=L["2.Blackwing Lair"], ["T1"]=L["1.Molten Core"]},
-      sorting = {"T3", "T2.5", "T2", "T1"},
+      values = {
+        ["T6.5"]=L["4.Sunwell Plateau"],
+        ["T6"]=L["3.Black Temple, Hyjal"],
+        ["T5"]=L["2.Serpentshrine Cavern, The Eye"],
+        ["T4"]=L["1.Karazhan, Magtheridon, Gruul, World Bosses"]},
+      sorting = {"T6.5", "T6", "T5", "T4"},
     }
     self._options.args["report_channel"] = {
       type = "select",
@@ -580,7 +622,7 @@ function bepgp:options()
      desc = string.format(L["Resets everyone\'s EPGP to 0/%d (Guild Leader only)."],bepgp.VARS.basegp),
      order = 120,
      hidden = function() return not (IsGuildLeader()) end,
-     func = function() StaticPopup_Show("BASTION_EPGP_CONFIRM_RESET") end
+     func = function() LD:Spawn(addonName.."DialogResetPoints") end
     }
     self._options.args["system"] = {
       type = "select",
@@ -592,6 +634,7 @@ function bepgp:options()
       set = function(info, val)
         bepgp.db.profile.system = val
         bepgp:SetPriceSystem()
+        bepgp:refreshPRTablets()
       end,
       values = function()
         local v = {}
@@ -695,25 +738,18 @@ function bepgp:options()
       end,
       hidden = function() return bepgp.db.char.mode ~= "plusroll" end,
     }
-    if bepgp._expansion == 1 then
-    elseif bepgp._expansion == 2 then
-      self._options.args["progress_tier"].values = {
-        ["T6.5"]=L["4.Sunwell Plateau"],
-        ["T6"]=L["3.Black Temple, Hyjal"],
-        ["T5"]=L["2.Serpentshrine Cavern, The Eye"],
-        ["T4"]=L["1.Karazhan, Magtheridon, Gruul, World Bosses"]}
-      self._options.args["progress_tier"].sorting = {"T6.5", "T6", "T5", "T4"}
-    end
   end
   return self._options
 end
 
-function bepgp:ddoptions()
+function bepgp:ddoptions(refresh)
+  local members = bepgp:buildRosterTable()
+  self:debugPrint(string.format(L["Scanning %d members for EP/GP data. (%s)"],#(members),(bepgp.db.char.raidonly and "Raid" or "Full")))
   if not self._dda_options then
     self._dda_options = {
       type = "group",
-      name = L["BastionEPGP options"],
-      desc = L["BastionEPGP options"],
+      name = L["BastionLoot options"],
+      desc = L["BastionLoot options"],
       handler = bepgp,
       args = { }
     }
@@ -772,8 +808,8 @@ function bepgp:ddoptions()
   if not self._ddm_options then
     self._ddm_options = {
       type = "group",
-      name = L["BastionEPGP options"],
-      desc = L["BastionEPGP options"],
+      name = L["BastionLoot options"],
+      desc = L["BastionLoot options"],
       handler = bepgp,
       args = { }
     }
@@ -811,10 +847,13 @@ function bepgp:ddoptions()
       end,
     }
   end
-  local members = bepgp:buildRosterTable()
-  self:debugPrint(string.format(L["Scanning %d members for EP/GP data. (%s)"],#(members),(bepgp.db.char.raidonly and "Raid" or "Full")))
-  self._dda_options.args["ep"].args = bepgp:buildClassMemberTable(members,"ep")
-  self._dda_options.args["gp"].args = bepgp:buildClassMemberTable(members,"gp")
+  if #(members) > 0 then
+    self._dda_options.args["ep"].args = bepgp:buildClassMemberTable(members,"ep")
+    self._dda_options.args["gp"].args = bepgp:buildClassMemberTable(members,"gp")
+  else
+    self._dda_options.args["ep"].args = {[_G.NONE]={type="execute",name=_G.NONE,func=function()end}}
+    self._dda_options.args["gp"].args = {[_G.NONE]={type="execute",name=_G.NONE,func=function()end}}
+  end
   return self._dda_options, self._ddm_options
 end
 
@@ -1605,6 +1644,26 @@ function bepgp:templateCache(id)
           },
         },
       }
+    elseif id == "DialogResetPoints" then
+      self._dialogTemplates[key] = {
+        hide_on_escape = true,
+        show_whlle_dead = true,
+        text = L["|cffff0000Are you sure you want to wipe all EPGP data?|r"],
+        buttons = {
+          {
+            text = _G.YES,
+            on_click = function(self, button, down)
+              bepgp:wipe_epgp()
+            end,
+          },
+          {
+            text = _G.CANCEL,
+            on_click = function(self, button, down)
+              LD:Dismiss(addonName.."DialogResetPoints")
+            end,
+          },
+        }
+      }
     end
   end
   return self._dialogTemplates[key]
@@ -1616,15 +1675,19 @@ function bepgp:OnInitialize() -- 1. ADDON_LOADED
   self._versionString = GetAddOnMetadata(addonName,"Version")
   self._websiteString = GetAddOnMetadata(addonName,"X-Website")
   self._labelfull = string.format("%s %s",label,self._versionString)
-  self.db = LibStub("AceDB-3.0"):New("BastionEPGPDB", defaults)
+  self.db = LibStub("AceDB-3.0"):New("BastionLootDB", defaults)
   self:options()
   self._options.args.profile = ADBO:GetOptionsTable(self.db)
   self._options.args.profile.guiHidden = true
   self._options.args.profile.cmdHidden = true
-  AC:RegisterOptionsTable(addonName.."_cmd", self.cmdtable, {"bepgp", "bastionepgp"})
+  AC:RegisterOptionsTable(addonName.."_cmd", self.cmdtable, {"bastionloot"})
   AC:RegisterOptionsTable(addonName, self._options)
   self.blizzoptions = ACD:AddToBlizOptions(addonName)
-  ACD:AddToBlizOptions(addonName, "Profiles", addonName, "profile")
+  self.blizzoptions:SetParent(InterfaceOptionsFramePanelContainer)
+  InterfaceOptionsFrame.categoryList = InterfaceOptionsFrame.categoryList or {}
+  self.blizzoptions.profile = ACD:AddToBlizOptions(addonName, "Profiles", addonName, "profile")
+  self.blizzoptions.profile:SetParent(InterfaceOptionsFramePanelContainer)
+  tinsert(InterfaceOptionsFrame.categoryList, self.blizzoptions.profile)
   self.db.RegisterCallback(self, "OnProfileChanged", "RefreshConfig")
   self.db.RegisterCallback(self, "OnProfileCopied", "RefreshConfig")
   self.db.RegisterCallback(self, "OnProfileReset", "RefreshConfig")
@@ -1638,11 +1701,6 @@ function bepgp:OnInitialize() -- 1. ADDON_LOADED
 end
 
 function bepgp:OnEnable() -- 2. PLAYER_LOGIN
-  if not IsInGuild() then
-    bepgp:Disable()
-    bepgp:RegisterEvent("PLAYER_GUILD_UPDATE")
-    return
-  end
   if IsInGuild() then
     local guildname = GetGuildInfo("player")
     if not guildname then
@@ -1653,6 +1711,10 @@ function bepgp:OnEnable() -- 2. PLAYER_LOGIN
       self:RegisterEvent("PLAYER_LEVEL_UP")
     end
     self._bucketGuildRoster = self:RegisterBucketEvent("GUILD_ROSTER_UPDATE",3.0)
+  else
+    bepgp:RegisterEvent("PLAYER_GUILD_UPDATE")
+    -- TODO: Refactor parts that shouldn't be reliant on guild to initialize properly without a guild
+    bepgp:ScheduleTimer("deferredInit",5)
   end
   self:SetMode(self.db.char.mode)
   if self:table_count(self.VARS.autoloot) > 0 then
@@ -1692,14 +1754,16 @@ function bepgp:guildInfoSettings()
 end
 
 function bepgp:deferredInit(guildname)
-  self._guildName = guildname
-  self:guildInfoSettings()
-  self:guildBranding()
   if self._initdone then return end
   local realmname = GetRealmName()
-  if realmname then
+  if not realmname then return end
+  local panelHeader = self:admin() and string.format("%s %s",self._labelfull,L["Admin Options"]) or string.format("%s %s",self._labelfull,L["Member Options"])
+  if guildname then
+    self._guildName = guildname
+    self:guildInfoSettings()
+    self:guildBranding()
+
     local profilekey = guildname.." - "..realmname
-    local panelHeader = self:admin() and string.format("%s %s",self._labelfull,L["Admin Options"]) or string.format("%s %s",self._labelfull,L["Member Options"])
     self._options.name = panelHeader
     self.db:SetProfile(profilekey)
     -- register our dialogs
@@ -1707,6 +1771,7 @@ function bepgp:deferredInit(guildname)
     LD:Register(addonName.."DialogGroupPoints", self:templateCache("DialogGroupPoints"))
     LD:Register(addonName.."DialogSetMain", self:templateCache("DialogSetMain"))
     LD:Register(addonName.."DialogClearLoot", self:templateCache("DialogClearLoot"))
+    LD:Register(addonName.."DialogResetPoints", self:templateCache("DialogResetPoints"))
     self:tooltipHook(bepgp.db.char.tooltip)
     -- handle unnamed frames Esc
     self:RawHook("CloseSpecialWindows",true)
@@ -1734,6 +1799,21 @@ function bepgp:deferredInit(guildname)
     bepgp:SetPriceSystem()
     -- register whisper responder
     self:setupResponder()
+    -- set roll filter
+    self:setupRollFilter()
+
+    self._initdone = true
+    self:SendMessage(addonName.."_INIT_DONE")
+  else
+    local profilekey = realmname
+    local profilekey = realmname
+    self._options.name = panelHeader
+    self.db:SetProfile(profilekey)
+    self:tooltipHook(bepgp.db.char.tooltip)
+    -- handle unnamed frames Esc
+    self:RawHook("CloseSpecialWindows",true)
+    -- set price system
+    bepgp:SetPriceSystem()
     -- set roll filter
     self:setupRollFilter()
 
@@ -1767,7 +1847,7 @@ function bepgp:AddTipInfo(tooltip,...)
   if name and link then
     local mode_epgp = bepgp.db.char.mode == "epgp"
     local mode_plusroll = bepgp.db.char.mode == "plusroll"
-    local price = self:GetPrice(link, self.db.profile.progress)
+    local price, useful = self:GetPrice(link, self.db.profile.progress)
     local roll_admin = self:GroupStatus()=="RAID" and self:lootMaster()
     local is_admin = self:admin()
     local owner = tooltip:GetOwner()
@@ -1799,6 +1879,45 @@ function bepgp:AddTipInfo(tooltip,...)
     if favorite then
       tooltip:AddLine(self._favmap[favorite])
     end
+    if type(useful)=="table" and #(useful)>0 then
+      local line1,line2,line3 = "","",""
+      for prio,class_specs in ipairs(useful) do
+        if prio == 1 then -- 90%+ of top
+          for k=1,#(class_specs),2 do
+            local class,spec = class_specs[k],class_specs[k+1]
+            local classspecstring = self:ClassSpecString(class,spec)
+            if line1 == "" then
+              line1 = classspecstring
+            else
+              line1 = line1 .. ", " .. classspecstring
+            end
+          end
+          tooltip:AddDoubleLine(string.format("|cff33ff99%s|r",L["Useful for"]),line1)
+        elseif prio == 2 then --80%+ of top
+          for k=1,#(class_specs),2 do
+            local class,spec = class_specs[k],class_specs[k+1]
+            local classspecstring = self:ClassSpecString(class,spec)
+            if line2 == "" then
+              line2 = classspecstring
+            else
+              line2 = line2 .. ", " .. classspecstring
+            end
+          end
+          tooltip:AddDoubleLine(" ",line2)
+        elseif prio == 3 then --70%+ of top
+          for k=1,#(class_specs),2 do
+            local class,spec = class_specs[k],class_specs[k+1]
+            local classspecstring = self:ClassSpecString(class,spec)
+            if line3 == "" then
+              line3 = classspecstring
+            else
+              line3 = line3 .. ", " .. classspecstring
+            end
+          end
+          tooltip:AddDoubleLine(" ",line3)
+        end
+      end
+    end
   end
 end
 
@@ -1818,7 +1937,7 @@ function bepgp:autoLoot(event,auto)
         end
         if bepgp.db.char.favalert then
           if bepgp.db.char.favorites[itemID] then
-            bepgp:Alert(string.format(L["BastionEPGP Favorite: %s"],itemLink))
+            bepgp:Alert(string.format(L["BastionLoot Favorite: %s"],itemLink))
           end
         end
       end
@@ -2405,14 +2524,10 @@ end
 function bepgp:OpenAdminActions(obj)
   local is_admin = self:admin()
   if is_admin then
-    if not self._dda_options then
-      self:ddoptions()
-    end
+    self:ddoptions()
     self._ddmenu = LDD:OpenAce3Menu(self._dda_options)
   else
-    if not self._ddm_options then
-      self:ddoptions()
-    end
+    self:ddoptions()
     self._ddmenu = LDD:OpenAce3Menu(self._ddm_options)
   end
   local scale, x, y = UIParent:GetEffectiveScale(), GetCursorPosition()
@@ -2438,7 +2553,7 @@ function bepgp:PLAYER_GUILD_UPDATE(...)
   local unitid = ...
   if unitid and UnitIsUnit(unitid,"player") then
     if IsInGuild() then
-      self:Enable()
+      self:OnEnable()
     end
   end
 end
@@ -2557,6 +2672,13 @@ function bepgp:suggestEPAward(debug)
     checkTier = raidZones[locZone]
     if checkTier then
       currentTier = checkTier
+    else -- fallback to substring check
+      for zone, tier in pairs(raidZones) do
+        if zone:find(locZone) then
+          currentTier = tier
+          break
+        end
+      end
     end
   else
     if inRaid then
@@ -2641,6 +2763,35 @@ function bepgp:Capitalize(word)
     end))
 end
 
+local classSpecStringCache = {}
+function bepgp:ClassSpecString(class,spec,text) -- pass it CLASS
+  local key = class..(spec and "-"..spec or "")..(text and "text" or "")
+  local cached = classSpecStringCache[key]
+  if cached then
+    return cached
+  else
+    if text then
+      local eClass, lClass, hexclass = bepgp:getClassData(class) -- CLASS, class, classColor
+      if spec then
+        cached = string.format("|cff%s%s%s-%s%s|r",hexclass,lClass,bepgp._specmap[class].Icon,spec,bepgp._specmap[class][spec])
+        classSpecStringCache[key] = cached
+      else
+        cached = string.format("|cff%s%s|r",hexclass,lClass,bepgp._specmap[class].Icon)
+        classSpecStringCache[key] = cached
+      end
+    else
+      if spec then
+        cached = string.format("(%s:%s)",bepgp._specmap[class].Icon,bepgp._specmap[class][spec])
+        classSpecStringCache[key] = cached
+      else
+        cached = string.format("(%s)",bepgp._specmap[class].Icon)
+        classSpecStringCache[key] = cached
+      end
+    end
+    if cached then return cached end
+  end
+end
+
 function bepgp:getServerTime()
   local epoch = GetServerTime()
   local d = date("%b-%d",epoch)
@@ -2678,7 +2829,7 @@ function bepgp:getItemData(itemLink) -- itemcolor, itemstring, itemname, itemid
   end
 end
 
---/print tostring(BastionEPGP:itemBinding("item:19727"))
+--/print tostring(BastionLoot:itemBinding("item:19727"))
 -- item:19865,item:19724,item:19872,item:19727,item:19708,item:19802,item:22637
 function bepgp:itemBinding(itemString)
   G:SetHyperlink(itemString)
@@ -3034,6 +3185,26 @@ function bepgp:decay_epgp()
   self:addonMessage(addonMsg,"GUILD")
 end
 
+function bepgp:wipe_epgp()
+  if not IsGuildLeader() then return end
+  local announce = self.db.profile.announce
+  for i = 1, GetNumGuildMembers(true) do
+    local name,_,_,_,class,_,note,officernote,_,_ = GetGuildRosterInfo(i)
+    local ep,gp = self:get_ep(name,officernote), self:get_gp(name,officernote)
+    if (ep and gp) then
+      self:update_epgp(0,bepgp.VARS.basegp,i,name,officernote)
+    end
+  end
+  local msg = L["All EP and GP data has been reset."]
+  self:simpleSay(msg)
+  if not (announce=="OFFICER") then self:adminSay(msg) end
+  local logs = self:GetModule(addonName.."_logs")
+  if logs then
+    logs:addToLog(msg)
+  end
+  self:refreshPRTablets()
+end
+
 function bepgp:get_ep(getname,officernote) -- gets ep by name or note
   if (officernote) then
     local _,_,ep = string.find(officernote,".*{(%d+):%d+}.*")
@@ -3219,6 +3390,10 @@ function bepgp:refreshPRTablets()
   local bids = self:GetModule(addonName.."_bids")
   if bids then
     bids:Refresh()
+  end
+  local browser = self:GetModule(addonName.."_browser")
+  if browser then
+    browser:Refresh()
   end
 end
 

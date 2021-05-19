@@ -1,11 +1,11 @@
 local addonName, prices = ...
 local addon = LibStub("AceAddon-3.0"):NewAddon(prices, addonName)
-local GP = LibStub("LibGearPoints-1.2")
+local GP = LibStub("LibGearPoints-1.2-MRT")
 
 local name_version = "GearPoints-1.2"
 function prices:OnEnable()
-  if BastionEPGP and BastionEPGP.RegisterPriceSystem then
-    BastionEPGP:RegisterPriceSystem(name_version, prices.GetPrice)
+  if BastionLoot and BastionLoot.RegisterPriceSystem then
+    BastionLoot:RegisterPriceSystem(name_version, prices.GetPrice)
   end
 end
 

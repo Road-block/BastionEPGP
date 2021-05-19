@@ -1,14 +1,44 @@
 -- A library to compute Gear Points for items as described in
 -- http://code.google.com/p/epgp/wiki/GearPoints
 
-local MAJOR_VERSION = "LibGearPoints-1.2"
+--[[
+Copyright (c) 2006, 2007, Alkis Evlogimenos
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+	* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+	* Neither the name of Alkis Evlogimenos nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+--]]
+
+-- Modifications by Mizukichan: Removed LibDebug and LibItemUtils dependencies
+
+local MAJOR_VERSION = "LibGearPoints-1.2-MRT"
 local MINOR_VERSION = 10200
 
 local lib, oldMinor = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end
 
-local Debug = LibStub("LibDebug-1.0")
-local ItemUtils = LibStub("LibItemUtils-1.0")
+local function BonusIDs(item)
+  local _, itemLink, _, _, _, _, _, _, _ = GetItemInfo(item)
+  if not itemLink then return end
+
+  local itemString = string.match(itemLink, "item[%-?%d:]+")
+  if not itemString then return nil end
+
+  local bonuses = {}
+    local tbl = { strsplit(":", itemString) }
+    for key, value in pairs(tbl) do
+       if key >= 14 then
+          table.insert(bonuses, tonumber(value))
+        end
+    end
+
+  return bonuses
+end
 
 -- This is the high price equipslot multiplier.
 -- Values adjusted to be proportional to the amount of stats provided by each slot in Legion
@@ -43,8 +73,6 @@ local EQUIPSLOT_MULTIPLIER_1 = {
   INVTYPE_CUSTOM_MULTISLOT_TIER = 0.9,
 }
 
--- Note: The second multiplier is not really used in Legion
-
 -- This is the low price equipslot multiplier (off hand weapons, non
 -- tanking shields).
 local EQUIPSLOT_MULTIPLIER_2 = {
@@ -59,11 +87,6 @@ local EQUIPSLOT_MULTIPLIER_2 = {
 --value indicating heroic/mythic ilvl should be derived from the bonus
 --list rather than the raw ilvl (mainly for T17+ tier gear)
 local CUSTOM_ITEM_DATA = {
-  -- Classic
-  [18423] = { 4, 74, "INVTYPE_NECK" }, -- Head of Onyxia
-  [18646] = { 4, 75, "INVTYPE_2HWEAPON" }, -- The Eye of Divinity
-  [18703] = { 4, 75, "INVTYPE_RANGED" }, -- Ancient Petrified Leaf
-
   -- Tier 4
   [29753] = { 4, 120, "INVTYPE_CHEST" },
   [29754] = { 4, 120, "INVTYPE_CHEST" },
@@ -505,34 +528,34 @@ local CUSTOM_ITEM_DATA = {
   -- Item IDs are identical across difficulties, so specify nil for item level
   -- and specify the tier number instead: the raid difficulty and tier number
   -- will be used to get the item level.
-  [119309] = { 4, 670, "INVTYPE_SHOULDER", true },
-  [119322] = { 4, 670, "INVTYPE_SHOULDER", true },
-  [119314] = { 4, 670, "INVTYPE_SHOULDER", true },
+  [119309] = { 4, 665, "INVTYPE_SHOULDER", true },
+  [119322] = { 4, 665, "INVTYPE_SHOULDER", true },
+  [119314] = { 4, 665, "INVTYPE_SHOULDER", true },
 
-  [119307] = { 4, 670, "INVTYPE_LEGS", true },
-  [119320] = { 4, 670, "INVTYPE_LEGS", true },
-  [119313] = { 4, 670, "INVTYPE_LEGS", true },
+  [119307] = { 4, 665, "INVTYPE_LEGS", true },
+  [119320] = { 4, 665, "INVTYPE_LEGS", true },
+  [119313] = { 4, 665, "INVTYPE_LEGS", true },
 
-  [119308] = { 4, 670, "INVTYPE_HEAD", true },
-  [119321] = { 4, 670, "INVTYPE_HEAD", true },
-  [119312] = { 4, 670, "INVTYPE_HEAD", true },
+  [119308] = { 4, 665, "INVTYPE_HEAD", true },
+  [119321] = { 4, 665, "INVTYPE_HEAD", true },
+  [119312] = { 4, 665, "INVTYPE_HEAD", true },
 
-  [119306] = { 4, 670, "INVTYPE_HAND", true },
-  [119319] = { 4, 670, "INVTYPE_HAND", true },
-  [119311] = { 4, 670, "INVTYPE_HAND", true },
+  [119306] = { 4, 665, "INVTYPE_HAND", true },
+  [119319] = { 4, 665, "INVTYPE_HAND", true },
+  [119311] = { 4, 665, "INVTYPE_HAND", true },
 
-  [119305] = { 4, 670, "INVTYPE_CHEST", true },
-  [119318] = { 4, 670, "INVTYPE_CHEST", true },
-  [119315] = { 4, 670, "INVTYPE_CHEST", true },
+  [119305] = { 4, 665, "INVTYPE_CHEST", true },
+  [119318] = { 4, 665, "INVTYPE_CHEST", true },
+  [119315] = { 4, 665, "INVTYPE_CHEST", true },
 
   -- T17 essences
-  [119310] = { 4, 670, "INVTYPE_HEAD", true },
-  [120277] = { 4, 670, "INVTYPE_HEAD", true },
-  [119323] = { 4, 670, "INVTYPE_HEAD", true },
-  [120279] = { 4, 670, "INVTYPE_HEAD", true },
-  [119316] = { 4, 670, "INVTYPE_HEAD", true },
-  [120278] = { 4, 670, "INVTYPE_HEAD", true },
-  
+  [119310] = { 4, 665, "INVTYPE_HEAD", true },
+  [120277] = { 4, 665, "INVTYPE_HEAD", true },
+  [119323] = { 4, 665, "INVTYPE_HEAD", true },
+  [120279] = { 4, 665, "INVTYPE_HEAD", true },
+  [119316] = { 4, 665, "INVTYPE_HEAD", true },
+  [120278] = { 4, 665, "INVTYPE_HEAD", true },
+
   -- T18
   [127957] = { 4, 695, "INVTYPE_SHOULDER", true },
   [127967] = { 4, 695, "INVTYPE_SHOULDER", true },
@@ -608,47 +631,21 @@ local CUSTOM_ITEM_DATA = {
   [147332] = { 4, 900, "INVTYPE_CLOAK", true },
   [147331] = { 4, 900, "INVTYPE_CLOAK", true },
   [147333] = { 4, 900, "INVTYPE_CLOAK", true },
-
-  -- T21 tokens
-  [152515] = { 4, 930, "INVTYPE_CLOAK", true },
-  [152516] = { 4, 930, "INVTYPE_CLOAK", true },
-  [152517] = { 4, 930, "INVTYPE_CLOAK", true },
-
-  [152518] = { 4, 930, "INVTYPE_CHEST", true },
-  [152519] = { 4, 930, "INVTYPE_CHEST", true },
-  [152520] = { 4, 930, "INVTYPE_CHEST", true },
-
-  [152521] = { 4, 930, "INVTYPE_HAND", true },
-  [152522] = { 4, 930, "INVTYPE_HAND", true },
-  [152523] = { 4, 930, "INVTYPE_HAND", true },
-
-  [152524] = { 4, 930, "INVTYPE_HEAD", true },
-  [152525] = { 4, 930, "INVTYPE_HEAD", true },
-  [152526] = { 4, 930, "INVTYPE_HEAD", true },
-
-  [152527] = { 4, 930, "INVTYPE_LEGS", true },
-  [152528] = { 4, 930, "INVTYPE_LEGS", true },
-  [152529] = { 4, 930, "INVTYPE_LEGS", true },
-
-  [152530] = { 4, 930, "INVTYPE_SHOULDER", true },
-  [152531] = { 4, 930, "INVTYPE_SHOULDER", true },
-  [152532] = { 4, 930, "INVTYPE_SHOULDER", true },
 }
 
 -- Used to add extra GP if the item contains bonus stats
--- generally considered chargeable. Sockets are very
--- valuable in early BFA.
+-- generally considered chargeable.
 local ITEM_BONUS_GP = {
-  [40]  = 50,  -- avoidance
-  [41]  = 50,  -- leech
-  [42]  = 50,  -- speed
+  [40]  = 0,  -- avoidance, no material value
+  [41]  = 0,  -- leech, no material value
+  [42]  = 25,  -- speed, arguably useful, so 25 gp
   [43]  = 0,  -- indestructible, no material value
-  [523] = 300, -- extra socket
-  [563] = 300, -- extra socket
-  [564] = 300, -- extra socket
-  [565] = 300, -- extra socket
-  [572] = 300, -- extra socket
-  [1808] = 300, -- extra socket
+  [523] = 200, -- extra socket
+  [563] = 200, -- extra socket
+  [564] = 200, -- extra socket
+  [565] = 200, -- extra socket
+  [572] = 200, -- extra socket
+  [1808] = 200, -- extra socket
 }
 
 -- The default quality threshold:
@@ -666,14 +663,13 @@ local recent_items_map = {}
 
 local relicSubClass
 local function GetRelicSubClassString()
-	if not relicSubClass then		-- If not cached obtain 
+	if not relicSubClass then		-- If not cached obtain
 		local _, itemLink, rarity, level, _, itemClass, itemSubClass, _, equipLoc = GetItemInfo(140819)		-- ID of some relic
 		relicSubClass = itemSubClass
 	end
 
 	return relicSubClass
 end
-
 
 -- Given a list of item bonuses, return the ilvl delta it represents
 -- (15 for Heroic, 30 for Mythic)
@@ -726,7 +722,7 @@ end
 function lib:GetValue(item)
   if not item then return end
 
-  local _, itemLink, rarity, level, _, itemClass, itemSubClass, _, equipLoc = GetItemInfo(item)
+  local _, itemLink, rarity, level, _, _, _, _, equipLoc = GetItemInfo(item)
   if not itemLink then return end
 
   -- Get the item ID to check against known token IDs
@@ -740,13 +736,12 @@ function lib:GetValue(item)
   -- Check if item is relevant.  Item is automatically relevant if it
   -- is in CUSTOM_ITEM_DATA (as of 6.0, can no longer rely on ilvl alone
   -- for these).
-  -- if level < 339 and not CUSTOM_ITEM_DATA[itemID] then
-  --   Debug("%s is not relevant.", itemLink)
+  -- if level < 463 and not CUSTOM_ITEM_DATA[itemID] then
   --   return nil, nil, level, rarity, equipLoc
   -- end
 
   -- Get the bonuses for the item to check against known bonuses
-  local itemBonuses = ItemUtils:BonusIDs(itemLink)
+  local itemBonuses = BonusIDs(itemLink)
 
   -- Check to see if there is custom data for this item ID
   if CUSTOM_ITEM_DATA[itemID] then
@@ -762,7 +757,6 @@ function lib:GetValue(item)
 
   -- Is the item above our minimum threshold?
   if not rarity or rarity < quality_threshold then
-    Debug("%s is below rarity threshold.", itemLink)
     return nil, nil, level, rarity, equipLoc
   end
 
@@ -791,12 +785,14 @@ function lib:GetValue(item)
   -- 1000gp.  In 4.2 and higher, we renormalize to make ilvl 378
   -- chests cost 1000.  Repeat ad infinitum!
   local standard_ilvl
-  local ilvl_denominator = 26 -- how much ilevel difference from standard affects cost, higher values mean less effect
+  local ilvl_denominator = 26
   local version = select(4, GetBuildInfo())
   local level_cap = MAX_PLAYER_LEVEL_TABLE[GetExpansionLevel()]
   if version < 20200 then
     standard_ilvl = 66
     ilvl_denominator = 10
+  elseif version < 30200 then
+    standard_ilvl = 133
   elseif version < 40200 then
     standard_ilvl = 359
   elseif version < 40300 then
@@ -811,26 +807,15 @@ function lib:GetValue(item)
     standard_ilvl = 680
     ilvl_denominator = 30
   elseif version < 70000 then
-    standard_ilvl = 710 -- HFC HC
-    ilvl_denominator = 30
-  elseif version < 70200 then
-    standard_ilvl = 890 -- The Nighthold HC
-    ilvl_denominator = 30
-  elseif version < 70300 then
-    standard_ilvl = 915 -- Tomb of Sargeras HC
-    ilvl_denominator = 30
-  elseif version < 80000 then
-    standard_ilvl = 945 -- Antorus, the Burning Throne HC
+    standard_ilvl = 710
     ilvl_denominator = 30
   else
-    standard_ilvl = 370 -- Uldir
-    ilvl_denominator = 32
+    standard_ilvl = 915		-- Tomb of Sageras HC
+    ilvl_denominator = 30
   end
   local multiplier = 1000 * 2 ^ (-standard_ilvl / ilvl_denominator)
   local gp_base = multiplier * 2 ^ (level/ilvl_denominator)
   local high = math.floor(0.5 + gp_base * slot_multiplier1) + extra_gp
   local low = slot_multiplier2 and math.floor(0.5 + gp_base * slot_multiplier2) + extra_gp or nil
-  Debug("%s:%d, %d, %d, %s, %s", itemLink, high, low or 0, level, rarity, equipLoc)
-  Debug("%d, %d, %d",multiplier,gp_base,slot_multiplier1)
   return high, low, level, rarity, equipLoc
 end

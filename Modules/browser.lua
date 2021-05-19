@@ -7,30 +7,20 @@ local C = LibStub("LibCrayon-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local GUI = LibStub("AceGUI-3.0")
 local Item = Item
---/run BastionEPGP:GetModule("BastionEPGP_browser"):Toggle()
+--/run BastionLoot:GetModule("BastionEPGP_browser"):Toggle()
 local data, subdata = { }, { }
 local colorHighlight = {r=0, g=0, b=0, a=.9}
-local GetPrice, progress, pricelist
+local progress, pricelist
 local favorites
 local tiervalues = { }
 local filter = {["_FAV"]=C:Yellow(L["Favorites"])}
 local locsorted = {"_FAV", "INVTYPE_HEAD", "INVTYPE_NECK", "INVTYPE_SHOULDER", "INVTYPE_CHEST", "INVTYPE_ROBE", "INVTYPE_WAIST", "INVTYPE_LEGS", "INVTYPE_FEET", "INVTYPE_WRIST", "INVTYPE_HAND", "INVTYPE_FINGER", "INVTYPE_TRINKET", "INVTYPE_CLOAK", "INVTYPE_WEAPON", "INVTYPE_SHIELD", "INVTYPE_2HWEAPON", "INVTYPE_WEAPONMAINHAND", "INVTYPE_WEAPONOFFHAND", "INVTYPE_HOLDABLE", "INVTYPE_RANGED", "INVTYPE_THROWN", "INVTYPE_RANGEDRIGHT", "INVTYPE_RELIC", "INVTYPE_NON_EQUIP"}
-local progressmap
-if bepgp._expansion == 1 then
-  progressmap = {
-    ["T3"] = {"T3","T2.5","T2","T1.5","T1"},
-    ["T2.5"] = {"T2.5","T2","T1.5","T1"},
-    ["T2"] = {"T2","T1.5","T1"},
-    ["T1"] = {"T1.5","T1"}
-  }
-elseif bepgp._expansion == 2 then
-  progressmap = {
+local progressmap = {
     ["T6.5"] = {"T6.5","T6","T5","T4"},
     ["T6"] = {"T6", "T5", "T4"},
     ["T5"] = {"T5", "T4"},
     ["T4"] = {"T4"}
   }
-end
 local questionblue = CreateAtlasMarkup("QuestRepeatableTurnin")
 
 local function st_sorter_numeric(st,rowa,rowb,col)
@@ -45,8 +35,8 @@ local menu_close = function()
 end
 local favorite_options = {
   type = "group",
-  name = L["BastionEPGP options"],
-  desc = L["BastionEPGP options"],
+  name = L["BastionLoot options"],
+  desc = L["BastionLoot options"],
   handler = bepgp_browser,
   args = {
     ["5"] = {
@@ -170,7 +160,7 @@ end
 
 function bepgp_browser:OnEnable()
   local container = GUI:Create("Window")
-  container:SetTitle(L["BastionEPGP browser"])
+  container:SetTitle(L["BastionLoot browser"])
   container:SetWidth(640)
   container:SetHeight(290)
   container:EnableResize(false)
@@ -207,14 +197,7 @@ function bepgp_browser:OnEnable()
   container:AddChild(filterslots)
 
   local filtertier = GUI:Create("Dropdown")
-  local tierlist,tiersort
-  if bepgp._expansion == 1 then
-    tierlist = {["T3"]="T3",["T2.5"]="T2.5",["T2"]="T2",["T1.5"]="T1.5",["T1"]="T1"}
-    tiersort = {"T3","T2.5","T2","T1.5","T1"}
-  elseif bepgp._expansion == 2 then
-    tierlist = {["T6.5"]="T6.5",["T6"]="T6",["T5"]="T5",["T4"]="T4"}
-    tiersort = {"T6.5","T6","T5","T4"}
-  end
+  local tierlist,tiersort = {["T6.5"]="T6.5",["T6"]="T6",["T5"]="T5",["T4"]="T4"}, {"T6.5","T6","T5","T4"}
   filtertier:SetList(tierlist,tiersort)
   filtertier:SetCallback("OnValueChanged", function(obj, event, choice, checked)
     bepgp_browser:Refresh()
@@ -226,12 +209,7 @@ function bepgp_browser:OnEnable()
   container:AddChild(filtertier)
 
   local modpreview = GUI:Create("Dropdown")
-  local modlist
-  if bepgp._expansion == 1 then
-    modlist = {["T3"]="T3",["T2.5"]="T2.5",["T2"]="T2",["T1"]="T1"}
-  elseif bepgp._expansion == 2 then
-    modlist = {["T6.5"]="T6.5",["T6"]="T6",["T5"]="T5",["T4"]="T4"}
-  end
+  local modlist = {["T6.5"]="T6.5",["T6"]="T6",["T5"]="T5",["T4"]="T4"}
   modpreview:SetList(modlist)
   modpreview:SetValue("FAV")
   modpreview:SetCallback("OnValueChanged", function(obj, event, choice)
@@ -295,9 +273,9 @@ function bepgp_browser:RefreshGUI(slotvalue)
     self._browser_table:SortData()
     if slotvalue == "_FAV" then
       local count = bepgp:table_count(subdata)
-      self._container:SetTitle(string.format("%s (%s)",L["BastionEPGP browser"],count))
+      self._container:SetTitle(string.format("%s (%s)",L["BastionLoot browser"],count))
     else
-      self._container:SetTitle(L["BastionEPGP browser"])
+      self._container:SetTitle(L["BastionLoot browser"])
     end
   end
 end
@@ -312,7 +290,7 @@ function bepgp_browser:Refresh()
   table.wipe(subdata)
   if slotvalue == "_FAV" then
     for id, rank in pairs(favorites) do
-      local price, tier = GetPrice(bepgp,id,progress),pricelist[id][2]
+      local price, tier = (bepgp:GetPrice(id,progress)),pricelist[id][2]
       local favrank = favmap[rank]
       local name,link,_,_,_,_,subtype = GetItemInfo(id)
       if (link) then
@@ -330,7 +308,7 @@ function bepgp_browser:Refresh()
   else
     for _, info in pairs(data[slotvalue]) do
       local id,price,tier = info[1],info[2],info[3]
-      price = GetPrice(bepgp,id,progress)
+      price = bepgp:GetPrice(id,progress)
       if tiervalues[tier] then
         local rank = favorites[id]
         local favrank = rank and favmap[rank] or ""
@@ -354,23 +332,15 @@ end
 
 function bepgp_browser:CoreInit()
   if not self._initDone then
-    GetPrice = bepgp.GetPrice
     progress = bepgp.db.profile.progress
     favorites = bepgp.db.char.favorites
-    if bepgp._expansion == 1 then
-      local bepgp_prices = bepgp:GetModule(addonName.."_prices")
-      if bepgp_prices and bepgp_prices._prices then
-        pricelist = bepgp_prices._prices
-      end
-    elseif bepgp._expansion == 2 then
-      local bepgp_prices_bc = bepgp:GetModule(addonName.."_prices_bc")
-      if bepgp_prices_bc and bepgp_prices_bc._prices then
-        pricelist = bepgp_prices_bc._prices
-      end
+    local bepgp_prices_bc = bepgp:GetModule(addonName.."_prices_bc")
+    if bepgp_prices_bc and bepgp_prices_bc._prices then
+      pricelist = bepgp_prices_bc._prices
     end
     for id,info in pairs(pricelist) do
       local itemID, itemType, itemSubType, itemEquipLoc, icon, itemClassID, itemSubClassID = GetItemInfoInstant(id)
-      local price = GetPrice(bepgp,id,progress)
+      local price = bepgp:GetPrice(id,progress)
       local tier = info[2]
       local equipLocDesc
       if itemEquipLoc and itemEquipLoc ~= "" then

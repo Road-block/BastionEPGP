@@ -10,10 +10,10 @@ local roster, data = { }, { }
 local colorHighlight = {r=0, g=0, b=0, a=.9}
 local colorSilver = {r=199/255, g=199/255, b=207/255, a=1.0}
 
---/run BastionEPGP:GetModule("BastionEPGP_roster"):Toggle()
+--/run BastionLoot:GetModule("BastionEPGP_roster"):Toggle()
 function bepgp_roster:OnEnable()
   local container = GUI:Create("Window")
-  container:SetTitle(L["BastionEPGP raid roster"])
+  container:SetTitle(L["BastionLoot raid roster"])
   container:SetWidth(405)
   container:SetHeight(320)
   container:EnableResize(false)

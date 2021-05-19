@@ -20,16 +20,16 @@ if not L then return end
   L["Minimum EP"] = true
   L["Set Minimum EP"] = true
   -- bids
-  L["BastionEPGP bids"] = true
+  L["BastionLoot bids"] = true
   L["Winning Mainspec Bid: %s (%.03f PR)"] = true
   L["Winning Offspec Bid: %s (%.03f PR)"] = true
   -- logs
-  L["BastionEPGP logs"] = true
+  L["BastionLoot logs"] = true
   L["Clear Logs."] = true
   L["Time"] = true
   L["Action"] = true
   -- loot
-  L["BastionEPGP loot info"] = true
+  L["BastionLoot loot info"] = true
   L["Clear Loot"] = true
   L["Export Loot"] = true
   L["Item"] = true
@@ -39,7 +39,7 @@ if not L then return end
   -- migrations
   L["Updated %d members to v3 storage."] = true
   -- standby
-  L["BastionEPGP standby"] = true
+  L["BastionLoot standby"] = true
   L["Countdown"] = true
   L["Rank"] = true
   L["OnAlt"] = true
@@ -49,7 +49,7 @@ if not L then return end
   L["Imported %d members."] = true
   L["Imported %d members.\n"] = true
   L["%s\nFailed to import:"] = true
-  L["BastionEPGP standings"] = true
+  L["BastionLoot standings"] = true
   L["Group by class"] = true
   L["Group members by class."] = true
   L["Export"] = true
@@ -78,7 +78,7 @@ Results will print here when done.]]
   L["HEALER"] = true
   L["CASTER"] = true
   L["PHYS DPS"] = true
-  -- BastionEPGP
+  -- BastionLoot
   L["{BEPGP}Type \"+\" if on main, or \"+<YourMainName>\" (without quotes) if on alt within %dsec."] = true
   L["|cffFF3333|Hbepgpbid:1:$ML|h[Mainspec/NEED]|h|r"] = true
   L["|cff009900|Hbepgpbid:2:$ML|h[Offspec/GREED]|h|r"] = true
@@ -92,7 +92,7 @@ Results will print here when done.]]
   L["Standings"] = true
   L["Show Standings Table."] = true
   L["Restart"] = true
-  L["Restart BastionEPGP if having startup problems."] = true
+  L["Restart BastionLoot if having startup problems."] = true
   L["v%s Loaded."] = true
   L["Alt Click/RClick/MClick"] = true
   L["Call for: MS/OS/Both"] = true
@@ -139,7 +139,7 @@ Results will print here when done.]]
   L["|cffff7f00Click|r to toggle Standings."] = true
   L["Account EPs to %s."] = true
   L["Account GPs to %s."] = true
-  L["BastionEPGP options"] = true
+  L["BastionLoot options"] = true
   L["+EPs to Member"] = true
   L["Account EPs for member."] = true
   L["+EPs to Raid"] = true
@@ -196,7 +196,7 @@ Results will print here when done.]]
   L["GP Actions"] = true
   L["Remind me Later"] = true
   L["Need MasterLooter to perform Bid Calls!"] = true
-  L["BastionEPGP alts"] = true
+  L["BastionLoot alts"] = true
   L["Enable Alts"] = true
   L["Main"] = true
   L["Alt"] = true
@@ -239,7 +239,7 @@ Results will print here when done.]]
   L["Select Price Scheme"] = true
   L["Select From Registered Price Systems"] = true
   L["%s is offline. Getting info from guild cache."] = true
-  L["BastionEPGP will be saving to file in `\\WTF\\Account\\<ACCOUNT>\\SavedVariables\\BastionEPGP_Export.lua`"] = true
+  L["BastionLoot will be saving to file in `\\WTF\\Account\\<ACCOUNT>\\SavedVariables\\BastionEPGP_Export.lua`"] = true
   L["Started Standby AFKCheck for 1min."] = true
   L["Standby AFKCheck finished."] = true
   L["Price system set to: %q %s"] = true
@@ -260,7 +260,7 @@ Results will print here when done.]]
   L["Random"] = true
   L["Banker"] = true
   L["Disenchanter"] = true
-  L["BastionEPGP browser"] = true
+  L["BastionLoot browser"] = true
   L["Item Type"] = true
   L["Item Pool"] = true
   L["Favorites"] = true
@@ -295,7 +295,7 @@ Results will print here when done.]]
   L["Mode of Operation"] = true
   L["Select mode of operation."] = true
   L["Mode set to %s."] = true
-  L["BastionEPGP reserves"] = true
+  L["BastionLoot reserves"] = true
   L["Export Reserves"] = true
   L["Locked"] = true
   L["Unlocked"] = true
@@ -334,7 +334,7 @@ Results will print here when done.]]
   L["Clear Wincount"] = true
   L["Wincount Cleared."] = true
   L["|cffff7f00Shift+Click|r to toggle Reserves."] = true
-  L["BastionEPGP bids [roll]"] = true
+  L["BastionLoot bids [roll]"] = true
   L["|cffff7f00Ctrl+Click|r to toggle Bids."] = true
   L.STANDINGS_OVERLAY = [[
 Your current guild rank does not show EPGP standings.
@@ -343,7 +343,7 @@ You can whisper |cffffd200!PR|r to any higher rank guild member to get back EPGP
   L["{bepgp}%s has: %d EP %d GP %.03f PR."] = true
   L["{bepgp}You have: %d EP %d GP %.03f PR"] = true
   L["|cffff7f00Ctrl+Shift+Click|r to toggle Wincount."] = true
-  L["BastionEPGP wincount"] = true
+  L["BastionLoot wincount"] = true
   L["RaidID %s"] = true
   L["Announce"] = true
   L["Alt Click"] = true
@@ -360,7 +360,7 @@ You can whisper |cffffd200!PR|r to any higher rank guild member to get back EPGP
   L["Weekly Decay: %s%%"] = true
   L["Skipping %s. Main %q is also in the raid."] = true
   L["Import Standings"] = true
-  L["BastionEPGP raid roster"] = true
+  L["BastionLoot raid roster"] = true
   L["Export Raid Roster"] = true
   L["Hide Rolls"] = true
   L["Hide other player rolls from the chatframe"] = true
@@ -377,10 +377,13 @@ You can whisper |cffffd200!PR|r to any higher rank guild member to get back EPGP
   L["Call"] = true
   L["Favorite Alert"] = true
   L["Alert presence of Favorite Link or Loot"] = true
-  L["BastionEPGP Favorite: %s"] = true
+  L["BastionLoot Favorite: %s"] = true
   L["4.Sunwell Plateau"] = true
   L["3.Black Temple, Hyjal"] = true
   L["2.Serpentshrine Cavern, The Eye"] = true
   L["1.Karazhan, Magtheridon, Gruul, World Bosses"] = true
+  L["All EP and GP data has been reset."] = true
+  L["|cffff0000Are you sure you want to wipe all EPGP data?|r"] = true
+  L["Useful for"] = true
 
 bepgp.L = L

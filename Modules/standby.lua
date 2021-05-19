@@ -111,7 +111,7 @@ function bepgp_standby:channelChange(event, text, playerName, _, _, _, _, _, cha
     end
   end
 end
--- /run BastionEPGP:GetModule("BastionEPGP_standby"):sendStandbyCheck()
+-- /run BastionLoot:GetModule("BastionEPGP_standby"):sendStandbyCheck()
 function bepgp_standby:sendStandbyCheck()
   if not (self._standbyID and self._standbyID > 0) then return end
   if bepgp:GroupStatus() == "RAID" and bepgp:admin() then
@@ -229,7 +229,7 @@ function bepgp_standby:Refresh()
   frame:SetMovable(true)
   local line
   line = frame:AddHeader()
-  frame:SetCell(line,1,L["BastionEPGP standby"],nil,"CENTER",2)
+  frame:SetCell(line,1,L["BastionLoot standby"],nil,"CENTER",2)
   --frame:SetCell(line,3,C:Red("[x]"),nil,"RIGHT")
   frame:SetCell(line,3,"|TInterface\\Buttons\\UI-Panel-MinimizeButton-Up:16:16:2:-2:32:32:8:24:8:24|t",nil,"RIGHT")
   frame:SetCellScript(line,3,"OnMouseUp", function() frame:Hide() end)

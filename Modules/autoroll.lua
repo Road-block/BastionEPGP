@@ -265,7 +265,9 @@ function bepgp_autoroll:injectOptions()
   bepgp._options.args.autoroll = options
   bepgp._options.args.autoroll.guiHidden = true
   bepgp._options.args.autoroll.cmdHidden = true
-  ACD:AddToBlizOptions(addonName, "Autoroll", addonName, "autoroll")
+  bepgp.blizzoptions.autoroll = ACD:AddToBlizOptions(addonName, "Autoroll", addonName, "autoroll")
+  bepgp.blizzoptions.autoroll:SetParent(InterfaceOptionsFramePanelContainer)
+  tinsert(InterfaceOptionsFrame.categoryList, bepgp.blizzoptions.autoroll)
 end
 
 function bepgp_autoroll:delayInit()

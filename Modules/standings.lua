@@ -87,7 +87,7 @@ end
 
 function bepgp_standings:OnEnable()
   local container = GUI:Create("Window")
-  container:SetTitle(L["BastionEPGP standings"])
+  container:SetTitle(L["BastionLoot standings"])
   container:SetWidth(430)
   container:SetHeight(290)
   container:EnableResize(false)

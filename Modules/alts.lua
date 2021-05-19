@@ -11,7 +11,7 @@ local colorHighlight = {r=0, g=0, b=0, a=.9}
 
 function bepgp_alts:OnEnable()
   local container = GUI:Create("Window")
-  container:SetTitle(L["BastionEPGP alts"])
+  container:SetTitle(L["BastionLoot alts"])
   container:SetWidth(455)
   container:SetHeight(290)
   container:EnableResize(false)

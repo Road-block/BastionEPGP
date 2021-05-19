@@ -37,7 +37,7 @@ local slotMap = {
 }
 local itemID = GetInventoryItemID("player",slotID)
 ]]
---/run BastionEPGP:GetModule("BastionEPGP_bids"):bidPrint("\124cff0070dd\124Hitem:19915:0:0:0:0:0:0:0:0\124h[Zulian Defender]\124h\124r","Tankßoy",true,true)
+--/run BastionLoot:GetModule("BastionEPGP_bids"):bidPrint("\124cff0070dd\124Hitem:19915:0:0:0:0:0:0:0:0\124h[Zulian Defender]\124h\124r","Tankßoy",true,true)
 bepgp_bids.bids_main,bepgp_bids.bids_off,bepgp_bids.bid_item = {},{},{}
 local bids_blacklist = {}
 local bidlink = {
@@ -123,7 +123,7 @@ function bepgp_bids:Refresh()
   local minep = bepgp.db.profile.minep
   local line
   line = frame:AddHeader()
-  frame:SetCell(line,1,L["BastionEPGP bids"],nil,"CENTER",5)
+  frame:SetCell(line,1,L["BastionLoot bids"],nil,"CENTER",5)
   --frame:SetCell(line,5,C:Red("[x]"),nil,"RIGHT")
   frame:SetCell(line,6,"|TInterface\\Buttons\\UI-Panel-MinimizeButton-Up:16:16:2:-2:32:32:8:24:8:24|t",nil,"RIGHT")
   frame:SetCellScript(line,6,"OnMouseUp", function() frame:Hide() end)
@@ -345,7 +345,7 @@ function bepgp_bids:captureLootCall(event, text, sender)
         self:bidPrint(itemLink,sender,mskw_found,oskw_found,whisperkw_found)
         if bepgp.db.char.favalert then
           if bepgp.db.char.favorites[itemID] then
-            bepgp:Alert(string.format(L["BastionEPGP Favorite: %s"],itemLink))
+            bepgp:Alert(string.format(L["BastionLoot Favorite: %s"],itemLink))
           end
         end
       end

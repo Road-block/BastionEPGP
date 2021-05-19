@@ -42,8 +42,8 @@ local menu_close = function()
 end
 local assign_options = {
   type = "group",
-  name = L["BastionEPGP options"],
-  desc = L["BastionEPGP options"],
+  name = L["BastionLoot options"],
+  desc = L["BastionLoot options"],
   handler = bepgp_loot,
   args = {
     ["bankde"] = {
@@ -92,7 +92,7 @@ end
 
 function bepgp_loot:OnEnable()
   local container = GUI:Create("Window")
-  container:SetTitle(L["BastionEPGP loot info"])
+  container:SetTitle(L["BastionLoot loot info"])
   container:SetWidth(555)
   container:SetHeight(320)
   container:EnableResize(false)
@@ -199,10 +199,10 @@ function bepgp_loot:GiveMasterLoot(slot, index)
   end
 end
 
--- /run BastionEPGP:GetModule("BastionEPGP_loot"):captureLoot("You receive loot: \124cffa335ee\124Hitem:16864:0:0:0:0:0:0:0:0\124h[Belt of Might]\124h\124r.")
--- /run BastionEPGP:GetModule("BastionEPGP_loot"):captureLoot("Jerv receives loot: \124cffa335ee\124Hitem:16846::::::::60:::::\124h[Giantstalker's Helmet]\124h\124r.")
--- /run BastionEPGP:GetModule("BastionEPGP_loot"):captureLoot("You receive loot: \124cffa335ee\124Hitem:16960::::::::60:::::\124h[Waistband of Wrath]\124h\124r.")
--- /run BastionEPGP:GetModule("BastionEPGP_loot"):captureLoot("You receive loot: \124cffa335ee\124Hitem:16857::::::::60:::::\124h[Lawbringer Bracers]\124h\124r.")
+-- /run BastionLoot:GetModule("BastionEPGP_loot"):captureLoot("You receive loot: \124cffa335ee\124Hitem:16864:0:0:0:0:0:0:0:0\124h[Belt of Might]\124h\124r.")
+-- /run BastionLoot:GetModule("BastionEPGP_loot"):captureLoot("Jerv receives loot: \124cffa335ee\124Hitem:16846::::::::60:::::\124h[Giantstalker's Helmet]\124h\124r.")
+-- /run BastionLoot:GetModule("BastionEPGP_loot"):captureLoot("You receive loot: \124cffa335ee\124Hitem:16960::::::::60:::::\124h[Waistband of Wrath]\124h\124r.")
+-- /run BastionLoot:GetModule("BastionEPGP_loot"):captureLoot("You receive loot: \124cffa335ee\124Hitem:16857::::::::60:::::\124h[Lawbringer Bracers]\124h\124r.")
 function bepgp_loot:captureLoot(message)
   if bepgp.db.char.mode ~= "epgp" then return end
   if not self:raidLootAdmin() then return end
@@ -278,7 +278,7 @@ function bepgp_loot:processLoot(player,itemLink,source)
   end
 end
 
--- /run local _,link = GetItemInfo(16857)local data=BastionEPGP:GetModule("BastionEPGP_loot"):findLootUnassigned(link)print(data[8] or "nodata")
+-- /run local _,link = GetItemInfo(16857)local data=BastionLoot:GetModule("BastionEPGP_loot"):findLootUnassigned(link)print(data[8] or "nodata")
 function bepgp_loot:findLootUnassigned(itemID)
   for i,data in ipairs(bepgp.db.char.loot) do
     if data[loot_indices.item_id] == itemID and data[loot_indices.action] == bepgp.VARS.unassigned then
@@ -505,7 +505,7 @@ function bepgp_loot:bagginsHook()
   end
 end
 
--- /run BastionEPGP:GetModule("BastionEPGP_loot"):clickHandlerBags()
+-- /run BastionLoot:GetModule("BastionEPGP_loot"):clickHandlerBags()
 function bepgp_loot:clickHandlerBags(id)
   if tonumber(id) then -- default bags
     for b = BACKPACK_CONTAINER,NUM_BAG_FRAMES do

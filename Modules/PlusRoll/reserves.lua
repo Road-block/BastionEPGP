@@ -8,7 +8,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local GUI = LibStub("AceGUI-3.0")
 local DF = LibStub("LibDeformat-3.0")
 local Item = Item
---/run BastionEPGP:GetModule("BastionEPGP_plusroll_reserves"):Toggle()
+--/run BastionLoot:GetModule("BastionEPGP_plusroll_reserves"):Toggle()
 local data = { }
 local colorHighlight = {r=0, g=0, b=0, a=.9}
 local colorLocked = {r=1, g=0, b=0, a=.9}
@@ -30,8 +30,8 @@ local menu_close = function()
 end
 local reserve_options = {
   type = "group",
-  name = L["BastionEPGP options"],
-  desc = L["BastionEPGP options"],
+  name = L["BastionLoot options"],
+  desc = L["BastionLoot options"],
   handler = bepgp_plusroll_reserves,
   args = {
     ["lock"] = {
@@ -136,7 +136,7 @@ end
 
 function bepgp_plusroll_reserves:OnEnable()
   local container = GUI:Create("Window")
-  container:SetTitle(L["BastionEPGP reserves"])
+  container:SetTitle(L["BastionLoot reserves"])
   container:SetWidth(580)
   container:SetHeight(365)
   container:EnableResize(false)
@@ -316,7 +316,7 @@ function bepgp_plusroll_reserves:resReply(text,sender)
   end
 end
 
---/run BastionEPGP:GetModule("BastionEPGP_plusroll_reserves"):AddReserve("Jumpshot",19915)
+--/run BastionLoot:GetModule("BastionEPGP_plusroll_reserves"):AddReserve("Jumpshot",19915)
 function bepgp_plusroll_reserves:AddReserve(player,item)
   local found = players[player]
   local locked = bepgp.db.char.reserves.locked
@@ -405,7 +405,7 @@ function bepgp_plusroll_reserves:RefreshGUI()
   if self._reserves_table and self._reserves_table.showing then
     self._reserves_table:SortData()
     local count = bepgp:table_count(data)
-    self._container:SetTitle(string.format("%s (%s)",L["BastionEPGP reserves"],count))
+    self._container:SetTitle(string.format("%s (%s)",L["BastionLoot reserves"],count))
   end
 end
 

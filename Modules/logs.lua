@@ -21,7 +21,7 @@ end
 
 function bepgp_logs:OnEnable()
   local container = GUI:Create("Window")
-  container:SetTitle(L["BastionEPGP logs"])
+  container:SetTitle(L["BastionLoot logs"])
   container:SetWidth(505)
   container:SetHeight(320)
   container:EnableResize(false)

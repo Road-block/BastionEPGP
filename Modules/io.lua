@@ -20,7 +20,7 @@ function bepgp_io:OnEnable()
     if loaded then
       BastionEPGPExport = BastionEPGPExport or {}
       self._fileexport = BastionEPGPExport
-      bepgp:debugPrint(L["BastionEPGP will be saving to file in `\\WTF\\Account\\<ACCOUNT>\\SavedVariables\\BastionEPGP_Export.lua`"])
+      bepgp:debugPrint(L["BastionLoot will be saving to file in `\\WTF\\Account\\<ACCOUNT>\\SavedVariables\\BastionEPGP_Export.lua`"])
     end
   end
 end
@@ -109,7 +109,7 @@ function bepgp_io:Logs()
   self:export("Logs", temp_data, ";")
 end
 
-local url_link = "=HYPERLINK(\"https://classic.wowhead.com/item=%d\";%q)"
+local url_link = "=HYPERLINK(\"https://tbc.wowhead.com/item=%d\";%q)"
 function bepgp_io:Browser(favorites)
   local keys
   self._iobrowser:Clear() -- item,itemtype,itempool,gp
